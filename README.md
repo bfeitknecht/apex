@@ -8,23 +8,31 @@ no client framework.
 `src/` is the web root — the directory the image serves, one-to-one with URLs.
 
 ```
-src/
-├── index.html          shim: redirects to /noscript/
-├── robots.txt          must sit at the root — crawlers only read /robots.txt
-├── noscript/           the no-JS site — the site for the time being
-│   ├── index.html
-│   ├── styles.css      the whole stylesheet, handwritten
-│   └── 404.html        served for every unknown path
-└── assets/             everything served that is not a page
-    ├── favicon.svg     theme-aware, referenced by <link rel="icon">
-    ├── age.txt         age recipient — replace the placeholder
-    ├── pgp.txt         PGP public key — replace the placeholder
-    └── fonts/          Commit Mono woff2 (OFL — license alongside)
+sws.toml             image-only server config: the /cv → /cv.pdf rewrite
+src/                 the web root — one-to-one with URLs
+├── index.html       the no-JS page — the site for the time being
+├── styles.css       the whole stylesheet, handwritten
+├── 404.html         served for every unknown path
+├── cv.pdf           the CV, built from the cv repo (typst compile) — /cv serves it
+├── robots.txt       must sit at the root — crawlers only read /robots.txt
+└── assets/          everything served that is not a page
+    ├── favicon.svg  theme-aware, referenced by <link rel="icon">
+    ├── age.txt      age recipient — replace the placeholder
+    ├── pgp.txt      PGP public key — replace the placeholder
+    └── fonts/       Commit Mono woff2 (OFL — license alongside)
 ```
 
-`/` is a shim: it redirects to `/noscript/`. When the JS version of the site
-lands, `src/index.html` becomes that page and keeps the redirect inside a
-`<noscript>` block.
+Both the current no-JS page and the future JS version answer the same URLs —
+the URL bar never reveals which one is serving. When the JS version lands,
+`src/index.html` becomes its shell and today's markup moves inside a
+`<noscript>` block (`/styles.css` stays the no-JS stylesheet, loaded only from
+inside that block). Until then this page IS the site.
+
+Refresh the CV after editing the cv repo:
+
+```sh
+typst compile ../cv/src/cv.typ src/cv.pdf
+```
 
 ## Develop
 
@@ -33,8 +41,8 @@ just dev        # → http://localhost:8080, serves src/ from disk
 ```
 
 `just dev` runs a small Python `http.server` (inline in the justfile) that
-answers unknown paths with `noscript/404.html`, so dev matches the image's 404
-behaviour.
+answers unknown paths with `404.html` and rewrites `/cv` to `cv.pdf`, so dev
+matches the image's 404 and rewrite behaviour.
 
 ## Deploy
 
@@ -59,8 +67,9 @@ Nothing else to do — the infra tree is never touched for site updates.
 
 ## Image
 
-`Dockerfile` copies `src/` into an empty filesystem next to
+`Dockerfile` copies `src/` and `sws.toml` into an empty filesystem next to
 [static-web-server](https://static-web-server.net) (Rust, ~4 MB, no runtime
 dependencies). It listens on 8080, runs as uid 1000, and writes nothing, so the
 Deployment's `readOnlyRootFilesystem` holds. Settings are the `SERVER_*` env
-vars in the Dockerfile.
+vars in the Dockerfile; `sws.toml` only carries the `/cv` rewrite, which has no
+env equivalent.

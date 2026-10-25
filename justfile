@@ -18,9 +18,15 @@ dev:
     if not root.is_dir():
         raise SystemExit(f"no src/ in {pathlib.Path.cwd()} — run just from the repo root")
 
-    not_found = root / "noscript" / "404.html"
+    not_found = root / "404.html"
 
     class Handler(http.server.SimpleHTTPRequestHandler):
+        def translate_path(self, path):
+            # Mirror the image's /cv rewrite (sws.toml).
+            if path.split("?", 1)[0] == "/cv":
+                return str(root / "cv.pdf")
+            return super().translate_path(path)
+
         def send_error(self, code, message=None, explain=None):
             if code == 404 and not_found.is_file():
                 body = not_found.read_bytes()

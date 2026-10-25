@@ -1,0 +1,7 @@
+# static-web-server config — only what ENV cannot express.
+# /cv serves the CV PDF without exposing the .pdf extension in the URL bar.
+[advanced]
+
+[[advanced.rewrites]]
+source = "/cv"
+destination = "/cv.pdf"
