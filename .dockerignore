@@ -2,6 +2,5 @@
 .github
 Dockerfile
 .dockerignore
-dev.py
 justfile
 README.md

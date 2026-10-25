@@ -3,7 +3,43 @@ default:
 
 # Serve src/ straight from disk → http://localhost:8080
 dev:
-    python3 dev.py
+    #!/usr/bin/env python3
+    """Dev server for src/.
+
+    Serves the web root straight from disk and answers unknown paths with
+    noscript/404.html and a 404 status, the way the production image does.
+    Plain `python3 -m http.server` would return its own error page instead.
+    """
+    import functools
+    import http.server
+    import pathlib
+
+    root = pathlib.Path("src").resolve()
+    if not root.is_dir():
+        raise SystemExit(f"no src/ in {pathlib.Path.cwd()} — run just from the repo root")
+
+    not_found = root / "noscript" / "404.html"
+
+    class Handler(http.server.SimpleHTTPRequestHandler):
+        def send_error(self, code, message=None, explain=None):
+            if code == 404 and not_found.is_file():
+                body = not_found.read_bytes()
+                self.send_response(404)
+                self.send_header("Content-Type", "text/html; charset=utf-8")
+                self.send_header("Content-Length", str(len(body)))
+                self.end_headers()
+                if self.command != "HEAD":
+                    self.wfile.write(body)
+                return
+            super().send_error(code, message, explain)
+
+    handler = functools.partial(Handler, directory=str(root))
+    with http.server.ThreadingHTTPServer(("", 8080), handler) as httpd:
+        print(f"serving {root} on http://localhost:8080")
+        try:
+            httpd.serve_forever()
+        except KeyboardInterrupt:
+            print("\nstopped")
 
 # Build the production image (same build as CI)
 build:

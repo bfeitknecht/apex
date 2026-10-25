@@ -11,9 +11,9 @@ no client framework.
 src/
 ├── index.html          shim: redirects to /noscript/
 ├── robots.txt          must sit at the root — crawlers only read /robots.txt
-├── noscript/           the no-JS site (simple.css) — the site for the time being
+├── noscript/           the no-JS site — the site for the time being
 │   ├── index.html
-│   ├── styles.css      overrides on top of simple.css
+│   ├── styles.css      the whole stylesheet, handwritten
 │   └── 404.html        served for every unknown path
 └── assets/             everything served that is not a page
     ├── favicon.svg     theme-aware, referenced by <link rel="icon">
@@ -32,8 +32,9 @@ lands, `src/index.html` becomes that page and keeps the redirect inside a
 just dev        # → http://localhost:8080, serves src/ from disk
 ```
 
-`dev.py` is a thin wrapper over Python's `http.server` that answers unknown
-paths with `noscript/404.html`, so dev matches the image's 404 behaviour.
+`just dev` runs a small Python `http.server` (inline in the justfile) that
+answers unknown paths with `noscript/404.html`, so dev matches the image's 404
+behaviour.
 
 ## Deploy
 
