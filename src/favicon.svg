@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <style>
+  .i {
+    fill: none;
+    stroke: #161615;
+    stroke-width: 2.5;
+  }
+  .h {
+    fill: #161615;
+  }
+  @media (prefers-color-scheme: dark) {
+    .i {
+      stroke: #e9e9e6;
+    }
+    .h {
+      fill: #e9e9e6;
+    }
+  }
+  </style>
+  <circle class="i" cx="16" cy="16" r="12.75" />
+  <path class="h" d="M16 3.25 A12.75 12.75 0 0 0 16 28.75 Z" />
+</svg>

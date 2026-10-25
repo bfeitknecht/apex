@@ -1,0 +1,6 @@
+# PGP public key for 0xbf.ch
+# Replace this placeholder with your armored public key.
+
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+placeholder
+-----END PGP PUBLIC KEY BLOCK-----
