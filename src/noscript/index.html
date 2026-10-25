@@ -3,20 +3,167 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>0xbf.ch</title>
+    <title>Basil Feitknecht</title>
+    <meta name="description"
+      content="Basil Feitknecht — BSc Computer Science at ETH Zürich. Programming languages, formal methods, systems.">
     <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
     <link rel="stylesheet" href="/noscript/styles.css">
   </head>
   <body>
     <header>
-      <h1>0xbf.ch</h1>
+      <p class="eyebrow">Grüezi</p>
+      <h1>Basil Feitknecht</h1>
+      <p class="lede">
+        Computer science at ETH Zürich — the BSc now, then the MSc in
+        <em>Secure and Reliable Systems</em>. I care about programming languages
+        and the theory underneath them, and about systems that keep running.
+      </p>
+      <nav class="links" aria-label="Contact">
+        <a href="mailto:bfeitknecht@ethz.ch">email</a>
+        <a href="https://github.com/bfeitknecht" rel="me">github</a>
+        <a href="https://linkedin.com/in/bfeitknecht" rel="me">linkedin</a>
+        <a href="https://orcid.org/0009-0008-5299-0778" rel="me">orcid</a>
+      </nav>
     </header>
+
     <main>
-      <p>Currently under construction. Hang tight!</p>
+      <section id="about">
+        <h2><span class="num">01</span>About</h2>
+        <p>
+          I'm a computer science student in Zürich. Most of what I find
+          interesting sits where languages and logic meet: category theory,
+          formal methods, type systems, functional programming. The rest of the
+          time I'm doing systems work — which is why there's a Kubernetes
+          cluster humming in my flat.
+        </p>
+        <p>
+          I like tools that are small, sharp, and honest about what they do.
+          Rust, Haskell, Go, Zig, Nix. I write my documents in Typst and my
+          shell in Nushell, and I'd rather read a specification than guess.
+        </p>
+        <ul class="tags">
+          <li>category theory</li>
+          <li>formal methods</li>
+          <li>programming languages</li>
+          <li>functional programming</li>
+          <li>systems programming</li>
+        </ul>
+      </section>
+
+      <section id="projects">
+        <h2><span class="num">02</span>Projects</h2>
+        <ul class="entries">
+          <li class="entry">
+            <div class="entry-head">
+              <h3><a href="https://github.com/bfeitknecht/impli">impli</a></h3>
+              <span class="when">2025 – 2026</span>
+            </div>
+            <p>
+              An interpreter for the IMP language in Haskell, with a web
+              frontend compiled to WebAssembly and CI/CD on GitHub Actions.
+            </p>
+          </li>
+          <li class="entry">
+            <div class="entry-head">
+              <h3><a href="https://github.com/bfeitknecht/infra">home infra</a></h3>
+              <span class="when">2026 –</span>
+            </div>
+            <p>
+              A Talos Linux Kubernetes cluster across a Raspberry Pi and an
+              Oracle Cloud node, deployed with Helm and reconciled by Flux.
+              This site runs on it.
+            </p>
+          </li>
+          <li class="entry">
+            <div class="entry-head">
+              <h3><a href="https://sos.ethz.ch/vsos">SOSETH / vsos</a></h3>
+              <span class="when">2024 –</span>
+            </div>
+            <p>
+              Active member of the student-run VSOS team: a Proxmox cluster
+              serving 200+ user VMs, a new blade center, and integrating Switch
+              Edu-ID into the identity system.
+            </p>
+          </li>
+          <li class="entry">
+            <div class="entry-head">
+              <h3><a href="https://github.com/bfeitknecht/ethz-vpn">ethz-vpn</a></h3>
+              <span class="when">2024</span>
+            </div>
+            <p>A small macOS tool for driving the ETHZ VPN from the terminal.</p>
+          </li>
+          <li class="entry">
+            <div class="entry-head">
+              <h3><a href="https://github.com/bfeitknecht/ES-mini-project">ES-mini-project</a></h3>
+              <span class="when">2024</span>
+            </div>
+            <p>Abnormal machine sound detection for embedded systems, in C.</p>
+          </li>
+        </ul>
+      </section>
+
+      <section id="experience">
+        <h2><span class="num">03</span>Experience</h2>
+        <ul class="entries">
+          <li class="entry">
+            <div class="entry-head">
+              <h3>Event Technician</h3>
+              <span class="when">2020 – 2023</span>
+            </div>
+            <p class="where">Verein Kulturzentrum Holästei · Glarus</p>
+            <p>
+              Set up and operated light and sound for live events, kept the
+              equipment alive, and worked with organisers to get the room they
+              asked for.
+            </p>
+          </li>
+          <li class="entry">
+            <div class="entry-head">
+              <h3>Teaching Assistant</h3>
+              <span class="when">2022</span>
+            </div>
+            <p class="where">Heilpädagogisches Zentrum · Niederurnen</p>
+          </li>
+          <li class="entry">
+            <div class="entry-head">
+              <h3>Dialoguer</h3>
+              <span class="when">2023</span>
+            </div>
+            <p class="where">Wesser AG Schweiz</p>
+          </li>
+        </ul>
+      </section>
+
+      <section id="education">
+        <h2><span class="num">04</span>Education</h2>
+        <ul class="entries">
+          <li class="entry">
+            <div class="entry-head">
+              <h3>ETH Zürich</h3>
+              <span class="when">2023 – 2027</span>
+            </div>
+            <p class="where">BSc Computer Science · Zürich</p>
+          </li>
+          <li class="entry">
+            <div class="entry-head">
+              <h3>Kantonsschule Glarus</h3>
+              <span class="when">2015 – 2022</span>
+            </div>
+            <p class="where">Matura, English immersion · Glarus</p>
+          </li>
+        </ul>
+      </section>
     </main>
+
     <footer>
-      <p>0xbf.ch</p>
+      <p>
+        <a href="mailto:bfeitknecht@ethz.ch">bfeitknecht@ethz.ch</a> ·
+        <a href="https://github.com/bfeitknecht">github</a> ·
+        <a href="https://linkedin.com/in/bfeitknecht">linkedin</a>
+      </p>
+      <p class="colophon">
+        Handwritten HTML and CSS. No framework, no JavaScript, no tracking.
+      </p>
     </footer>
   </body>
 </html>
