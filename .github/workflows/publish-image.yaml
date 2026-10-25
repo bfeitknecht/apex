@@ -4,6 +4,9 @@ on:
   push:
     tags:
       - "v*" # Triggers on tags like v1.0.0, v1.0.1, etc.
+  # Manual re-publish of the current HEAD without burning a tag:
+  #   gh workflow run publish-image.yaml
+  workflow_dispatch:
 
 jobs:
   publish:
