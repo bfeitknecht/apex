@@ -9,8 +9,9 @@ COPY --from=sws /usr/local/bin/static-web-server /static-web-server
 COPY src /public
 COPY sws.toml /sws.toml
 
-# sws.toml carries only what ENV cannot express: the /cv rewrite. ENV vars
-# outrank the config file, so the block below still rules everything else.
+# sws.toml carries only what ENV cannot express: the /cv rewrite, 301s for the
+# retired /noscript* paths, and Cache-Control: no-cache. ENV vars outrank the
+# config file, so the block below still rules everything else.
 # SERVER_ERROR_PAGE_404 is relative, so it resolves under SERVER_ROOT.
 # Cache-Control is off on purpose: SWS's default table gives HTML max-age=86400,
 # CSS/JS/fonts max-age=31536000, so a deploy stays invisible until browser cache expires.

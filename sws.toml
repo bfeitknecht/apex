@@ -1,17 +1,32 @@
 # static-web-server config — only what ENV cannot express.
+#
 # /cv serves the CV PDF without exposing the .pdf extension in the URL bar.
-# /noscript* are retired paths (the pre-restructure layout) — serve the hop
-# page, which meta-refreshes to / and heals the URL bar without JavaScript.
+#
+# /noscript* are retired paths (the pre-restructure layout). 301s, not
+# rewrites: the URL bar must heal to /, and the redirect is meant to be cached
+# — the path is gone for good (its content becomes the future JS shell's
+# inline <noscript> payload).
+#
+# Cache-Control: no-cache on everything. no-cache = store but revalidate
+# (Last-Modified → 304), not no-store. Without it the default table (css/fonts
+# max-age=31536000) or plain heuristic caching lets any browser or
+# intercepting proxy keep serving stale HTML after a deploy.
 [advanced]
+
+[[advanced.headers]]
+source = "**"
+headers = { Cache-Control = "no-cache" }
 
 [[advanced.rewrites]]
 source = "/cv"
 destination = "/cv.pdf"
 
-[[advanced.rewrites]]
+[[advanced.redirects]]
 source = "/noscript"
-destination = "/moved.html"
+destination = "/"
+kind = 301
 
-[[advanced.rewrites]]
+[[advanced.redirects]]
 source = "/noscript/"
-destination = "/moved.html"
+destination = "/"
+kind = 301

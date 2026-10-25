@@ -8,7 +8,7 @@ no client framework.
 `src/` is the web root — the directory the image serves, one-to-one with URLs.
 
 ```
-sws.toml             image-only server config: the /cv → /cv.pdf rewrite
+sws.toml             image-only server config: /cv rewrite, /noscript* 301s, no-cache
 src/                 the web root — one-to-one with URLs
 ├── index.html       the no-JS page — the site for the time being
 ├── styles.css       the whole stylesheet, handwritten

@@ -22,12 +22,13 @@ dev:
 
     class Handler(http.server.SimpleHTTPRequestHandler):
         def translate_path(self, path):
-            # Mirror the image's rewrites (sws.toml).
+            # Mirror the image's rewrites (sws.toml). The image 301s retired
+            # /noscript* paths to /; dev serves the target directly.
             p = path.split("?", 1)[0]
             if p == "/cv":
                 return str(root / "cv.pdf")
             if p in ("/noscript", "/noscript/"):
-                return str(root / "moved.html")
+                return str(root / "index.html")
             return super().translate_path(path)
 
         def send_error(self, code, message=None, explain=None):
