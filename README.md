@@ -1,23 +1,39 @@
 # 0xbf.ch
 
-Personal site — [0xbf.ch](https://0xbf.ch). One landing page, monochrome, no
-client framework runtime.
+Personal site — [0xbf.ch](https://0xbf.ch). Static HTML + CSS, no build step,
+no client framework.
 
-## Stack
+## Layout
 
-- **Deno** — server, type-checking, tooling
-- **Preact + htm** — components authored with tagged templates (no TSX),
-  rendered to static HTML on the server
-- **Minimal client JS** — theme toggle + an fx layer (grain, lichen, clock), no framework runtime
-- **Commit Mono** (self-hosted, OFL — license in `static/fonts/`) for mono
-  accents, Helvetica Neue for text
+`src/` is the web root — the directory the image serves, one-to-one with URLs.
+
+```
+src/
+├── index.html          shim: redirects to /noscript/
+├── robots.txt          must sit at the root — crawlers only read /robots.txt
+├── noscript/           the no-JS site (simple.css) — the site for the time being
+│   ├── index.html
+│   ├── styles.css      overrides on top of simple.css
+│   └── 404.html        served for every unknown path
+└── assets/             everything served that is not a page
+    ├── favicon.svg     theme-aware, referenced by <link rel="icon">
+    ├── age.txt         age recipient — replace the placeholder
+    ├── pgp.txt         PGP public key — replace the placeholder
+    └── fonts/          Commit Mono woff2 (OFL — license alongside)
+```
+
+`/` is a shim: it redirects to `/noscript/`. When the JS version of the site
+lands, `src/index.html` becomes that page and keeps the redirect inside a
+`<noscript>` block.
 
 ## Develop
 
 ```sh
-just dev        # → http://localhost:8080, live reload
-just check      # type-check + lint + format check
+just dev        # → http://localhost:8080, serves src/ from disk
 ```
+
+`dev.py` is a thin wrapper over Python's `http.server` that answers unknown
+paths with `noscript/404.html`, so dev matches the image's 404 behaviour.
 
 ## Deploy
 
@@ -27,46 +43,19 @@ re-rolls the pod when the digest changes. This repo's CI
 to GHCR on every `v*` tag:
 
 ```sh
-git tag v1.0.0 && git push --tags
+just release v1.0.0 "feat: noscript site"   # commit, tag, push — CI does the rest
 ```
+
+`just release` takes the tag and the commit message; the message also annotates
+the tag. Either one is prompted for when left out. Everything is staged first,
+so a clean tree just tags `HEAD`. The tag must start with `v` for CI to fire.
 
 Nothing else to do — the infra tree is never touched for site updates.
-(QEMU-emulated `deno compile` for arm64 makes CI take a few minutes; if the repo
-is public, switching the runner to `ubuntu-24.04-arm` and building `linux/arm64`
-only is faster.)
 
-## Layout
+## Image
 
-```
-main.ts                  server bootstrap (port, Deno.serve)
-src/router.ts            route table: pathname → Response
-src/fonts.ts             font files from disk, cache headers
-src/html.ts              the `html` tagged template (htm bound to preact's h)
-src/theme.ts             inline pre-paint + toggle scripts
-src/fx.js                client fx layer: grain, lichen colony, clock, cursor
-                         (plain JS, no build step, respects prefers-reduced-motion)
-src/components/          document, header, hero, section, interests, projects,
-                         footer — each carries its own content, edit in place
-src/pages/               home, not-found — page composition
-src/styles.css           design tokens (colors, fonts, fx) at the top
-src/favicon.svg          embedded, theme-aware via prefers-color-scheme
-src/age.txt              age recipient — replace the placeholder
-src/pgp.txt              PGP public key — replace the placeholder
-src/robots.txt           embedded
-static/fonts/            Commit Mono woff2 (served from disk, cached)
-Dockerfile               deno compile → FROM scratch (binary + fonts + glibc only)
-```
-
-Imports use the `@/` mapping (`deno.json`) which resolves to `src/` — e.g. `import { html } from "@/html.ts"`.
-
-Text assets are imported as Deno text modules, so they are embedded in the
-compiled binary — the production image contains only the binary, the font files,
-tini, and the glibc libraries the binary links against. No shell, no package
-manager, runs as uid 1000 with a read-only root filesystem.
-
-## Theme
-
-Default follows the system preference (`prefers-color-scheme`); the toggle
-stores an explicit `light`/`dark` override in `localStorage`. A pre-paint inline
-script applies the stored value, so there is no flash of the wrong theme.
-Without JS, the system preference still applies.
+`Dockerfile` copies `src/` into an empty filesystem next to
+[static-web-server](https://static-web-server.net) (Rust, ~4 MB, no runtime
+dependencies). It listens on 8080, runs as uid 1000, and writes nothing, so the
+Deployment's `readOnlyRootFilesystem` holds. Settings are the `SERVER_*` env
+vars in the Dockerfile.

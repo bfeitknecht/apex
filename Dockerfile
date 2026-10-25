@@ -1,29 +1,21 @@
-# Build stage: resolve dependencies, type-check, compile to a self-contained
-# binary. Text assets (CSS, favicon, robots, age key) are part of the module
-# graph and end up embedded in the binary.
-FROM denoland/deno:2.9.7 AS build
-WORKDIR /app
-COPY deno.json deno.lock ./
-RUN deno install --frozen
-COPY main.ts ./
-COPY src ./src
-COPY static ./static
-RUN deno check main.ts
-RUN deno compile --frozen --allow-env --allow-net --allow-read=/app -o server main.ts
-
-# Collect the shared libraries the binary links against (glibc + loader), so
-# the runtime stage can be an empty filesystem. Works on any target arch.
-RUN mkdir /out && ldd /app/server | grep -oE '/[^ ]+' | sort -u | xargs -I{} install -D {} /out{}
+# The site is plain HTML + CSS under src/ — there is no build step. This image
+# only wraps a static file server around it: static-web-server (Rust, ~4 MB,
+# musl-static, no runtime dependencies) copied into an empty filesystem.
+FROM joseluisq/static-web-server:2.44.1-alpine AS sws
 
 FROM scratch
 
-# tini for correct signal handling / reaping as PID 1.
-COPY --from=build /tini /tini
-COPY --from=build /out/ /
-COPY --from=build /app/server /server
-COPY --from=build /app/static /app/static
+COPY --from=sws /usr/local/bin/static-web-server /static-web-server
+COPY src /public
 
-WORKDIR /app
+# SERVER_ERROR_PAGE_404 is relative, so it resolves under SERVER_ROOT.
+ENV SERVER_HOST=0.0.0.0 \
+    SERVER_PORT=8080 \
+    SERVER_ROOT=/public \
+    SERVER_ERROR_PAGE_404=./noscript/404.html \
+    SERVER_LOG_LEVEL=info
+
+# Nothing is ever written: the Deployment's readOnlyRootFilesystem holds.
 USER 1000:1000
 EXPOSE 8080
-ENTRYPOINT ["/tini", "--", "/server"]
+ENTRYPOINT ["/static-web-server"]

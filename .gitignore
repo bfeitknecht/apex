@@ -1,3 +1,5 @@
 /.tmp-*
 /node_modules
+__pycache__/
 .private/
+.DS_Store
