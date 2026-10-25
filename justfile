@@ -22,9 +22,12 @@ dev:
 
     class Handler(http.server.SimpleHTTPRequestHandler):
         def translate_path(self, path):
-            # Mirror the image's /cv rewrite (sws.toml).
-            if path.split("?", 1)[0] == "/cv":
+            # Mirror the image's rewrites (sws.toml).
+            p = path.split("?", 1)[0]
+            if p == "/cv":
                 return str(root / "cv.pdf")
+            if p in ("/noscript", "/noscript/"):
+                return str(root / "moved.html")
             return super().translate_path(path)
 
         def send_error(self, code, message=None, explain=None):

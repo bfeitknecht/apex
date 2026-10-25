@@ -1,7 +1,17 @@
 # static-web-server config — only what ENV cannot express.
 # /cv serves the CV PDF without exposing the .pdf extension in the URL bar.
+# /noscript* are retired paths (the pre-restructure layout) — serve the hop
+# page, which meta-refreshes to / and heals the URL bar without JavaScript.
 [advanced]
 
 [[advanced.rewrites]]
 source = "/cv"
 destination = "/cv.pdf"
+
+[[advanced.rewrites]]
+source = "/noscript"
+destination = "/moved.html"
+
+[[advanced.rewrites]]
+source = "/noscript/"
+destination = "/moved.html"

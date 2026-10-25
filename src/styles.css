@@ -23,14 +23,15 @@
 /* ── Tokens ───────────────────────────────────────────────────────────── */
 
 :root {
-  color-scheme: light dark;
+  /* Dark listed first: users with no expressed preference get dark. */
+  color-scheme: dark light;
 
-  /* Fallback for engines without light-dark() — light first, dark below. */
-  --bg: #fbfbf9;
-  --fg: #161615;
-  --muted: #6f6f68;
-  --line: #e2e2dc;
-  --accent: oklch(0.52 0.15 255);
+  /* Fallback for engines without light-dark() — dark first, light below. */
+  --bg: #161615;
+  --fg: #e9e9e6;
+  --muted: #8f8f88;
+  --line: #2c2c29;
+  --accent: oklch(0.78 0.12 255);
 
   --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
     "Helvetica Neue", Arial, sans-serif;
@@ -48,13 +49,13 @@
   --step-3: clamp(2.20rem, 1.70rem + 2.40vw, 3.40rem);
 }
 
-@media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: light) {
   :root {
-    --bg: #161615;
-    --fg: #e9e9e6;
-    --muted: #8f8f88;
-    --line: #2c2c29;
-    --accent: oklch(0.78 0.12 255);
+    --bg: #fbfbf9;
+    --fg: #161615;
+    --muted: #6f6f68;
+    --line: #e2e2dc;
+    --accent: oklch(0.52 0.15 255);
   }
 }
 
