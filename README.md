@@ -38,9 +38,7 @@ paths with `noscript/404.html`, so dev matches the image's 404 behaviour.
 ## Deploy
 
 The cluster (Talos/Kubernetes, Keel) pulls `ghcr.io/bfeitknecht/apex:latest` and
-re-rolls the pod when the digest changes. This repo's CI
-(`.github/workflows/publish-image.yaml`) builds a multi-arch image and pushes it
-to GHCR on every `v*` tag:
+re-rolls the pod when the digest changes:
 
 ```sh
 just release v1.0.0 "feat: noscript site"   # commit, tag, push — CI does the rest
@@ -49,6 +47,12 @@ just release v1.0.0 "feat: noscript site"   # commit, tag, push — CI does the 
 `just release` takes the tag and the commit message; the message also annotates
 the tag. Either one is prompted for when left out. Everything is staged first,
 so a clean tree just tags `HEAD`. The tag must start with `v` for CI to fire.
+
+The build+push logic is not in this repo. `.github/workflows/publish-image.yaml`
+is an 11-line caller for the reusable workflow in the infra repo
+(`bfeitknecht/infra/.github/workflows/publish-image.yaml`), which derives the
+image name from this repository and pushes a multi-arch build to GHCR. Fix the
+build once there and every tier-2 app gets it.
 
 Nothing else to do — the infra tree is never touched for site updates.
 

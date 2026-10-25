@@ -9,10 +9,14 @@ COPY --from=sws /usr/local/bin/static-web-server /static-web-server
 COPY src /public
 
 # SERVER_ERROR_PAGE_404 is relative, so it resolves under SERVER_ROOT.
+# Cache-Control is off on purpose: SWS's default table gives HTML max-age=86400,
+# CSS/JS/fonts max-age=31536000, so a deploy stays invisible until browser cache expires.
+# Off, SWS's Last-Modified + 304 revalidation takes over.
 ENV SERVER_HOST=0.0.0.0 \
     SERVER_PORT=8080 \
     SERVER_ROOT=/public \
     SERVER_ERROR_PAGE_404=./noscript/404.html \
+    SERVER_CACHE_CONTROL_HEADERS=false \
     SERVER_LOG_LEVEL=info
 
 # Nothing is ever written: the Deployment's readOnlyRootFilesystem holds.
