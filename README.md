@@ -8,25 +8,32 @@ no client framework.
 `src/` is the web root — the directory the image serves, one-to-one with URLs.
 
 ```
+favicon.typ          typst source of assets/favicon.svg — kept at the root, not served
 sws.toml             image-only server config: /cv rewrite, /noscript* 301s, no-cache
 src/                 the web root — one-to-one with URLs
-├── index.html       the no-JS page — the site for the time being
+├── index.html       the whole site: about, projects, experience, education, contact
+├── contact/         /contact/ — the share-URL: email, socials, keys
+├── age.txt          /age.txt — age recipient, plaintext
+├── pgp.txt          /pgp.txt — PGP public key, plaintext
 ├── styles.css       the whole stylesheet, handwritten
 ├── 404.html         served for every unknown path
 ├── cv.pdf           the CV, built from the cv repo (typst compile) — /cv serves it
 ├── robots.txt       must sit at the root — crawlers only read /robots.txt
-└── assets/          everything served that is not a page
-    ├── favicon.svg  theme-aware, referenced by <link rel="icon">
-    ├── age.txt      age recipient — replace the placeholder
-    ├── pgp.txt      PGP public key — replace the placeholder
-    └── fonts/       Commit Mono woff2 (OFL — license alongside)
+└── assets/          favicon + fonts
 ```
 
-Both the current no-JS page and the future JS version answer the same URLs —
-the URL bar never reveals which one is serving. When the JS version lands,
-`src/index.html` becomes its shell and today's markup moves inside a
-`<noscript>` block (`/styles.css` stays the no-JS stylesheet, loaded only from
-inside that block). Until then this page IS the site.
+Page URLs are directories with `index.html`; `/contact` 308s to `/contact/`
+(SWS's trailing-slash redirect) and the page carries a canonical link.
+
+The routes are few on purpose: /, /cv, /contact, plus the plaintext keys.
+The future JS version answers the same URLs — the URL bar never reveals which
+one is serving. Every route the JS app gets, the no-JS tree has too, so no
+SPA fallback is ever needed. When the JS version lands (Rust/WASM or
+htm-style), it ships as separate assets and hooks in through one line per
+page — `<script type="module" src="/boot.js"></script>`, a loader that no-ops
+until the app exists, then takes over the body and navigates client-side.
+Nothing is embedded into anything: the Rust build never touches these HTML
+files.
 
 Refresh the CV after editing the cv repo:
 
