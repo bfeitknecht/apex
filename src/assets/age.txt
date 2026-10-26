@@ -1,4 +1,1 @@
-# age recipient for encrypted mail to 0xbf.ch
-# Replace this placeholder with the real public key.
-
-age1replacewithyourpublickey
+age170rmcek6zuhx4gd837elruddvhxha56ekqlkfu2ty6lpagxhsdrq6ra8ju
