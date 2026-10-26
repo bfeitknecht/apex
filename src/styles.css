@@ -2,8 +2,6 @@
    Modern CSS: light-dark(), oklch(), color-mix(), clamp(), :is(), :where(),
    text-wrap, fluid type, entry animations, prefers-reduced-motion. */
 
-/* ── Type ─────────────────────────────────────────────────────────────── */
-
 @font-face {
   font-family: "Commit Mono";
   src: url("/assets/fonts/commit-mono-400.woff2") format("woff2");
@@ -19,8 +17,6 @@
   font-style: normal;
   font-display: swap;
 }
-
-/* ── Tokens ───────────────────────────────────────────────────────────── */
 
 :root {
   /* Dark listed first: users with no expressed preference get dark. */
@@ -67,8 +63,6 @@
   }
 }
 
-/* ── Reset ────────────────────────────────────────────────────────────── */
-
 :where(*, *::before, *::after) {
   box-sizing: border-box;
   margin: 0;
@@ -101,8 +95,6 @@ body > * {
   inline-size: 100%;
   max-inline-size: var(--measure);
 }
-
-/* ── Text ─────────────────────────────────────────────────────────────── */
 
 :is(h1, h2, h3) {
   line-height: 1.15;
@@ -138,8 +130,6 @@ a:hover {
   outline-offset: 3px;
   border-radius: 2px;
 }
-
-/* ── Header ───────────────────────────────────────────────────────────── */
 
 .eyebrow {
   font-family: var(--mono);
@@ -191,15 +181,12 @@ h1 {
 .links li + li::before {
   content: "·";
   margin-inline: 0.55em;
-  font-size: 0.9em;
   color: var(--muted);
 }
 
 .links a {
   text-decoration-color: color-mix(in oklab, var(--muted) 45%, transparent);
 }
-
-/* ── Sections ─────────────────────────────────────────────────────────── */
 
 main {
   display: flex;
@@ -230,8 +217,6 @@ h2 .num {
   color: var(--accent);
 }
 
-/* ── Tags ─────────────────────────────────────────────────────────────── */
-
 .tags {
   list-style: none;
   padding: 0;
@@ -248,8 +233,6 @@ h2 .num {
   color: var(--accent);
   margin-inline-end: 0.1em;
 }
-
-/* ── Entries ──────────────────────────────────────────────────────────── */
 
 .entries {
   list-style: none;
@@ -288,8 +271,6 @@ h2 .num {
   white-space: nowrap;
 }
 
-/* ── Footer ───────────────────────────────────────────────────────────── */
-
 footer {
   display: flex;
   flex-direction: column;
@@ -309,8 +290,6 @@ footer .links {
   font-size: 0.92em;
 }
 
-/* ── 404 ──────────────────────────────────────────────────────────────── */
-
 .notfound {
   justify-content: center;
   gap: 0;
@@ -321,8 +300,6 @@ footer .links {
   font-weight: 700;
   letter-spacing: -0.04em;
 }
-
-/* ── Motion ───────────────────────────────────────────────────────────── */
 
 @keyframes rise {
   from {
