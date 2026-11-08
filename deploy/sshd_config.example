@@ -1,0 +1,9 @@
+# Merge into sshd_config after creating a dedicated locked-down account.
+# Use an absolute path to a release build deployed outside /tmp.
+Match User payload
+    ForceCommand /usr/local/bin/apex
+    PermitTTY yes
+    DisableForwarding yes
+    X11Forwarding no
+    PermitTunnel no
+    PermitUserRC no

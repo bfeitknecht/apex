@@ -1,0 +1,31 @@
+[package]
+default-run = "apex"
+name = "apex"
+version = "0.1.0"
+edition = "2021"
+[dependencies]
+ratatui = { version = "0.30.1", default-features = false }
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+crossterm = "0.29"
+russh = { version = "0.65", default-features = false, features = ["ring"], optional = true }
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "net", "sync", "time", "signal"], optional = true }
+ratatui = { version = "0.30.1", features = ["crossterm"] }
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+ratzilla = "0.3.1"
+unicode_names2 = "=3.1.0"
+unicode-blocks = "0.1.10"
+js-sys = "0.3"
+console_error_panic_hook = "0.1"
+wasm-bindgen = "0.2"
+wasm-bindgen-futures = "0.4"
+web-sys = { version = "0.3", features = ["Window", "Document", "Element", "HtmlCanvasElement", "CanvasRenderingContext2d", "ImageData", "FontFaceSet", "CssStyleDeclaration", "HtmlElement", "console", "WheelEvent", "EventTarget", "AddEventListenerOptions", "TouchEvent", "TouchList", "Touch", "TextMetrics", "Selection", "MouseEvent"] }
+
+[features]
+default = []
+crash-study = []
+ssh = ["dep:russh", "dep:tokio"]
+
+[[bin]]
+name = "apex-ssh"
+path = "src/bin/apex-ssh.rs"
+required-features = ["ssh"]

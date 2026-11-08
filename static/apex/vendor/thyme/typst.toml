@@ -1,0 +1,29 @@
+[package]
+name = "thyme"
+version = "0.1.0"
+entrypoint = "src/lib.typ"
+authors = ["Basil Feitknecht <https://0xbf.ch>"]
+license = "MIT AND MIT-0"
+description = "Pure-Typst static site generator with typed hypertagged HTML, sitemaps, feeds, Tadi source view, zero-JS i18n, and a monochrome blog preset."
+repository = "https://github.com/bfeitknecht/thyme"
+compiler = "0.15.1"
+keywords = ["ssg", "html", "bundle", "website", "blog", "sitemap", "rss", "i18n", "sidenotes"]
+categories = ["layout", "components", "model"]
+disciplines = ["computer-science", "mathematics"]
+exclude = [
+  "/.github/",
+  "/assets/",
+  "/docs/",
+  "/examples/",
+  "/scripts/",
+  "/tests/",
+  "/vendor/",
+  "CHANGELOG.md",
+  "justfile",
+  "SCRATCH.md",
+]
+
+[template]
+path = "template"
+entrypoint = "site.typ"
+thumbnail = "thumbnail.png"

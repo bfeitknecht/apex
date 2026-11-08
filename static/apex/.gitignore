@@ -1,0 +1,5 @@
+/.tmp-*
+/public
+__pycache__/
+.private/
+.DS_Store

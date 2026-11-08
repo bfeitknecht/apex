@@ -1,0 +1,182 @@
+#import "@preview/thyme:0.1.0": *
+
+#let _font-files = (
+  "CommitMono-400-Regular.woff2",
+  "CommitMono-400-Italic.woff2",
+  "CommitMono-700-Regular.woff2",
+  "CommitMono-700-Italic.woff2",
+  "LICENSE.txt",
+)
+
+#let _not-found = html.html(lang: "en", {
+  html.head({
+    html.meta(charset: "utf-8")
+    html.meta(name: "viewport", content: "width=device-width, initial-scale=1")
+    html.meta(name: "robots", content: "noindex")
+    html.title("404 - 0xbf.ch")
+    html.link(rel: "icon", href: "/assets/favicon.svg", type: "image/svg+xml")
+    html.link(rel: "stylesheet", href: "/styles.css")
+  })
+  html.body({
+    html.header(class: "notfound", {
+      html.h1("404")
+      html.p(class: "lede", "No such page.")
+      html.elem(
+        "nav",
+        attrs: (class: "links", "aria-label": "Navigation"),
+        html.a(href: "/", "back to /"),
+      )
+    })
+  })
+})
+
+#show: site.with(
+  url: "https://0xbf.ch",
+  title: "Basil Feitknecht",
+  description: "BSc Computer Science at ETH Zürich. Programming languages, formal methods, information security, computer systems and networks, and machine learning.",
+  author: "Basil Feitknecht",
+  stylesheets: (path("styles.css"),),
+  favicon: (path: "assets/favicon.svg", data: path("assets/favicon.svg")),
+  src: path("site.typ"),
+  wrap-main: false,
+  rss-path: none,
+  atom-path: none,
+  not-found-page: _not-found,
+  assets: _font-files.map(f => (
+    path: "assets/fonts/" + f,
+    data: read("assets/fonts/" + f, encoding: none),
+  )),
+)
+
+#raw-file("age.txt", path("age.txt"))
+#raw-file("pgp.txt", path("pgp.txt"))
+#raw-file("cv.pdf", path("cv.pdf"))
+#mount(path("contact.typ")) <contact>
+
+#htm(
+  ```html
+  <header>
+    <p class="eyebrow">Grüezi</p>
+    <h1>Basil Feitknecht</h1>
+    <p class="lede">
+      BSc Computer Science ETH Zürich. Programming languages, formal methods,
+      information security, computer systems and networks, machine learning.
+    </p>
+    <ul class="links">
+      <li><a href="mailto:io+www@0xbf.ch">io@0xbf.ch</a></li>
+      <li><a href="https://blog.0xbf.ch">blog</a></li>
+      <li><a href="https://github.com/bfeitknecht">github</a></li>
+      <li><a href="https://linkedin.com/in/bfeitknecht">linkedin</a></li>
+      <li><a href="/cv">cv</a></li>
+    </ul>
+  </header>
+
+  <main>
+    <section id="about">
+      <h2><span class="num">01</span>About</h2>
+      <p>
+        My interests span wide and deep. From computer science (both in theory and practice)
+        to math, music, and sports. I like to learn, and I like to teach.
+        I want to understand how things work and make them better.
+      </p>
+    </section>
+
+    <section id="projects">
+      <h2><span class="num">02</span>Projects</h2>
+      <ul class="entries">
+        <li class="entry">
+          <div class="entry-head">
+            <h3><a href="https://github.com/bfeitknecht/thyme">thyme</a></h3>
+            <span class="when">2026</span>
+          </div>
+          <p>
+            Static site generator and monochrome blog package in pure Typst,
+            with typed HTML, XML sitemaps and feeds, and plaintext <code>.typ</code> source views.
+          </p>
+        </li>
+        <li class="entry">
+          <div class="entry-head">
+            <h3><a href="https://blog.0xbf.ch">glob</a></h3>
+            <span class="when">2026 – Present</span>
+          </div>
+          <p>
+            Personal blog on programming languages, formal methods, systems,
+            and sidequests, compiled statically with <code>thyme</code>.
+          </p>
+        </li>
+        <li class="entry">
+          <div class="entry-head">
+            <h3><a href="https://github.com/bfeitknecht/impli">impli</a></h3>
+            <span class="when">2025 – 2026</span>
+          </div>
+          <p>
+            An interpreter for the IMP language in Haskell, with a web
+            frontend powered by WebAssembly and CI/CD on GitHub Actions.
+          </p>
+        </li>
+        <li class="entry">
+          <div class="entry-head">
+            <h3><a href="https://github.com/bfeitknecht/infra">home infra</a></h3>
+            <span class="when">2026 – Present</span>
+          </div>
+          <p>
+            Talos Linux Kubernetes cluster across a Raspberry Pi and an
+            Oracle Cloud Instance node, deployed with Helm and reconciled by Flux.
+          </p>
+        </li>
+        <li class="entry">
+          <div class="entry-head">
+            <h3><a href="https://sos.ethz.ch/vsos">SOSETH / vsos</a></h3>
+            <span class="when">2024 – Present</span>
+          </div>
+          <p>
+            Active member in the VSOS team of the SOSETH student club.
+            Managing Proxmox cluster serving 200+ user VMs, setting up new blade center,
+            and integrating Switch Edu-ID into the identity system.
+          </p>
+        </li>
+        <li class="entry">
+          <div class="entry-head">
+            <h3><a href="https://github.com/bfeitknecht/ethz-vpn">ethz-vpn</a></h3>
+            <span class="when">2024</span>
+          </div>
+          <p>Small macOS shell script for driving the ETHZ VPN from the terminal.</p>
+        </li>
+        <li class="entry">
+          <div class="entry-head">
+            <h3><a href="https://github.com/bfeitknecht/ES-mini-project">ES-mini-project</a></h3>
+            <span class="when">2024</span>
+          </div>
+          <p>Abnormal machine sound detection for embedded systems course, in C.</p>
+        </li>
+      </ul>
+    </section>
+
+    <section id="contact">
+      <h2><span class="num">03</span>Contact</h2>
+      <p>
+        Reach me by mail at <a href="mailto:io+www@0xbf.ch">io@0xbf.ch</a> or
+        <a href="mailto:bfeitknecht@ethz.ch">bfeitknecht@ethz.ch</a>, or on
+        <a href="https://github.com/bfeitknecht">github</a> and
+        <a href="https://linkedin.com/in/bfeitknecht">linkedin</a>.
+      </p>
+      <p>
+        Encrypt messages with my plaintext <a href="/age.txt">age recipient</a>
+        or <a href="/pgp.txt">PGP public key</a>.
+      </p>
+      <p class="where">age170rmcek6zuhx4gd837elruddvhxha56ekqlkfu2ty6lpagxhsdrq6ra8ju</p>
+    </section>
+  </main>
+
+  <footer>
+    <ul class="links">
+      <li>{contact_link}</li>
+      <li><a href="/age.txt">age.txt</a></li>
+      <li><a href="/pgp.txt">pgp.txt</a></li>
+      <li><a href="/sitemap.xml">sitemap.xml</a></li>
+    </ul>
+    <p class="colophon">Made with &lt;3 by me. No JavaScript.</p>
+  </footer>
+  ```,
+  contact_link: link(<contact>)[contact],
+)
