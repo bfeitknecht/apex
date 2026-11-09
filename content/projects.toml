@@ -1,36 +1,12 @@
 # Selected work, one list for every surface.
 #
+# The order here is the display order everywhere: the terminal numbers the
+# entries `#01`, `#02`, ... down the page and the static page prints them in the
+# same sequence, so this file is the only place an ordering decision is made.
+#
 # The terminal prints `summary` on the same line as the name, the static page
 # prints `description` and `period` as a proper entry. An empty url is a
 # placeholder that does not open yet.
-
-[[project]]
-name = "thyme"
-url = "https://github.com/bfeitknecht/thyme"
-summary = "Typst based static site generator"
-description = "Static site generator and monochrome blog package in pure Typst, with typed HTML, XML sitemaps and feeds, and plaintext .typ source views."
-period = "2026"
-
-[[project]]
-name = "glob"
-url = "https://blog.0xbf.ch"
-summary = "personal blog built with thyme"
-description = "Personal blog on programming languages, formal methods, systems, and sidequests, compiled statically with thyme."
-period = "2026 – Present"
-
-[[project]]
-name = "apex"
-url = "https://github.com/bfeitknecht/apex"
-summary = "this site, one interface in three places"
-description = "The portfolio you are looking at: a Ratatui interface running natively, over SSH through russh, and in the browser through Ratzilla, with a no-JavaScript Typst fallback for everything else."
-period = "2026 – Present"
-
-[[project]]
-name = "infra"
-url = "https://github.com/bfeitknecht/infra"
-summary = "homelab cluster configuration"
-description = "Talos Linux Kubernetes cluster across a Raspberry Pi and an Oracle Cloud instance node, deployed with Helm and reconciled by Flux."
-period = "2026 – Present"
 
 [[project]]
 name = "impli"
@@ -40,11 +16,25 @@ description = "An interpreter for the IMP language in Haskell, with a web fronte
 period = "2025 – 2026"
 
 [[project]]
+name = "macho"
+url = "https://github.com/bfeitknecht/ES-mini-project"
+summary = "abnormal machine sound detection"
+description = "Abnormal machine sound detection for the embedded systems course, in C."
+period = "2024"
+
+[[project]]
 name = "spicky"
 url = "https://github.com/bfeitknecht/spicky"
 summary = "Typst cheatsheet package and template"
 description = "A cheatsheet package and matching template for Typst, so a page of reminders is a few lines of source."
 period = "2025"
+
+[[project]]
+name = "infra"
+url = "https://github.com/bfeitknecht/infra"
+summary = "homelab cluster configuration"
+description = "Talos Linux Kubernetes cluster across a Raspberry Pi and an Oracle Cloud instance node, deployed with Helm and reconciled by Flux."
+period = "2026 – Present"
 
 [[project]]
 name = "omni"
@@ -54,22 +44,22 @@ description = "One Nix configuration for every machine I use, from the laptop to
 period = "2025"
 
 [[project]]
-name = "vsos"
-url = "https://sos.ethz.ch/vsos"
-summary = "SOSETH VSOS team"
-description = "Active member of the VSOS team at the SOSETH student club: a Proxmox cluster serving 200+ user VMs, a new blade centre, and Switch Edu-ID in the identity system."
-period = "2024 – Present"
+name = "thyme"
+url = "https://github.com/bfeitknecht/thyme"
+summary = "Typst based SSG"
+description = "Static site generator and monochrome blog package in pure Typst, with typed HTML, XML sitemaps and feeds, and plaintext .typ source views."
+period = "2026"
 
 [[project]]
-name = "ethz-vpn"
-url = "https://github.com/bfeitknecht/ethz-vpn"
-summary = "macOS shell script for the ETHZ VPN"
-description = "Small macOS shell script for driving the ETHZ VPN from the terminal."
-period = "2024"
+name = "apex"
+url = "https://github.com/bfeitknecht/apex"
+summary = "personal website and portfolio"
+description = "The portfolio you are looking at: a Ratatui interface running natively, over SSH through russh, and in the browser through Ratzilla, with a no-JavaScript Typst fallback for everything else."
+period = "2026 – Present"
 
 [[project]]
-name = "macho"
-url = "https://github.com/bfeitknecht/ES-mini-project"
-summary = "abnormal machine sound detection"
-description = "Abnormal machine sound detection for the embedded systems course, in C."
-period = "2024"
+name = "glob"
+url = "https://blog.0xbf.ch"
+summary = "personal blog built with thyme"
+description = "Personal blog on programming languages, formal methods, systems, and sidequests, compiled statically with thyme."
+period = "2026 – Present"

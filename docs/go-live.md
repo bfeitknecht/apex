@@ -39,8 +39,9 @@ CI: `just docroot`, the Docker stages, and everything in section 2.
 
 ## 3. Content before anyone looks
 
-- [ ] `content/projects.toml` holds one merged list (10 entries). It is the
-      only copy, and it is what both the page and the app render.
+- [ ] `content/projects.toml` holds one merged list (8 entries, in display
+      order). It is the only copy, and it is what both the page and the app
+      render — the order in that file is the order on both surfaces.
 - [ ] The `gallery` destination (`https://gallery.0xbf.ch`) is linked but does
       not exist yet: build it, or empty its `url` in `content/profile.toml`.
 - [ ] `content/portrait.txt` is a cat. Replace it with the real ASCII portrait.

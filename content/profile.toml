@@ -28,14 +28,15 @@ My interests span wide and deep. From computer science (both in theory and pract
 # The terminal adds one flourish of its own to the hero block.
 intro = ["student. teacher. artist. engineer. generalist."]
 
-# The parenthesised destinations in the top bar, in order.
+# The parenthesised destinations in the top bar, in order. The static page's
+# hero prints the same three rows, so the two surfaces cannot disagree.
+[[link]]
+label = "glob"
+url = "https://blog.0xbf.ch"
+
 [[link]]
 label = "cv"
 url = "https://0xbf.ch/cv"
-
-[[link]]
-label = "blog"
-url = "https://blog.0xbf.ch"
 
 [[link]]
 label = "gallery"

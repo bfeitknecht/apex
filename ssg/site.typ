@@ -1,5 +1,5 @@
 #import "@preview/thyme:0.1.0": *
-#import "config.typ": base, profile, projects, destination, contact, mail, footer
+#import "config.typ": base, profile, projects, footer
 
 #let _font-files = (
   "CommitMono-400-Regular.woff2",
@@ -8,6 +8,13 @@
   "CommitMono-700-Italic.woff2",
   "LICENSE.txt",
 )
+
+// The hero's destinations are the app's top bar, in the same order, from the
+// same list: `glob`, `cv`, `gallery`. Mail, github and linkedin live in the
+// contact section below, where the terminal puts them too.
+#let _links = for row in profile.link {
+  html.elem("li", html.a(href: row.url, row.label))
+}
 
 // The contact rows, in the order `content/profile.toml` lists them — the same
 // list, in the same order, that the terminal prints under "get in touch". A row
@@ -112,13 +119,7 @@
       <h1>{name}</h1>
       <p class="lede">{lede}</p>
       <p class="intro">{intro}</p>
-      <ul class="links">
-        <li>{mail}</li>
-        <li><a href="{blog}">blog</a></li>
-        <li><a href="{github}">github</a></li>
-        <li><a href="{linkedin}">linkedin</a></li>
-        <li><a href="{cv}">cv</a></li>
-      </ul>
+      <ul class="links">{links}</ul>
     </header>
 
     <main>
@@ -159,11 +160,7 @@
   about: profile.about.trim(),
   entries: _entries,
   contacts: _contacts,
+  links: _links,
   footer: footer,
-  mail: mail,
-  cv: destination("cv"),
-  blog: destination("blog"),
-  github: contact("github"),
-  linkedin: contact("linkedin"),
   tone_filter: tone_filter,
 )

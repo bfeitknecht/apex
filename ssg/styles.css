@@ -362,6 +362,23 @@ footer .links {
   row-gap: 0.25rem;
 }
 
+/* On a phone the colophon is as wide as the column, and a separator that lands
+   at the start of a wrapped line reads as a stray dot: drop the separators,
+   space the rows, and give the colophon a line of its own. */
+@media (width < 34rem) {
+  footer .links {
+    column-gap: 1.1rem;
+  }
+
+  footer .links li + li::before {
+    content: none;
+  }
+
+  footer .links li:last-child {
+    flex-basis: 100%;
+  }
+}
+
 footer .links li + li::before {
   margin-inline: 0.9em;
 }
