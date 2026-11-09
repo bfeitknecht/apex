@@ -1,2 +1,14 @@
+# Build output
 /target
 /dist
+/public
+/.packages
+/.tmp-*
+
+# Local secrets (SSH host key, SOPS workdirs)
+/.private
+*.sops.yaml.bak
+
+# Tooling
+__pycache__/
+.DS_Store

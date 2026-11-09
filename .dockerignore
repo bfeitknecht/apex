@@ -1,0 +1,11 @@
+.git
+.github
+.private
+.packages
+target
+dist
+public
+docs
+infra
+__pycache__
+.DS_Store

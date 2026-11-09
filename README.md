@@ -1,98 +1,153 @@
 # Apex
 
-A monochrome, keyboard-first portfolio built with Rust and Ratatui. Native/SSH and browser use the same portfolio and navigation state. The browser uses Ratzilla for the interface. A hidden visuals menu provides access to Unicode, Lichen and an ASCII fractal explorer. The browser has the full Unicode study; terminals use a small glyph sampler.
+The personal site at `0xbf.ch`: one interface, three surfaces, one definition of
+the content they all show.
 
-## Site plan
+| Visitor | Gets | Served by |
+| --- | --- | --- |
+| modern browser, `https://0xbf.ch/` | the app, drawn by Ratzilla | `src/frontends/web` |
+| old browser, or JavaScript off, same URL | the plain Typst page | `ssg/` (thyme) |
+| terminal, `ssh 0xbf.ch` | the same app over SSH | `src/frontends/ssh` |
+| your own terminal | the same app natively | `src/frontends/native` |
 
-Apex is the portfolio at `0xbf.ch`: a Rust/Ratatui interface served both through the built-in SSH service and in the browser using Ratzilla. It presents an introduction, selected projects, contact details and links to the wider personal site. It is not the blog or gallery itself.
+**One URL.** `/` is a single document: the page Typst builds, plus a boot script
+that swaps in the WebAssembly app when the browser can run it. There is no
+`/tui`, no `/static`, no second hostname — every other path is content.
 
-The parenthesized navigation links point to separate destinations: the CV at `https://0xbf.ch/cv`, the future blog at `https://blog.0xbf.ch`, and a future gallery at `https://gallery.0xbf.ch`. The gallery is intended to be a separate website built next; its design, content, hosting and implementation are not yet decided. The planned blog is represented by the `glob` project, built with the planned Typst-based static site generator `thyme`. These links are destinations, not a claim that the services are already deployed.
+The portfolio is identical everywhere: introduction, projects, contacts, public
+keys, and a hidden menu of four visuals (Unicode specimens, a lichen colony, a
+quaternion Julia explorer, an EGA framebuffer sweep).
 
-A no-JavaScript (`<noscript>`) section is planned for Apex: a readable, keyboard-accessible HTML fallback with the essential introduction, projects, contact information, and links, so visitors can reach the content without running WebAssembly or JavaScript. It should follow the same content and destinations as the TUI, remain usable on small screens, and not be presented as an implemented fallback until built and tested.
-
-## Run
+## Quick start
 
 ```sh
-./scripts/native.sh
-./scripts/web.sh
+just                 # list the recipes
+just dev             # both toolchains, watch, serve on :8080
+just native          # terminal portfolio
+just ssh             # SSH server on 0.0.0.0:2222 (needs APEX_SSH_HOST_KEY)
+just check           # clippy, tests, wasm32 build
 ```
 
-The browser build needs Trunk and the `wasm32-unknown-unknown` Rust target. Build output is stored under `/tmp`. For SSH, use the built-in russh server described below; `deploy/sshd_config.example` provides an alternative using an external SSH server.
+`just dev` is the one to use: the site is two builds into one document root
+(Typst for the page, Trunk for the app), and the script serves that root the way
+the container does.
 
-## Your content
+Toolchains: stable Rust, `cargo install trunk` plus the
+`wasm32-unknown-unknown` target, `typst >= 0.15.1`, `just`, `python3`. The
+vendored Typst packages need no installation — `just packages` lays them out for
+`--package-path`.
 
-Edit `src/portfolio.rs` to change the introduction, about text, project list and destinations. Empty URLs are non-opening placeholders: `macho` is awaiting its renamed repository, and `thyme`, `glob`, and `tangled` need their public URLs. Update the CV URL if its destination changes.
+## Layout
 
-The footer uses bundled public keys in `assets/age.txt` and `assets/pgp.txt`. Update these files when the published keys change; the browser and TUI both use these copies. Replace `assets/placeholder-me.svg` and `ME_ART` in `src/portfolio.rs` with your image and ASCII art when ready.
+```text
+content/            THE definition: profile.toml, projects.toml,
+                    age.txt, pgp.txt, cv.pdf, portrait.txt
+src/                the app (see docs/architecture.md)
+  content.rs        parses content/ once, freezes it to &'static
+  app/              state machine: view, scroll, keys, pointer, tick
+  ui/               rendering: &App → cells, hit ranges
+  visuals/          render-free simulation: lichen, unicode, fractal, crash
+  frontends/        native, ssh, web
+ssg/                the page: Typst sources + vendored thyme (docs/ssg.md)
+browser/            the app's shell: app.html (Trunk entry), boot.js,
+                    app.css, cursor.js
+assets/             fonts, Unicode cmaps, licences
+infra/              everything the infra repo needs; deleted at go-live
+sws.toml            how the container serves the document root
+scripts/dev.py      build both, watch, serve
+```
+
+## Documentation
+
+- `docs/architecture.md` — layering, the one-URL model, the rendering split.
+- `docs/navigation.md` — views, keys, pointer input, what each frontend owns.
+- `docs/ssg.md` — the page: document root, shared content, build.
+- `docs/go-live.md` — the shortlist between here and going live.
+- `infra/README.md` — the infra integration, with exact paths and merge notes.
+
+## The SSH portfolio
+
+`ssh 0xbf.ch` serves the same interface as the terminal, without an account:
+**by default any username is accepted** and no client key is required. It runs
+the portfolio only — no shell, no commands, no SFTP, no forwarding — requires a
+PTY, caps sessions at 32, times out after 15 idle minutes and clamps the
+terminal to 20–240 × 8–120 cells.
+
+```sh
+ssh-keygen -t ed25519 -N '' -f ~/.config/apex/ssh_host_ed25519_key   # once
+APEX_SSH_HOST_KEY="$HOME/.config/apex/ssh_host_ed25519_key" just ssh
+ssh -p 2222 localhost                                              # another terminal
+```
+
+The server prints its SHA-256 host-key fingerprint at startup; verify it out of
+band before trusting the host. `infra/sshd_config.example` documents the
+alternative of an external `sshd` with `ForceCommand`.
+
+| Variable | Default | Meaning |
+| --- | --- | --- |
+| `APEX_SSH_LISTEN` | `0.0.0.0:2222` | bind address (the cluster routes 22 → 2222) |
+| `APEX_SSH_HOST_KEY` | — (required) | private host key |
+| `APEX_SSH_PUBLIC` | `1` | accept any username |
+| `APEX_SSH_USER` | `apex` | the only username in key-only mode |
+| `APEX_SSH_AUTHORIZED_KEYS` | — | allowlist file; `APEX_SSH_PUBLIC=0` for key-only |
+
+Setting an allowlist without choosing a mode explicitly makes the server refuse
+to start, so an accidental public service is impossible.
 
 ## Navigation
 
-The browser follows the system light or dark appearance automatically. Native and SSH sessions use the terminal foreground and background. The portfolio is one scrollable page. The fixed navigation jumps to sections. The footer appears at the bottom.
+- `j`/`k`, arrows, wheel, swipe: scroll. `gg`/`G`, Home/End: top/bottom.
+- `h`/`l`, `1`–`3`: about/projects/contact. Tab, `n`/`N`: next/previous link.
+- Enter opens the focused link; in a terminal the destination is shown beside
+  it. `?` toggles help, Esc closes, `q` quits.
+- Hidden visuals: activate `^@` three times (or Tab + Enter three times on the
+  logo), then `h`/`l` to choose among unicode, lichen, fractal and crash.
+- In lichen: space pauses, `-`/`+` set the interval, `0` resets it, scrolling
+  changes pixelation. In fractal: `h/j/k/l` pan, `+`/`-` zoom, `r` resets.
+  In crash: `r` starts the sweep over. Full table: `docs/navigation.md`.
 
-- **J / K**, up/down, wheel or swipe: scroll. **gg / G** and Home/End: top / bottom.
-- **H / L**, left/right or **1–3**: jump between about, projects and contact. Click `^@` or use `gg` to return to the top. Triple-click `^@`, or focus it with Tab and press Enter three times, to open the hidden visuals menu. Use `h`/`l`, `j`/`k` or Tab and Enter to select a visual; Escape returns.
-- **Tab / Shift-Tab** or **N / Shift-N**: focus the next / previous link, including CV, blog and gallery in the top bar. **Enter** opens it in the browser; in a terminal the focused URL is displayed beside the item when space allows. Footer keys and `me` open within the terminal; use `j`/`k` to scroll and Escape to return.
-- Mouse and touch activate links and navigation; links highlight on mouse hover. Drag browser UI text to select and copy it.
-- **?** toggles Help; **Esc** closes it; **Q** quits the terminal.
+## Lichen and the Unicode visual
 
-## Hidden visuals
+The colony is a differential-growth simulation, rendered as half-blocks in
+terminals and as pooled pixels in the browser; the browser sizes its cells from
+the viewport, so zooming never re-runs the simulation. It is not a verified
+pixel-perfect reconstruction of the original, and it is not sixel.
 
-The Unicode and Lichen studies are available from the hidden menu. The third visual is a fullscreen ASCII quaternion Julia explorer: an animated two-dimensional slice through a four-dimensional fractal, with orbit-trap detail and a slow zoom. Use `h`/`j`/`k`/`l` or arrow keys to pan, `+` and `-` to zoom, `r` or `0` to reset, and Escape to return. The renderer works in the browser, native terminal and SSH session; character proportions depend on the font and terminal.
+The Unicode visual samples a code point from the bundled font cmaps — 106,701
+candidates after dropping control, formatting, whitespace, combining,
+private-use and unassigned characters — and shows its Unicode 17 name, block,
+font and position. 79,761 of them have outline fonts; GNU Unifont covers the
+rest, which is why some glyphs are visibly pixelated. This is not every Unicode
+glyph: some assigned characters have no coverage, some need contextual shaping.
+Font licences live in `assets/`.
 
-## Unicode study
-
-The browser study randomly samples Unicode blocks, then a supported code point within the chosen block. Each specimen shows its Unicode 17 name, code point, block, font, and two position rulers. Previous specimens remain in the browsing history. It is an independent character explorer, not a copy of the referenced video.
-
-The 106,701 candidate code points are taken from the bundled font cmaps and Unicode 17 data, excluding control, formatting, whitespace, combining, private-use and unassigned characters. The explorer has outline fonts for 79,761 of these code points, including 33 additional script-specific Noto Sans fonts, Noto Symbols/Math and BabelStone Han. GNU Unifont is the fallback for the rest. Its bitmap-derived glyphs are naturally pixelated at large sizes. This is **not every Unicode glyph**: some assigned characters lack coverage, some characters need contextual shaping, and individual font glyphs may differ. Unicode names and block ranges come from `unicode_names2` and `unicode-blocks`. Font licenses are in `assets/`.
-
-Specimen fonts load on demand as their glyphs are encountered; the previous specimen stays visible until the next font is ready. The portfolio interface remains in Commit Mono. BabelStone Han is provided as WOFF2 with the original TTF as a compatibility fallback, which is substantially larger. BabelStone Han is distributed under the Arphic Public License (included alongside the fonts). The study places compact metadata and rulers beneath the specimen on desktop and mobile. Ratzilla draws the UI and metadata, while browser Canvas 2D draws the enlarged specimen; it does not scale a single Ratatui cell into a fullscreen glyph. Rebuild the catalogue with `scripts/unicode-candidates.py` and Unicode 17 `UnicodeData.txt` (requires Python fontTools).
-
-## Code
-
-`src/app.rs` owns shared navigation, `src/portfolio.rs` contains editable content, `src/ui.rs` draws the shared TUI, `src/lichen.rs` simulates Lichen, `src/unicode_study.rs` supplies the browser specimen catalogue, and `src/frontends/` contains browser and native adapters. The inactive non-destructive Crash study remains behind `--features crash-study`.
-
-Browser Lichen uses dynamically sized square pixel cells. Native rendering uses Unicode half-blocks; their physical proportions depend on terminal font and cell geometry. Neither is the sixel protocol, and the simulation is not a verified pixel-perfect reconstruction of the original.
-
-```sh
-CARGO_TARGET_DIR=/tmp/payload-target cargo test --features crash-study
-CARGO_TARGET_DIR=/tmp/payload-target cargo check --target wasm32-unknown-unknown
-```
-
-## Public SSH portfolio (russh)
-
-The built-in SSH server serves the same Rust/Ratatui interface without a user account or client key. **By default it accepts any SSH username and listens on `0.0.0.0:2222`.** It runs the portfolio only: no system shell, commands, SFTP, or port forwarding. A PTY is required. Each visitor has independent navigation and Lichen state; `q` disconnects.
-
-On the machine that will host the service, create a persistent host identity outside the project. Never commit or share its private key. Back it up securely: replacing it changes the server identity and causes SSH host-key warnings.
+Rebuild the catalogue (needs `fontTools` and Unicode 17 `UnicodeData.txt`):
 
 ```sh
-mkdir -p ~/.config/apex
-chmod 700 ~/.config/apex
-ssh-keygen -t ed25519 -N '' -f ~/.config/apex/ssh_host_ed25519_key
-APEX_SSH_HOST_KEY="$HOME/.config/apex/ssh_host_ed25519_key" ./scripts/ssh.sh
+python3 scripts/unicode-candidates.py /path/to/UnicodeData.txt
 ```
 
-From a client, assuming the host and firewall allow TCP port 2222:
+That rewrites `assets/{unifont,noto}-cmap.bin`, which `src/visuals/unicode.rs`
+embeds at compile time. The 52 MB BabelStoneHan TTF is only an input to that
+script; the browser ships the 7 MB WOFF2.
 
-```sh
-ssh -p 2222 your-domain.example
-```
+## Status
 
-The server prints its SHA-256 host-key fingerprint at startup; verify it through a trusted channel when connecting for the first time. To use `ssh your-domain.example` without a port argument, arrange for port 22 to reach the service—for example via a firewall redirect or a properly configured TCP proxy. Avoid binding a privileged port as root. Do not displace an existing administrative SSH service; use a separate host or address, and keep an independent admin access path.
+The tree compiles on both targets, its tests pass, and both artifacts build.
+That is checked by CI on every push, because it could not be checked here: the
+sandbox this was written in reaches GitHub, PyPI and npm but not
+`static.rust-lang.org` or `crates.io`, so the first `cargo fmt`/`clippy`/build
+happened in Actions. `CI` now runs formatting, lints, tests, the `wasm32` check,
+`trunk build --release` with assertions on the names the page refers to, and the
+Typst bundle with assertions on its shape.
 
-Public access is intentional here. Run as a dedicated non-root user with a service manager, firewall, connection/rate limits and monitoring. The built-in server is an application service, not a hardened general-purpose SSH server. Inactive connections time out after 15 minutes; there is a 32-channel limit and terminal dimensions are capped at 240×120. These do not replace network-level protections.
+What CI cannot see is anything that needs eyes: the interface at 80×24, the
+fonts actually loading, the SSH handshake, the image. That list is
+`docs/go-live.md` § 2.
 
-### Optional key-only mode
-
-Set `APEX_SSH_PUBLIC=0` and point `APEX_SSH_AUTHORIZED_KEYS` at a file containing one plain OpenSSH public key per line. The default username is `apex`, configurable with `APEX_SSH_USER`. Blank lines and comments are accepted; per-key `authorized_keys` options are not supported. If an allowlist is specified without explicitly choosing public or key-only mode, the server refuses to start to prevent an accidental public service.
-
-```sh
-APEX_SSH_PUBLIC=0 \
-APEX_SSH_HOST_KEY="$HOME/.config/apex/ssh_host_ed25519_key" \
-APEX_SSH_AUTHORIZED_KEYS="$HOME/.config/apex/authorized_keys" \
-APEX_SSH_LISTEN=127.0.0.1:2222 \
-./scripts/ssh.sh
-```
-
-`APEX_SSH_LISTEN` overrides the bind address. The built-in server still needs an actual reachable host, DNS and network configuration for Internet access. Arena's browser preview does not provide a public SSH endpoint.
-
-In Lichen, `-` slows generation, `+` speeds it up, and `0` restores the default speed. Space pauses; `r` resets the simulation. Scrolling changes pixelation independently.
+Naming: `ssg/` is the static site generator's input (Typst sources, the vendored
+thyme and exemel, the stylesheet and webfonts) and `browser/` is the app's shell
+(`app.html` for Trunk, `boot.js` that swaps the page for the app, `app.css`,
+`cursor.js`). Neither directory is technology-neutral, on purpose: `ssg/` names
+the toolchain that produces the document, `browser/` names the surface that
+boots the app over it.

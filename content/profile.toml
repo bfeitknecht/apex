@@ -1,0 +1,60 @@
+# The one definition of who this site is about.
+#
+# Read at compile time by the Rust core (`src/content.rs`) and at build time by
+# the Typst build (`ssg/site.typ`). Nothing else may hold a copy of these
+# facts: change a link here and the terminal, the SSH session, the browser app
+# and the no-JavaScript page all follow.
+
+name = "Basil Feitknecht"
+email = "io+www@0xbf.ch"
+# How the address is shown when it is also a link.
+email_label = "io@0xbf.ch"
+eyebrow = "Grüezi"
+
+# <title> and <meta name="description"> of the static page.
+site_title = "Basil Feitknecht"
+site_description = "BSc Computer Science at ETH Zürich. Programming languages, formal methods, information security, computer systems and networks, and machine learning."
+
+# One sentence, the page's voice: the static hero and the terminal's first line.
+lede = "BSc Computer Science ETH Zürich. Programming languages, formal methods, information security, computer systems and networks, machine learning."
+
+# The paragraph both surfaces share. The terminal lowercases it once at load
+# (`about_terminal` in `src/content.rs`); the page prints it as written. That is
+# typography, not a second copy of the text.
+about = '''
+My interests span wide and deep. From computer science (both in theory and practice) to math, music, and sports. I like to learn, and I like to teach. I want to understand how things work and make them better.
+'''
+
+# The terminal adds one flourish of its own to the hero block.
+intro = ["student. teacher. artist. engineer. generalist."]
+
+# The parenthesised destinations in the top bar, in order. The static page's
+# hero prints the same three rows, so the two surfaces cannot disagree.
+[[link]]
+label = "glob"
+url = "https://blog.0xbf.ch"
+
+[[link]]
+label = "cv"
+url = "https://0xbf.ch/cv"
+
+[[link]]
+label = "gallery"
+url = "https://gallery.0xbf.ch"
+
+# Contact rows. An empty url is a placeholder that does not open yet.
+[[contact]]
+label = "io@0xbf.ch"
+url = "mailto:io+www@0xbf.ch"
+
+[[contact]]
+label = "github"
+url = "https://github.com/bfeitknecht"
+
+[[contact]]
+label = "tangled"
+url = ""
+
+[[contact]]
+label = "linkedin"
+url = "https://linkedin.com/in/bfeitknecht"

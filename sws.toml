@@ -1,0 +1,37 @@
+# static-web-server configuration for 0xbf.ch.
+#
+# One document root, one URL space. What a visitor gets at a given path depends
+# on the browser, not on the path: `/` is the static page, and its boot script
+# replaces it with the WebAssembly app when the browser can run it. There is no
+# /tui, no /static, no second host.
+#
+#   /                  the page (Typst) + the app's assets, same document root
+#   /contact/          a content page
+#   /age.txt /pgp.txt  plain artifacts, emitted by the page's own build
+#   /cv                → /cv.pdf (rewrite below)
+#   /404.html          the static site's 404
+#
+# Integers stay rational; the app is a single page.
+
+[advanced]
+
+[[advanced.headers]]
+# Nothing is content-hashed (`Trunk.toml` sets `filehash = false`) because the
+# page and the app are built by different toolchains and must agree on names.
+# Everything therefore revalidates: cheap 304s, no stale shells.
+source = "**"
+headers = { Cache-Control = "no-cache" }
+
+[[advanced.headers]]
+# The page's webfonts are the one thing worth keeping: same bytes, forever.
+source = "**/fonts/**"
+headers = { Cache-Control = "public, max-age=31536000, immutable" }
+
+[[advanced.headers]]
+# Tadi Web source views: the .typ sources are meant to be read.
+source = "**/*.typ"
+headers = { Content-Type = "text/plain; charset=utf-8", Content-Disposition = "inline", X-Content-Type-Options = "nosniff" }
+
+[[advanced.rewrites]]
+source = "/cv"
+destination = "/cv.pdf"
