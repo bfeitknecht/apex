@@ -41,7 +41,6 @@ ssg/                   the page: Typst sources, styles, vendor/{thyme,exemel}
 browser/               the app's shell: app.html (Trunk entry), boot.js,
                        app.css, cursor.js
 assets/                fonts, Unicode cmaps, licences
-infra/                 what the infra repo needs; deleted at go-live
 sws.toml               how the container serves the document root
 ```
 

@@ -54,7 +54,6 @@ ssg/                the page: Typst sources + vendored thyme (docs/ssg.md)
 browser/            the app's shell: app.html (Trunk entry), boot.js,
                     app.css, cursor.js
 assets/             fonts, Unicode cmaps, licences
-infra/              everything the infra repo needs; deleted at go-live
 sws.toml            how the container serves the document root
 justfile            the recipes (build, docroot, serve, image, release)
 ```
@@ -65,7 +64,6 @@ justfile            the recipes (build, docroot, serve, image, release)
 - `docs/navigation.md` — views, keys, pointer input, what each frontend owns.
 - `docs/ssg.md` — the page: document root, shared content, build.
 - `docs/go-live.md` — the shortlist between here and going live.
-- `infra/README.md` — the infra integration, with exact paths and merge notes.
 
 ## The SSH portfolio
 
@@ -82,8 +80,9 @@ ssh -p 2222 localhost                                              # another ter
 ```
 
 The server prints its SHA-256 host-key fingerprint at startup; verify it out of
-band before trusting the host. `infra/sshd_config.example` documents the
-alternative of an external `sshd` with `ForceCommand`.
+band before trusting the host. How it is deployed — the two pods, the Traefik
+routes, the Gatus checks, the host-key Secret — lives in the `infra` repository,
+not here.
 
 | Variable | Default | Meaning |
 | --- | --- | --- |
