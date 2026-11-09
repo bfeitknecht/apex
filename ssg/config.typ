@@ -35,6 +35,6 @@
     html.elem("li", html.a(href: "/age.txt", "age.txt")),
     html.elem("li", html.a(href: "/pgp.txt", "pgp.txt")),
     html.elem("li", html.a(href: base + "/sitemap.xml", "sitemap.xml")),
-    html.elem("li", "made with <3 by me."),
+    html.elem("li", "made with <3 by me. No JavaScript."),
   ).join(),
 ))

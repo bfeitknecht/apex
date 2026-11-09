@@ -154,10 +154,9 @@
   eyebrow: profile.eyebrow,
   lede: profile.lede,
   intro: profile.intro.join(" "),
-  // The terminal trims and lowercases the shared paragraph once at load
-  // (`about_terminal` in `src/content.rs`); the page does the same, so both
-  // surfaces print the same string — no trailing line break either.
-  about: lower(profile.about.trim()),
+  // Same paragraph as the terminal's (`about_terminal` in `src/content.rs`),
+  // trimmed the same way — the terminal lowercases it, the page does not.
+  about: profile.about.trim(),
   entries: _entries,
   contacts: _contacts,
   footer: footer,

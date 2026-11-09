@@ -18,9 +18,9 @@ site_description = "BSc Computer Science at ETH Zürich. Programming languages, 
 # One sentence, the page's voice: the static hero and the terminal's first line.
 lede = "BSc Computer Science ETH Zürich. Programming languages, formal methods, information security, computer systems and networks, machine learning."
 
-# The paragraph both surfaces share, printed in the same voice: the terminal
-# lowercases it once at load (`about_terminal` in `src/content.rs`) and the page
-# lowercases the same string at build time, so the two cannot drift.
+# The paragraph both surfaces share. The terminal lowercases it once at load
+# (`about_terminal` in `src/content.rs`); the page prints it as written. That is
+# typography, not a second copy of the text.
 about = '''
 My interests span wide and deep. From computer science (both in theory and practice) to math, music, and sports. I like to learn, and I like to teach. I want to understand how things work and make them better.
 '''

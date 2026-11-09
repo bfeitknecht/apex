@@ -106,6 +106,14 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         ".ttf": "font/ttf",
     }
 
+    def end_headers(self) -> None:  # noqa: D102 - stdlib hook
+        # The container revalidates through `sws.toml` (ETag, no-cache), but a
+        # preview pane will happily keep showing a page from before the build.
+        # Nothing here is worth caching, so nothing here is cached.
+        self.send_header("Cache-Control", "no-store, must-revalidate")
+        self.send_header("Pragma", "no-cache")
+        super().end_headers()
+
     def translate_path(self, path: str) -> str:
         if path.split("?", 1)[0] == "/cv":
             return str(PUBLIC / "cv.pdf")
