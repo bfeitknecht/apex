@@ -78,3 +78,6 @@ jobs:
           test -f public/cv.pdf
           grep -q 'id="app-shell"' public/index.html
           grep -q 'src="/boot.js"' public/index.html
+          # `webpage` writes its own document: it has to carry the stylesheet
+          # explicitly, or the page ships unstyled.
+          grep -q 'rel="stylesheet"' public/contact/index.html

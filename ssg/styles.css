@@ -52,6 +52,7 @@
      source bar pulls itself back out of it so the hero starts at the top. */
   --stack: clamp(2.5rem, 6vw, 4.25rem);
   --top: clamp(1.5rem, 3vw, 2.25rem);
+  --bottom: clamp(2.5rem, 5vw, 4rem);
 
   --step--1: clamp(0.83rem, 0.80rem + 0.15vw, 0.90rem);
   --step-0: clamp(1.00rem, 0.96rem + 0.20vw, 1.09rem);
@@ -92,7 +93,7 @@ html {
 
 body {
   min-height: 100svh;
-  padding: var(--top) var(--gutter) clamp(4rem, 10vw, 8rem);
+  padding: var(--top) var(--gutter) var(--bottom);
   display: flex;
   flex-direction: column;
   align-items: center;
