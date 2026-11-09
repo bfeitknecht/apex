@@ -250,6 +250,15 @@ h1 {
   text-decoration-color: var(--fg);
 }
 
+/* thyme wraps the whole page in `#plain`: the hero, the sections and the
+   footer are its children, so the rhythm has to live here as well as on
+   `body` — otherwise the first section sits right under the link row. */
+#plain {
+  display: flex;
+  flex-direction: column;
+  gap: var(--stack);
+}
+
 main {
   display: flex;
   flex-direction: column;
