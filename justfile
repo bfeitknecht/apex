@@ -82,6 +82,7 @@ serve:
         -v "{{justfile_directory()}}/sws.toml:/sws.toml:ro" \
         -e SERVER_HOST=0.0.0.0 -e SERVER_PORT=8080 -e SERVER_ROOT=/public \
         -e SERVER_ERROR_PAGE_404=./404.html -e SERVER_CONFIG_FILE=/sws.toml \
+        -e SERVER_CACHE_CONTROL_HEADERS=false -e SERVER_LOG_LEVEL=info \
         joseluisq/static-web-server:2.44.1-alpine
 
 # Build the document root, then serve it on :8080.
