@@ -81,3 +81,18 @@ jobs:
           # `webpage` writes its own document: it has to carry the stylesheet
           # explicitly, or the page ships unstyled.
           grep -q 'rel="stylesheet"' public/contact/index.html
+      - name: The page lists what the terminal lists
+        # Both surfaces read `content/projects.toml` at build time. This checks
+        # the rendered order against that file, so a renderer that sorts, drops
+        # or duplicates an entry cannot pass unnoticed.
+        run: |
+          python3 - <<'CHECK'
+          import pathlib, re, tomllib
+
+          projects = tomllib.loads(pathlib.Path("content/projects.toml").read_text())
+          expected = [project["name"] for project in projects["project"]]
+          html = pathlib.Path("public/index.html").read_text()
+          listed = re.findall(r"<h3><a[^>]*>([^<]+)</a>", html)
+          assert listed == expected, f"page lists {listed}, content has {expected}"
+          print(len(listed), "projects, in content order:", " ".join(listed))
+          CHECK
