@@ -1,8 +1,10 @@
 # Go-live shortlist for 0xbf.ch
 
 Ordered. Group 2 blocks the launch, 3 is the launch, 4 is afterwards.
-Everything the infra repo needs lives in `infra/` — see `infra/README.md`; that
-directory is deleted once it has been merged.
+The deployment — the manifests, the Traefik routes, the Gatus checks, the host
+key's Secret — lives in the `infra` repository, and is integrated there. This
+repository ships the image and the document root; section 4 only has the steps
+that are still this side of the line.
 
 ## 1. What CI has already proven
 
@@ -18,8 +20,8 @@ The restructure was written in a sandbox that could not reach
   fonts are flat in the document root, where `app.css`'s bare `@font-face` URLs
   look for them;
 - `typst compile --format bundle` for the page, then asserts the bundle's shape
-  (`index.html`, `site.typ`, `contact/`, `404.html`, `sitemap.xml`, the emitted
-  `age.txt`/`pgp.txt`/`cv.pdf`, the app shell).
+  (`index.html`, `site.typ`, `contact/`, `404.html`, `sitemap.xml`, `robots.txt`,
+  the emitted `age.txt`/`pgp.txt`/`cv.pdf`, the app shell).
 
 So the code compiles, the tests pass, and both artifacts build. Not verified by
 CI: `just docroot`, the Docker stages, and everything in section 2.
@@ -54,18 +56,14 @@ CI: `just docroot`, the Docker stages, and everything in section 2.
 
 ## 4. Ship
 
-1. [ ] Create the SSH host key and the `apex-ssh-host-key` Secret
-   (`infra/README.md`, steps 1–3).
-2. [ ] Copy `infra/kubernetes/.` over the infra repo, uncomment
-   `ssh-host-key.sops.yaml`, commit, push, `flux reconcile` `traefik` and
-   `apex`.
-3. [ ] Router: WAN **2223/tcp** → `10.10.20.10:2223` (git). WAN 22 already
+1. [ ] Create the SSH host key and the `apex-ssh-host-key` Secret, then
+   uncomment `ssh-host-key.sops.yaml` in the `infra` repo, commit, push,
+   `flux reconcile` `traefik` and `apex`.
+2. [ ] Router: WAN **2223/tcp** → `10.10.20.10:2223` (git). WAN 22 already
    points at the Pi and now reaches the portfolio.
-4. [ ] Update git remotes/clients for `git.0xbf.ch` on **2223**.
-5. [ ] `just release v0.1.0 "apex v0.1.0"`; wait for `:latest` and for Keel to
+3. [ ] Update git remotes/clients for `git.0xbf.ch` on **2223**.
+4. [ ] `just release v0.1.0 "apex v0.1.0"`; wait for `:latest` and for Keel to
    roll both pods.
-6. [ ] Delete `infra/` from this repo in the same commit that lands it in the
-   infra repo.
 
 ## 5. Verify, then leave it alone
 
@@ -78,8 +76,8 @@ CI: `just docroot`, the Docker stages, and everything in section 2.
 - [ ] `/cv`, `/age.txt`, `/pgp.txt` resolve; `/404.html` shows for a typo'd path.
 - [ ] `blog.0xbf.ch` and `git.0xbf.ch` still work after the Traefik roll.
 - [ ] Gatus: `apex` and `apex-ssh` green; both pods `Running`.
-- [ ] Back up the host key with the other secrets; note the fingerprint in
-      `infra/README.md` so a future rebuild can be compared.
+- [ ] Back up the host key with the other secrets; note its fingerprint next to
+      them so a future rebuild can be compared.
 
 ## Later, not blocking
 

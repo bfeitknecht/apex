@@ -6,6 +6,5 @@ target
 dist
 public
 docs
-infra
 __pycache__
 .DS_Store
