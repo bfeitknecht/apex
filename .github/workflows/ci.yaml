@@ -1,8 +1,11 @@
 name: CI
 
 on:
+  # `main` never existed here: the default branch is `master` and the integration
+  # branch is `rework`, so pushes to either would otherwise go unverified and
+  # only pull requests would run CI.
   push:
-    branches: [main]
+    branches: [master, rework]
   pull_request:
   workflow_dispatch:
 
@@ -71,6 +74,7 @@ jobs:
           test -f public/site.typ
           test -f public/404.html
           test -f public/sitemap.xml
+          test -f public/robots.txt
           test -f public/contact/index.html
           test -f public/assets/favicon.svg
           test -f public/age.txt
@@ -81,6 +85,12 @@ jobs:
           # `webpage` writes its own document: it has to carry the stylesheet
           # explicitly, or the page ships unstyled.
           grep -q 'rel="stylesheet"' public/contact/index.html
+          # The top row is the three destinations, as plain links.
+          grep -q '>cv</a>' public/index.html
+          grep -q '>blog</a>' public/index.html
+          grep -q '>gallery</a>' public/index.html
+          # The CV is emitted byte for byte, not re-encoded.
+          cmp content/cv.pdf public/cv.pdf
       - name: The page lists what the terminal lists
         # Both surfaces read `content/projects.toml` at build time. This checks
         # the rendered order against that file, so a renderer that sorts, drops

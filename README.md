@@ -22,15 +22,17 @@ quaternion Julia explorer, an EGA framebuffer sweep).
 
 ```sh
 just                 # list the recipes
-just dev             # both toolchains, watch, serve on :8080
+just dev             # both toolchains, then serve :8080 in sws
 just native          # terminal portfolio
 just ssh             # SSH server on 0.0.0.0:2222 (needs APEX_SSH_HOST_KEY)
 just check           # clippy, tests, wasm32 build
 ```
 
 `just dev` is the one to use: the site is two builds into one document root
-(Typst for the page, Trunk for the app), and the script serves that root the way
-the container does.
+(Typst for the page, Trunk for the app), and `just serve` then serves `./public`
+with the same `static-web-server` and `sws.toml` the container uses — rewriting
+`/cv`, answering 404 with the page's own 404, sending the same headers. It needs
+Docker, nothing else.
 
 Toolchains: stable Rust, `cargo install trunk` plus the
 `wasm32-unknown-unknown` target, `typst >= 0.15.1`, `just`, `python3`. The
@@ -54,7 +56,7 @@ browser/            the app's shell: app.html (Trunk entry), boot.js,
 assets/             fonts, Unicode cmaps, licences
 infra/              everything the infra repo needs; deleted at go-live
 sws.toml            how the container serves the document root
-scripts/dev.py      build both, watch, serve
+justfile            the recipes (build, docroot, serve, image, release)
 ```
 
 ## Documentation

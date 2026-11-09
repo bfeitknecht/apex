@@ -66,13 +66,13 @@ FROM joseluisq/static-web-server:2.44.1-alpine AS runtime
 # `ssh` would shadow the OpenSSH client in a debugging shell, so the binary is
 # installed under the site's name.
 COPY --from=ssh /work/target/release/ssh /usr/local/bin/apex-ssh
-# The page first, then the app's assets into the same root: `dist` holds no
-# document of its own, only `apex.js`, `apex_bg.wasm`, `app.css`, `boot.js`,
-# `cursor.js` and the fonts the page already refers to by name.
-COPY --from=ssg /public /public
+# The app's assets first, then the page over them. Trunk renames its entry
+# document to `index.html`, so copying `dist` last would replace the page with
+# Trunk's stub; this order makes the page the document and leaves the app as
+# `apex.js`, `apex_bg.wasm`, `app.css`, `boot.js`, `cursor.js` and the fonts the
+# page already refers to by name.
 COPY --from=app /dist /public
-# Trunk's own entry document has no business in the served root.
-RUN rm -f /public/app.html
+COPY --from=ssg /public /public
 COPY sws.toml /sws.toml
 
 ENV SERVER_HOST=0.0.0.0 \

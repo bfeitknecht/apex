@@ -40,6 +40,7 @@
   sitemap-xml,
   render-seo-meta,
 )
+#import "blog/theme.typ": css-hex, default-theme
 #import "text.typ": count-words, estimate-reading-minutes, to-plain-text
 #import "tree.typ": collect-content, find-content, map-containers
 
@@ -623,6 +624,10 @@ a.heading-anchor { margin-left: 0.35em; opacity: 0; text-decoration: none; font-
   extra-head: none,
   body-wrapper: none,
   wrap-main: true,
+  /// Theme dictionary used to derive `<meta name="theme-color">`. Browsers only
+  /// honour sRGB there, so the `oklch` tokens are converted to hex for this one tag.
+  /// -> dictionary
+  theme-config: default-theme,
   body,
 ) = {
   let in-bundle = doc-path != none
@@ -687,9 +692,19 @@ a.heading-anchor { margin-left: 0.35em; opacity: 0; text-decoration: none; font-
           ..if favicon-type != none { (type: favicon-type) } else { (:) },
         )
       }
-      // Theme color meta tag (Light: #f2f2f2, Dark: #101010) for strict monochrome scheme
-      html.meta(name: "theme-color", content: "#f2f2f2", media: "(prefers-color-scheme: light)")
-      html.meta(name: "theme-color", content: "#101010", media: "(prefers-color-scheme: dark)")
+      // `theme-color` follows the active theme rather than a pinned hex value. This is
+      // the one place a literal is unavoidable: browsers ignore non-sRGB colour
+      // syntax here, so the oklch tokens are converted at compile time.
+      html.meta(
+        name: "theme-color",
+        content: css-hex(theme-config.paper-light),
+        media: "(prefers-color-scheme: light)",
+      )
+      html.meta(
+        name: "theme-color",
+        content: css-hex(theme-config.paper-dark),
+        media: "(prefers-color-scheme: dark)",
+      )
       for css-p in stylesheet-paths {
         let p-str = str(css-p)
         let href = if p-str.starts-with("http://") or p-str.starts-with("https://") or p-str.starts-with("/") {
@@ -923,6 +938,12 @@ a.heading-anchor { margin-left: 0.35em; opacity: 0; text-decoration: none; font-
       // A preset site (e.g. `blog`) styles its own top bar, so skip the built-in
       // monochrome rules; plain core sites get them.
       let is-preset-site = site-config != none and site-config.at("is-preset", default: false)
+      // A preset may supply its resolved theme so `theme-color` tracks user overrides.
+      let shell-theme = if site-config != none {
+        site-config.at("theme", default: default-theme)
+      } else {
+        default-theme
+      }
 
       render-core-shell(
         title: resolved-title,
@@ -946,6 +967,7 @@ a.heading-anchor { margin-left: 0.35em; opacity: 0; text-decoration: none; font-
         open-graph: eff-og,
         wrap-main: wrap-main,
         extra-head: head,
+        theme-config: shell-theme,
         {
           show: with-html-headings.with(shift: 0, permalinks: eff-permalinks)
           set text(lang: eff-langs.first())
@@ -1189,6 +1211,14 @@ a.heading-anchor { margin-left: 0.35em; opacity: 0; text-decoration: none; font-
     none
   }
 
+  // `site()` emits the mounted pages and the built-in 404 itself, so it needs the same
+  // resolved theme `webpage()` derives: a preset (e.g. `blog`) supplies it through
+  // `_preset-config`, a plain core site keeps `default-theme`.
+  let shell-theme = if ext.at("_preset-config", default: none) != none {
+    ext.at("_preset-config").at("theme", default: default-theme)
+  } else {
+    default-theme
+  }
   let site-config = (
     title: resolved-title,
     description: description,
@@ -1310,6 +1340,7 @@ a.heading-anchor { margin-left: 0.35em; opacity: 0; text-decoration: none; font-
               open-graph: open-graph,
               extra-head: head,
               wrap-main: wrap-main,
+              theme-config: if site-config != none { site-config.at("theme", default: default-theme) } else { default-theme },
               home-inner,
             )
           }
@@ -1323,7 +1354,20 @@ a.heading-anchor { margin-left: 0.35em; opacity: 0; text-decoration: none; font-
         {
           emit-doc-marker("404.html", <thyme-not-found>)
           if type(not-found-page) == content {
-            not-found-page
+            // A user-supplied body is not a document, so it gets no `<head>` of its own;
+            // wrap it so it still carries the stylesheet, meta and `theme-color` tags.
+            render-core-shell(
+              title: "404",
+              site-title: resolved-title,
+              doc-path: "404.html",
+              langs: home-langs,
+              stylesheet-paths: sheet-hrefs,
+              favicon-href: if norm-fav != none { norm-fav.path } else { none },
+              favicon-type: if norm-fav != none { norm-fav.mime } else { none },
+              wrap-main: true,
+              theme-config: shell-theme,
+              not-found-page,
+            )
           } else if not-found-hook != none {
             not-found-hook(resolved-title, home-langs.first(), sheet-hrefs)
           } else {
@@ -1333,6 +1377,16 @@ a.heading-anchor { margin-left: 0.35em; opacity: 0; text-decoration: none; font-
                 html.meta(name: "viewport", content: "width=device-width, initial-scale=1")
                 html.meta(name: "robots", content: "noindex")
                 html.title("404 - " + to-plain-text(resolved-title, lang: home-langs.first()))
+                html.meta(
+                  name: "theme-color",
+                  content: css-hex(shell-theme.paper-light),
+                  media: "(prefers-color-scheme: light)",
+                )
+                html.meta(
+                  name: "theme-color",
+                  content: css-hex(shell-theme.paper-dark),
+                  media: "(prefers-color-scheme: dark)",
+                )
                 for css-p in sheet-hrefs {
                   html.link(rel: "stylesheet", href: "/" + str(css-p).trim("/"))
                 }
@@ -1384,6 +1438,7 @@ a.heading-anchor { margin-left: 0.35em; opacity: 0; text-decoration: none; font-
               source-label: source-label,
               back-content: html.a(href: rel-root(m.path) + "index.html", "/.."),
               open-graph: open-graph,
+              theme-config: shell-theme,
               {
                 show: with-html-headings.with(shift: 0, permalinks: heading-permalinks)
                 m.body
@@ -1488,6 +1543,13 @@ a.heading-anchor { margin-left: 0.35em; opacity: 0; text-decoration: none; font-
           root-alternates: alternates,
         )
         [#asset(sitemap-path, bytes(sm-xml))<sitemap>]
+      }
+      // `robots: auto` means "on whenever a sitemap is emitted". This was documented and
+      // `robots-txt` was exported, but nothing ever called it, so no bundle contained a
+      // robots.txt at all.
+      let emit-robots = if robots == auto { sitemap-path != none } else { robots == true }
+      if emit-robots {
+        [#asset("robots.txt", bytes(robots-txt(site-url: url, sitemap-path: sitemap-path)))<robots>]
       }
       if rss-path != none {
         let rss-xml = rss-xml(

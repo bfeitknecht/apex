@@ -11,7 +11,7 @@ pointer input mirrors the keyboard.
                  ┌─────────────── portfolio ───────────────┐
                  │  about (0) ⇄ projects (1) ⇄ contact (2) │
                  └───────┬─────────────────────────┬───────┘
-                         │ glob / cv / gallery      │ age, pgp, me
+                         │ cv / blog / gallery      │ age, pgp, me
                          ▼                          ▼
                      external link             document ──Esc──▶ portfolio
                          │

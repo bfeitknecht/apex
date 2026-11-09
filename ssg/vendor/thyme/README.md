@@ -116,8 +116,50 @@ headers = { Content-Type = "text/plain; charset=utf-8", Content-Disposition = "i
 
 ---
 
+## Stability & Versioning
+
+`thyme` follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Because Typst packages
+are pinned per-version (`@preview/thyme:0.1.0`), upgrading is always an explicit, reviewable change
+in your `typst.toml`-adjacent imports — nothing is fetched at compile time beyond the version you
+name.
+
+What the version number promises:
+
+| Surface | Guarantee |
+| :--- | :--- |
+| Names re-exported by `#import "@preview/thyme:0.1.0": *` | **Stable** across `0.x` patch releases; renamed only in a minor release, with the old name gone (no deprecation aliases — see below). |
+| Names re-exported by `#import blog: *` | Same as above. |
+| Named arguments of `site`, `blog.site`, `webpage`, `post`, `mount`, `file`, `page-asset` | **Stable** across patch releases. Additive parameters are non-breaking. |
+| Emitted file layout (`index.html`, `404.html`, `.typ` siblings, `sitemap.xml`, `robots.txt`, `rss.xml`, `atom.xml`, `tags/`) | **Stable**; new optional outputs only behind opt-in options. |
+| CSS class names (`blog-*`, `thyme-*`) | Treat as **semi-public** — used for theming/styling, so changes ship with a CHANGELOG note. |
+| Anything prefixed `_` in `src/` | **Private**. No guarantee; may change in any release. |
+
+### Deliberately no deprecation aliases
+
+Renames in `thyme` are **hard renames**: the old name is removed in the same release that adds the
+new one. Accumulating aliases would make the public surface grow without bound and make it
+impossible to tell which spelling is canonical. The CHANGELOG records every rename, and a frozen
+downstream can simply stay pinned to its existing version — the compile-time package model makes a
+rename a non-event for anyone who is not actively upgrading.
+
+### Freezing a downstream
+
+To stabilise a site against upstream churn, pin the exact patch version and let CI hold it:
+
+```typ
+// site.typ — pinned; bump deliberately, never implicitly
+#import "@preview/thyme:0.1.0": *
+```
+
+`just check` verifies the whole repository (all three example sites, unit tests, docs, and the
+Universe staging payload) against the pinned compiler from `typst.toml`, so a dependency bump is a
+single PR that either goes fully green or does not merge.
+
+---
+
 ## Documentation & Examples
 
+- **[API Surface (`docs/api.md`)](docs/api.md)** — the complete exported surface, core and `blog` preset, grouped by purpose.
 - **[Package Reference Manual (`docs/manual.pdf`)](docs/manual.pdf)** — complete API documentation generated from source doc-comments with `@preview/tidy:0.4.3`.
 - **[`template/`](template)** — starter monochrome blog (`typst init @preview/thyme:0.1.0`).
 - **[`examples/portfolio/`](examples/portfolio)** — zero-CSS core `thyme` site using custom `styles.css`, `htm`, `h`, `#tr(en: ..., de: ...)`, `file`, and `webpage`.

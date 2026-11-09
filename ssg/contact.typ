@@ -5,6 +5,8 @@
   title: [Contact],
   description: "Email, socials, and public keys of " + profile.name + ".",
   wrap-main: false,
+  // The default backlink text is `/..`, which reads like a broken path.
+  home-text: "0xbf.ch",
   // `webpage` writes a whole document of its own, so `site`'s `stylesheets:` and
   // `favicon:` never reached this page: it was served unstyled.
   head: {
