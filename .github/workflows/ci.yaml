@@ -1,11 +1,11 @@
 name: CI
 
 on:
-  # `main` never existed here: the default branch is `master` and the integration
-  # branch is `rework`, so pushes to either would otherwise go unverified and
-  # only pull requests would run CI.
+  # One branch carries the site: `master`, which is the default branch. (Neither
+  # `main` nor the retired `rework` exists any more, so naming them here meant CI
+  # silently never ran on a push.)
   push:
-    branches: [master, rework]
+    branches: [master]
   pull_request:
   workflow_dispatch:
 
