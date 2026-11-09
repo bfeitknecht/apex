@@ -356,7 +356,9 @@ footer {
 
 footer .links {
   margin-block: 0;
-  gap: 0;
+  /* Only the row gap survives a narrow viewport; keep the line from collapsing
+     onto itself when it wraps. */
+  row-gap: 0.25rem;
 }
 
 footer .links li + li::before {
