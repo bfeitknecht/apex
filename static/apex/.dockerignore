@@ -1,7 +1,0 @@
-.git
-.github
-Dockerfile
-.dockerignore
-justfile
-README.md
-public

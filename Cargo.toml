@@ -1,31 +1,71 @@
 [package]
-default-run = "apex"
 name = "apex"
 version = "0.1.0"
 edition = "2021"
+description = "A monochrome, keyboard-first portfolio: Ratatui TUI, Ratzilla web app and SSH server"
+default-run = "apex"
+
+# The core is target independent: `app` (state), `content` (copy), `ui`
+# (Ratatui rendering) and `visuals` (generative visuals) build for both the
+# native and the wasm32 target.
 [dependencies]
 ratatui = { version = "0.30.1", default-features = false }
+unicode-blocks = "0.1.10"
+unicode_names2 = "=3.1.0"
+# `content/*.toml` is shared with the Typst site, so it is parsed, not baked in.
+serde = { version = "1", features = ["derive"] }
+toml = "0.8"
+
+# Native terminal and SSH frontends.
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 crossterm = "0.29"
-russh = { version = "0.65", default-features = false, features = ["ring"], optional = true }
-tokio = { version = "1", features = ["rt-multi-thread", "macros", "net", "sync", "time", "signal"], optional = true }
 ratatui = { version = "0.30.1", features = ["crossterm"] }
+russh = { version = "0.65", default-features = false, features = ["ring"], optional = true }
+tokio = { version = "1", features = [
+  "macros",
+  "net",
+  "rt-multi-thread",
+  "signal",
+  "sync",
+  "time",
+], optional = true }
+
+# Browser frontend (Ratzilla over WebGL2, falling back to Canvas 2D and DOM).
 [target.'cfg(target_arch = "wasm32")'.dependencies]
-ratzilla = "0.3.1"
-unicode_names2 = "=3.1.0"
-unicode-blocks = "0.1.10"
-js-sys = "0.3"
 console_error_panic_hook = "0.1"
+js-sys = "0.3"
+ratzilla = "0.3.1"
 wasm-bindgen = "0.2"
 wasm-bindgen-futures = "0.4"
-web-sys = { version = "0.3", features = ["Window", "Document", "Element", "HtmlCanvasElement", "CanvasRenderingContext2d", "ImageData", "FontFaceSet", "CssStyleDeclaration", "HtmlElement", "console", "WheelEvent", "EventTarget", "AddEventListenerOptions", "TouchEvent", "TouchList", "Touch", "TextMetrics", "Selection", "MouseEvent"] }
+web-sys = { version = "0.3", features = [
+  "AddEventListenerOptions",
+  "CanvasRenderingContext2d",
+  "CssStyleDeclaration",
+  "Document",
+  "Element",
+  "EventTarget",
+  "FontFaceSet",
+  "HtmlCanvasElement",
+  "HtmlElement",
+  "ImageData",
+  "KeyboardEvent",
+  "MouseEvent",
+  "Node",
+  "Selection",
+  "TextMetrics",
+  "Touch",
+  "TouchEvent",
+  "TouchList",
+  "WheelEvent",
+  "Window",
+  "console",
+] }
 
 [features]
 default = []
-crash-study = []
 ssh = ["dep:russh", "dep:tokio"]
 
 [[bin]]
-name = "apex-ssh"
-path = "src/bin/apex-ssh.rs"
+name = "ssh"
+path = "src/bin/ssh.rs"
 required-features = ["ssh"]

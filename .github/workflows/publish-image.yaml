@@ -1,0 +1,21 @@
+name: Publish Image
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+concurrency:
+  group: publish-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    permissions:
+      contents: read
+      packages: write
+    uses: bfeitknecht/infra/.github/workflows/publish-image.yaml@master
+    with:
+      # The cluster nodes are arm64 only; the amd64 leg would never be pulled.
+      platforms: linux/arm64
