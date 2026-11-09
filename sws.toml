@@ -28,6 +28,13 @@ source = "**/fonts/**"
 headers = { Cache-Control = "public, max-age=31536000, immutable" }
 
 [[advanced.headers]]
+# The CV is one name all the way through: `content/cv.pdf` in the repo,
+# `/cv.pdf` in the document root, `/cv` as the URL, and — this header — `cv.pdf`
+# as the file a browser saves.
+source = "**/cv.pdf"
+headers = { Content-Disposition = "inline; filename=\"cv.pdf\"" }
+
+[[advanced.headers]]
 # Tadi Web source views: the .typ sources are meant to be read.
 source = "**/*.typ"
 headers = { Content-Type = "text/plain; charset=utf-8", Content-Disposition = "inline", X-Content-Type-Options = "nosniff" }

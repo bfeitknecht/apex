@@ -97,6 +97,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  /* Two children: the source bar and thyme's body wrapper. */
   gap: var(--stack);
 
   background: var(--bg);
@@ -112,6 +113,16 @@ body {
 body > * {
   inline-size: 100%;
   max-inline-size: var(--measure);
+}
+
+/* The wrapper holds the hero, `main` and the footer, and is its own column: the
+   rhythm is the gap between those three, not `body`'s. As a plain block it was
+   no gap at all, so the hero ran straight into section 01 and the footer sat on
+   the last line of Contact. */
+#plain {
+  display: flex;
+  flex-direction: column;
+  gap: var(--stack);
 }
 
 nav.back-home {
@@ -454,6 +465,9 @@ footer {
 
   body {
     padding: 0;
+  }
+
+  #plain {
     gap: 2rem;
   }
 
