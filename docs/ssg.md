@@ -82,7 +82,7 @@ The terminal prints `summary` on one line; the page prints `description` and
 ## Build
 
 ```sh
-just dev        # both toolchains, watch, serve ./public on :8080
+just dev        # both toolchains, then serve ./public on :8080
 just ssg        # ./public: page + artifacts
 just app        # ./dist: app assets only
 just docroot    # ./public: page, then dist over it

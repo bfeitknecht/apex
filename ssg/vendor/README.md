@@ -12,15 +12,28 @@ a snapshot of the source.
 | | |
 | --- | --- |
 | repository | `https://github.com/bfeitknecht/thyme` |
-| snapshot of | `arena/9f15ab2b-thyme` @ `1187b2d` (PR #1, *Cleanup pass: memorable palette tokens, valid @font-face, heading id fixes*), open, not merged |
+| snapshot of | `master` @ `ca01807` (PRs #1–#3 merged: palette tokens, `@font-face`, heading ids, theme-derived `theme-color`, `robots.txt`, bundle-path fixes) |
 | package version | `0.1.0` (`typst.toml`), import stays `@preview/thyme:0.1.0` |
 | contents | `src/`, `template/`, `typst.toml`, `LICENSE`, `README.md`, `CHANGELOG.md`, `thumbnail.png` — exactly the surface `typst.toml` publishes, nothing else |
-| refreshed | 2026-11-09 |
+| refreshed | 2026-11-09 (second pass, after the upstream merges) |
 
 To refresh: copy the new `src/`, `template/`, `typst.toml`, `LICENSE`,
 `README.md`, `CHANGELOG.md`, `thumbnail.png` over this directory and update the
 row above. Keep `examples/`, `docs/`, `assets/`, `tests/` and `vendor/` out —
 they are excluded from the published package and only drift.
+
+Behaviour that changed for this site when the snapshot moved from `1187b2d` to
+`ca01807`:
+
+- **`robots.txt` is emitted at last.** It was documented and exported but never
+  called, so the bundle had none.
+- **A custom `not-found-page` is wrapped in the core shell.** `site()` renders it
+  with the stylesheet, favicon and `theme-color` of the site, so the value must
+  be a *body fragment*; `ssg/site.typ` returns one now. A whole document there
+  would nest one `<html>` in another.
+- **`theme-color` is derived from the theme** (`css-hex(paper-light/dark)`)
+  instead of being pinned to `#f2f2f2`/`#101010`; with the default palette the
+  light value is unchanged.
 
 API differences this snapshot carries over the previous one, for the record:
 

@@ -6,7 +6,7 @@
 #import "../core.typ": render-core-shell
 #import "../paths.typ": with-smart-refs
 #import "../text.typ": to-plain-text
-#import "theme.typ": stylesheet-css, default-theme, stylesheet-href
+#import "theme.typ": css-hex, stylesheet-css, default-theme, stylesheet-href
 
 /// Minimal event-delegated copy-button handler for `zebraw` code listings.
 #let clipboard-script = "document.addEventListener('click', (ev) => {
@@ -106,6 +106,7 @@
     source-label: source-label,
     back-content: back-content,
     render-topbar: render-topbar,
+    theme-config: theme-config,
     include-feeds: include-feeds,
     rss-path: rss-path,
     atom-path: atom-path,
@@ -154,6 +155,16 @@
       html.meta(name: "viewport", content: "width=device-width, initial-scale=1")
       html.meta(name: "robots", content: "noindex")
       html.title("404 - " + to-plain-text(site-title, lang: lang))
+      html.meta(
+        name: "theme-color",
+        content: css-hex(theme-config.paper-light),
+        media: "(prefers-color-scheme: light)",
+      )
+      html.meta(
+        name: "theme-color",
+        content: css-hex(theme-config.paper-dark),
+        media: "(prefers-color-scheme: dark)",
+      )
       for css-p in sheets {
         let p-str = str(css-p)
         let href = if p-str.starts-with("http://") or p-str.starts-with("https://") or p-str.starts-with("/") {

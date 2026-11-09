@@ -73,9 +73,19 @@ docroot: ssg app-release
     rm -f dist/index.html dist/app.html
     cp -R dist/. public/
 
-# Build both, watch for changes, serve ./public on :8080.
-dev:
-    python3 scripts/dev.py
+# Serve ./public the way the container does: the same `sws` binary, the same
+# `sws.toml`, so `/cv` rewrites, the 404 page and the headers are the ones that
+# ship. Rebuild in another shell (`just ssg`, `just app-release`) and reload.
+serve:
+    docker run --rm -p 8080:8080 \
+        -v "{{justfile_directory()}}/public:/public" \
+        -v "{{justfile_directory()}}/sws.toml:/sws.toml:ro" \
+        -e SERVER_HOST=0.0.0.0 -e SERVER_PORT=8080 -e SERVER_ROOT=/public \
+        -e SERVER_ERROR_PAGE_404=./404.html -e SERVER_CONFIG_FILE=/sws.toml \
+        joseluisq/static-web-server:2.44.1-alpine
+
+# Build the document root, then serve it on :8080.
+dev: docroot serve
 
 # Container image: one document root plus the SSH binary.
 image:

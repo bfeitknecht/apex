@@ -9,11 +9,11 @@
   "LICENSE.txt",
 )
 
-// The hero's destinations are the app's top bar, drawn the way the terminal
-// draws it: the label in parentheses, a `|` between the rows and one after the
-// last. Mail, github and linkedin live in the contact section, as they do there.
+// The hero's destinations — `cv`, `blog`, `gallery`, in `content`'s order. No
+// decoration of the terminal's: plain links, dots between them. Mail, github and
+// linkedin live in the contact section below.
 #let _links = for row in profile.link {
-  html.elem("li", html.a(href: row.url, "(" + row.label + ")"))
+  html.elem("li", html.a(href: row.url, row.label))
 }
 
 // The contact rows, in the order `content/profile.toml` lists them — the same
@@ -39,23 +39,14 @@
   })
 }
 
-#let _not-found = html.html(lang: "en", {
-  html.head({
-    html.meta(charset: "utf-8")
-    html.meta(name: "viewport", content: "width=device-width, initial-scale=1")
-    html.meta(name: "robots", content: "noindex")
-    html.title("404 - 0xbf.ch")
-    html.link(rel: "icon", href: base + "/assets/favicon.svg", type: "image/svg+xml")
-    html.link(rel: "stylesheet", href: base + "/styles.css")
-  })
-  html.body({
-    html.header(class: "notfound", {
-      html.h1("404")
-      html.p(class: "lede", "No such page.")
-      html.elem("nav", attrs: (class: "links", "aria-label": "Navigation"), {
-        html.a(href: base + "/", "back to /")
-      })
-    })
+// A *body fragment*: thyme 0.1.0's `site()` wraps a custom `not-found-page` in
+// its core shell, which brings the stylesheet, the favicon and `theme-color`.
+// Returning a whole document here would nest one `<html>` inside another.
+#let _not-found = html.elem("header", attrs: (class: "notfound"), {
+  html.h1("404")
+  html.p(class: "lede", "No such page.")
+  html.elem("nav", attrs: (class: "links", "aria-label": "Navigation"), {
+    html.a(href: base + "/", "back to /")
   })
 })
 
@@ -119,7 +110,7 @@
       <h1>{name}</h1>
       <p class="lede">{lede}</p>
       <p class="intro">{intro}</p>
-      <ul class="destinations">{links}</ul>
+      <ul class="links">{links}</ul>
     </header>
 
     <main>

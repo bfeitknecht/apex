@@ -74,6 +74,7 @@ jobs:
           test -f public/site.typ
           test -f public/404.html
           test -f public/sitemap.xml
+          test -f public/robots.txt
           test -f public/contact/index.html
           test -f public/assets/favicon.svg
           test -f public/age.txt

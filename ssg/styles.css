@@ -241,47 +241,14 @@ h1 {
   color: color-mix(in oklab, var(--muted) 50%, transparent);
 }
 
-.links a,
-.destinations a {
+.links a {
   text-decoration-thickness: 1px;
   text-underline-offset: 0.25em;
   text-decoration-color: color-mix(in oklab, var(--muted) 40%, transparent);
 }
 
-.links a:hover,
-.destinations a:hover {
+.links a:hover {
   text-decoration-color: var(--fg);
-}
-
-/* The hero bar is the terminal's top bar: `(cv) | (blog) | (gallery) |` — no
-   dots, no bullets, one pipe on each side and one after the last row. */
-.destinations {
-  list-style: none;
-  padding: 0;
-  margin-block-start: 1.5rem;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  row-gap: 0.4rem;
-  font-family: var(--mono);
-  font-size: var(--step--1);
-  letter-spacing: 0.02em;
-}
-
-.destinations li + li::before,
-.destinations li:last-child::after {
-  content: "|";
-  margin-inline: 0.5em;
-  color: color-mix(in oklab, var(--muted) 55%, transparent);
-}
-
-/* thyme wraps the whole page in `#plain`: the hero, the sections and the
-   footer are its children, so the rhythm has to live here as well as on
-   `body` — otherwise the first section sits right under the link row. */
-#plain {
-  display: flex;
-  flex-direction: column;
-  gap: var(--stack);
 }
 
 main {
