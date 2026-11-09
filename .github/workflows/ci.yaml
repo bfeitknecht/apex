@@ -81,6 +81,12 @@ jobs:
           # `webpage` writes its own document: it has to carry the stylesheet
           # explicitly, or the page ships unstyled.
           grep -q 'rel="stylesheet"' public/contact/index.html
+          # The top bar is the app's: parenthesised labels from content/profile.toml.
+          grep -q '>(cv)<' public/index.html
+          grep -q '>(blog)<' public/index.html
+          grep -q '>(gallery)<' public/index.html
+          # The CV is emitted byte for byte, not re-encoded.
+          cmp content/cv.pdf public/cv.pdf
       - name: The page lists what the terminal lists
         # Both surfaces read `content/projects.toml` at build time. This checks
         # the rendered order against that file, so a renderer that sorts, drops

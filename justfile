@@ -68,9 +68,10 @@ app-release:
 docroot: ssg app-release
     #!/usr/bin/env sh
     set -eu
+    # Trunk renames its entry document to `index.html`; dropping it from `dist`
+    # first is what keeps the page the document, and the app a set of assets.
+    rm -f dist/index.html dist/app.html
     cp -R dist/. public/
-    # Trunk also emits its own entry document; the page above is the document.
-    rm -f public/app.html
 
 # Build both, watch for changes, serve ./public on :8080.
 dev:

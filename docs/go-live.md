@@ -26,6 +26,10 @@ CI: `just docroot`, the Docker stages, and everything in section 2.
 
 ## 2. Build both surfaces and look at them
 
+- [ ] `just docroot`, then open `public/index.html`: it is the page (a
+      `id="app-shell"` in it, no `<link data-trunk>`), **not** Trunk's stub — the
+      two builds land in one root, and Trunk's entry document is called
+      `index.html` too.
 - [ ] `just dev` → `http://localhost:8080/` is the page; the console shows
       `/apex.js` loading and the interface replacing it. Then block WebAssembly
       (`delete window.WebAssembly` in the console, reload) and confirm the page

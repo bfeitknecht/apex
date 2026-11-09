@@ -1,5 +1,6 @@
 /* Apex browser shell: the Ratzilla canvas plus the two overlay canvases.
-   Served from /tui/, so every font and image URL is relative to this file. */
+   Served from the document root as /app.css, so every font URL here is bare
+   and the files sit next to it in / (Trunk copies them flat). */
 
 @font-face{font-family:'NotoSansArabic';src:url('NotoSansArabic-Regular.ttf') format('truetype');font-display:block}
 @font-face{font-family:'NotoSansArmenian';src:url('NotoSansArmenian-Regular.ttf') format('truetype');font-display:block}

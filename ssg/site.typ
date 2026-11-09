@@ -9,11 +9,11 @@
   "LICENSE.txt",
 )
 
-// The hero's destinations are the app's top bar, in the same order, from the
-// same list: `glob`, `cv`, `gallery`. Mail, github and linkedin live in the
-// contact section below, where the terminal puts them too.
+// The hero's destinations are the app's top bar, drawn the way the terminal
+// draws it: the label in parentheses, a `|` between the rows and one after the
+// last. Mail, github and linkedin live in the contact section, as they do there.
 #let _links = for row in profile.link {
-  html.elem("li", html.a(href: row.url, row.label))
+  html.elem("li", html.a(href: row.url, "(" + row.label + ")"))
 }
 
 // The contact rows, in the order `content/profile.toml` lists them — the same
@@ -119,7 +119,7 @@
       <h1>{name}</h1>
       <p class="lede">{lede}</p>
       <p class="intro">{intro}</p>
-      <ul class="links">{links}</ul>
+      <ul class="destinations">{links}</ul>
     </header>
 
     <main>

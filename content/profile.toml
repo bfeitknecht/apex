@@ -29,14 +29,15 @@ My interests span wide and deep. From computer science (both in theory and pract
 intro = ["student. teacher. artist. engineer. generalist."]
 
 # The parenthesised destinations in the top bar, in order. The static page's
-# hero prints the same three rows, so the two surfaces cannot disagree.
-[[link]]
-label = "glob"
-url = "https://blog.0xbf.ch"
-
+# hero prints the same three rows, parenthesised the same way, so the two
+# surfaces cannot disagree.
 [[link]]
 label = "cv"
 url = "https://0xbf.ch/cv"
+
+[[link]]
+label = "blog"
+url = "https://blog.0xbf.ch"
 
 [[link]]
 label = "gallery"
