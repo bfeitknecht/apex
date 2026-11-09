@@ -55,11 +55,11 @@ subdirectory of another host) is one edit plus the canonical URL.
 | --- | --- | --- |
 | `content/profile.toml` | `include_str!` + `toml` → `content::profile()` | `toml("../content/profile.toml")` |
 | `content/projects.toml` | same → `profile().projects` | `toml("../content/projects.toml").project` |
-| `content/age.txt`, `pgp.txt`, `cv.pdf` | embedded / linked | emitted with `#raw-file(…)` |
-| `content/portrait.txt` |the `me` document | – |
+| `content/age.txt`, `pgp.txt`, `cv.pdf` | embedded / linked | emitted with `#file(…)` |
+| `content/portrait.txt` | the `me` document | – |
 
 `ssg/config.typ` is the Typst side of that contract: it parses the TOML and
-exposes `destination("cv")`, `contact("github")`, `mail` and `age`, so a page
+exposes `destination("cv")`, `contact("github")`, `mail`, `age` and `footer`, so a page
 never repeats a URL.
 
 Projects render from data in `ssg/site.typ`:

@@ -1,5 +1,5 @@
 #import "@preview/thyme:0.1.0": *
-#import "config.typ": base, profile, projects, destination, contact, mail, age
+#import "config.typ": base, profile, projects, destination, contact, mail, footer
 
 #let _font-files = (
   "CommitMono-400-Regular.woff2",
@@ -8,6 +8,17 @@
   "CommitMono-700-Italic.woff2",
   "LICENSE.txt",
 )
+
+// The contact rows, in the order `content/profile.toml` lists them — the same
+// list, in the same order, that the terminal prints under "get in touch". A row
+// with no url yet (`tangled`) is text, not a dead link.
+#let _contacts = for row in profile.contact {
+  if row.url == "" {
+    html.elem("li", attrs: (class: "pending"), row.label)
+  } else {
+    html.elem("li", html.a(href: row.url, row.label))
+  }
+}
 
 // One entry per project, straight from `content/projects.toml`. The terminal
 // prints `summary` on one line; this page prints `description` and `period`.
@@ -100,6 +111,7 @@
       <p class="eyebrow">{eyebrow}</p>
       <h1>{name}</h1>
       <p class="lede">{lede}</p>
+      <p class="intro">{intro}</p>
       <ul class="links">
         <li>{mail}</li>
         <li><a href="{blog}">blog</a></li>
@@ -122,30 +134,9 @@
 
       <section id="contact">
         <h2><span class="num">03</span>Contact</h2>
-        <p>
-          Reach me by mail at {mail} or
-          <a href="mailto:bfeitknecht@ethz.ch">bfeitknecht@ethz.ch</a>, or on
-          <a href="{github}">github</a> and
-          <a href="{linkedin}">linkedin</a>.
-        </p>
-        <p>
-          Encrypt messages with my plaintext <a href="/age.txt">age recipient</a>
-          or <a href="/pgp.txt">PGP public key</a>.
-        </p>
-        <p class="where">{where}</p>
+        <ul class="contacts">{contacts}</ul>
       </section>
-    </main>
-
-    <footer>
-      <ul class="links">
-        <li>{contact_link}</li>
-        <li><a href="/age.txt">age.txt</a></li>
-        <li><a href="/pgp.txt">pgp.txt</a></li>
-        <li><a href="{sitemap}">sitemap.xml</a></li>
-      </ul>
-      <p class="colophon">Made with &lt;3 by me. No JavaScript.</p>
-    </footer>
-  </div>
+    </main>{footer}</div>
 
   <!-- The interactive version's surfaces. Hidden until the boot script below
        decides the browser can run it; the page above is the fallback. -->
@@ -162,15 +153,18 @@
   name: profile.name,
   eyebrow: profile.eyebrow,
   lede: profile.lede,
-  about: profile.about,
-  where: age,
+  intro: profile.intro.join(" "),
+  // The terminal lowercases the shared paragraph once at load
+  // (`about_terminal` in `src/content.rs`); the page does the same, so both
+  // surfaces print the same string.
+  about: lower(profile.about),
   entries: _entries,
+  contacts: _contacts,
+  footer: footer,
   mail: mail,
   cv: destination("cv"),
   blog: destination("blog"),
   github: contact("github"),
   linkedin: contact("linkedin"),
-  sitemap: base + "/sitemap.xml",
   tone_filter: tone_filter,
-  contact_link: link(<contact>)[contact],
 )

@@ -48,6 +48,10 @@
 
   --measure: 44rem;
   --gutter: clamp(1.25rem, 5vw, 3rem);
+  /* The page's vertical rhythm. `--stack` is the gap between blocks, and the
+     source bar pulls itself back out of it so the hero starts at the top. */
+  --stack: clamp(2.5rem, 6vw, 4.25rem);
+  --top: clamp(1.5rem, 3vw, 2.25rem);
 
   --step--1: clamp(0.83rem, 0.80rem + 0.15vw, 0.90rem);
   --step-0: clamp(1.00rem, 0.96rem + 0.20vw, 1.09rem);
@@ -88,11 +92,11 @@ html {
 
 body {
   min-height: 100svh;
-  padding: clamp(2.5rem, 7vw, 5rem) var(--gutter) clamp(4rem, 10vw, 8rem);
+  padding: var(--top) var(--gutter) clamp(4rem, 10vw, 8rem);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: clamp(3rem, 7vw, 5.5rem);
+  gap: var(--stack);
 
   background: var(--bg);
   color: var(--fg);
@@ -110,14 +114,26 @@ body > * {
 }
 
 nav.back-home {
-  margin-block-end: calc(-1 * clamp(2rem, 5.5vw, 4.25rem)) !important;
+  /* `gap` still separates the bar from the hero; cancel all of it but 0.75rem
+     so the page starts where the eye expects it. */
+  margin-block-end: calc(0.75rem - var(--stack)) !important;
   font-family: var(--mono) !important;
   font-size: var(--step--1) !important;
   color: var(--muted);
+  letter-spacing: 0.02em;
 }
 
 nav.back-home a {
-  text-decoration-color: color-mix(in oklab, var(--muted) 45%, transparent);
+  text-decoration: underline dotted;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.3em;
+  text-decoration-color: color-mix(in oklab, var(--muted) 40%, transparent);
+}
+
+nav.back-home a:hover {
+  color: var(--fg);
+  text-decoration-style: solid;
+  text-decoration-color: var(--fg);
 }
 
 :is(h1, h2, h3) {
@@ -196,31 +212,48 @@ h1 {
   color: var(--fg);
 }
 
+/* The terminal's flourish, in the same voice: mono, small, muted. */
+.intro {
+  margin-block-start: 0.85rem;
+  font-family: var(--mono);
+  font-size: var(--step--1);
+  letter-spacing: 0.02em;
+  color: var(--muted);
+}
+
 .links {
   list-style: none;
   padding: 0;
-  margin-block-start: 1.75rem;
+  margin-block-start: 1.5rem;
   display: flex;
   flex-wrap: wrap;
-  row-gap: 0.35rem;
+  align-items: baseline;
+  row-gap: 0.4rem;
   font-family: var(--mono);
   font-size: var(--step--1);
+  letter-spacing: 0.02em;
 }
 
 .links li + li::before {
   content: "·";
-  margin-inline: 0.55em;
-  color: var(--muted);
+  margin-inline: 0.9em;
+  color: color-mix(in oklab, var(--muted) 50%, transparent);
 }
 
 .links a {
-  text-decoration-color: color-mix(in oklab, var(--muted) 45%, transparent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.25em;
+  text-decoration-color: color-mix(in oklab, var(--muted) 40%, transparent);
+}
+
+.links a:hover {
+  text-decoration-color: var(--fg);
 }
 
 main {
   display: flex;
   flex-direction: column;
-  gap: clamp(3rem, 7vw, 5rem);
+  gap: var(--stack);
 }
 
 section {
@@ -243,6 +276,22 @@ h2 .num {
   font-size: var(--step--1);
   font-weight: 400;
   letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+.contacts {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-family: var(--mono);
+  font-size: var(--step--1);
+  letter-spacing: 0.02em;
+}
+
+/* A row with no url yet: text, not a dead link. */
+.contacts .pending {
   color: var(--muted);
 }
 
@@ -287,11 +336,9 @@ h2 .num {
   overflow-wrap: anywhere;
 }
 
+/* One meta line per page: the two keys, the sitemap, the colophon. */
 footer {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  padding-block-start: 1.5rem;
+  padding-block-start: 1.25rem;
   border-block-start: 1px solid var(--line);
   font-family: var(--mono);
   font-size: var(--step--1);
@@ -300,10 +347,11 @@ footer {
 
 footer .links {
   margin-block: 0;
+  gap: 0;
 }
 
-.colophon {
-  font-size: 0.92em;
+footer .links li + li::before {
+  margin-inline: 0.9em;
 }
 
 .notfound {

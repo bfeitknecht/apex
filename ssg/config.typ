@@ -24,3 +24,17 @@
 
 /// The mail link, so a page only has to place it.
 #let mail = html.a(href: "mailto:" + profile.email, profile.email_label)
+
+/// The one footer, identical on every page: the two keys, the sitemap, and the
+/// colophon on the same line — the same three rows the terminal prints. The
+/// markup lives here so two pages cannot drift apart.
+#let footer = html.elem("footer", html.elem(
+  "ul",
+  attrs: (class: "links"),
+  (
+    html.elem("li", html.a(href: "/age.txt", "age.txt")),
+    html.elem("li", html.a(href: "/pgp.txt", "pgp.txt")),
+    html.elem("li", html.a(href: base + "/sitemap.xml", "sitemap.xml")),
+    html.elem("li", "made with <3 by me."),
+  ).join(),
+))

@@ -1,5 +1,5 @@
 #import "@preview/thyme:0.1.0": *
-#import "config.typ": base, profile, destination, contact, mail, age
+#import "config.typ": base, profile, destination, contact, mail, age, footer
 
 #show: webpage.with(
   title: [Contact],
@@ -31,11 +31,7 @@
       </p>
       <p class="where">{where}</p>
     </section>
-  </main>
-
-  <footer>
-    <p class="colophon">Made with &lt;3 by me. No JavaScript.</p>
-  </footer>
+  </main>{footer}
   ```,
   base: base,
   name: profile.name,
@@ -44,4 +40,5 @@
   cv: destination("cv"),
   mail: mail,
   where: age,
+  footer: footer,
 )
