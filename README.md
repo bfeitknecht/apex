@@ -55,7 +55,8 @@ browser/            the app's shell: app.html (Trunk entry), boot.js,
                     app.css, cursor.js
 assets/             fonts, Unicode cmaps, licences
 sws.toml            how the container serves the document root
-justfile            the recipes (build, docroot, serve, image, release)
+justfile            every command: build, docroot, serve, image, release,
+                    `just cmaps` for the font catalogue
 ```
 
 ## Documentation
@@ -125,7 +126,7 @@ Font licences live in `assets/`.
 Rebuild the catalogue (needs `fontTools` and Unicode 17 `UnicodeData.txt`):
 
 ```sh
-python3 scripts/unicode-candidates.py /path/to/UnicodeData.txt
+just cmaps /path/to/UnicodeData.txt
 ```
 
 That rewrites `assets/{unifont,noto}-cmap.bin`, which `src/visuals/unicode.rs`
