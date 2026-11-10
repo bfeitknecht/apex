@@ -32,21 +32,21 @@ position and the focused link that opened it (`App::previous`,
 
 ## Keys
 
-| Key | Portfolio | Visuals |
-| --- | --- | --- |
-| `j` `k` / arrows / wheel / swipe | scroll a line | – |
-| `d` `u` / PgDn, PgUp | scroll half a page | – |
-| `gg` / `G`, Home / End | top / bottom | – |
-| `h` `l`, `1`–`3` | previous / next section | choose a visual (menu only) |
-| Tab / `n` `N` | next / previous link | – |
-| Enter | open the focused link | open the highlighted visual |
-| `-` `+` | – | lichen: interval; fractal: zoom |
-| `0` | – | lichen / fractal: reset |
-| space | – | lichen: pause / resume |
-| `r` | – | lichen: new seed; fractal: reset camera; crash: restart the sweep |
-| `?` / `H` | help | help |
-| Esc | close help, then close the document | back to the menu, then to the portfolio |
-| `q` | quit (native / SSH only) | quit (native / SSH only) |
+| Key                              | Portfolio                           | Visuals                                                           |
+| -------------------------------- | ----------------------------------- | ----------------------------------------------------------------- |
+| `j` `k` / arrows / wheel / swipe | scroll a line                       | –                                                                 |
+| `d` `u` / PgDn, PgUp             | scroll half a page                  | –                                                                 |
+| `gg` / `G`, Home / End           | top / bottom                        | –                                                                 |
+| `h` `l`, `1`–`3`                 | previous / next section             | choose a visual (menu only)                                       |
+| Tab / `n` `N`                    | next / previous link                | –                                                                 |
+| Enter                            | open the focused link               | open the highlighted visual                                       |
+| `-` `+`                          | –                                   | lichen: interval; fractal: zoom                                   |
+| `0`                              | –                                   | lichen / fractal: reset                                           |
+| space                            | –                                   | lichen: pause / resume                                            |
+| `r`                              | –                                   | lichen: new seed; fractal: reset camera; crash: restart the sweep |
+| `?` / `H`                        | help                                | help                                                              |
+| Esc                              | close help, then close the document | back to the menu, then to the portfolio                           |
+| `q`                              | quit (native / SSH only)            | quit (native / SSH only)                                          |
 
 In lichen, scrolling while the simulation runs changes the pixelation, not the
 position. The simulation has a fixed resolution, so zoom is a property of the

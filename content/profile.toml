@@ -13,14 +13,13 @@ eyebrow = "Grüezi"
 
 # <title> and <meta name="description"> of the static page.
 site_title = "Basil Feitknecht"
-site_description = "BSc Computer Science at ETH Zürich. Programming languages, formal methods, information security, computer systems and networks, and machine learning."
+site_description = "BSc Computer Science ETH Zürich. Programming languages, formal methods, information security, computer systems and networks, and machine learning."
 
 # One sentence: the hero of the page and the first line of the terminal.
 lede = "BSc Computer Science ETH Zürich. Programming languages, formal methods, information security, computer systems and networks, machine learning."
 
 # The paragraph that both surfaces share. The terminal lowercases it at load
-# (`about_terminal` in `src/content.rs`) and the page prints it as written. This
-# is typography, not a second copy of the text.
+# (`about_terminal` in `src/content.rs`) and the page prints it as written.
 about = '''
 My interests span wide and deep. From computer science (both in theory and practice) to math, music, and sports. I like to learn, and I like to teach. I want to understand how things work and make them better.
 '''
