@@ -57,20 +57,20 @@ CI: `just docroot`, the Docker stages, and everything in section 2.
 ## 4. Ship
 
 1. [ ] Create the SSH host key and the `apex-ssh-host-key` Secret, then
-   uncomment `ssh-host-key.sops.yaml` in the `infra` repo, commit, push,
-   `flux reconcile` `traefik` and `apex`.
+       uncomment `ssh-host-key.sops.yaml` in the `infra` repo, commit, push,
+       `flux reconcile` `traefik` and `apex`.
 2. [ ] Router: WAN **2223/tcp** → `10.10.20.10:2223` (git). WAN 22 already
-   points at the Pi and now reaches the portfolio.
+       points at the Pi and now reaches the portfolio.
 3. [ ] Update git remotes/clients for `git.0xbf.ch` on **2223**.
 4. [ ] `just release v0.1.0 "apex v0.1.0"`; wait for `:latest` and for Keel to
-   roll both pods.
+       roll both pods.
 
 ## 5. Verify, then leave it alone
 
 - [ ] `curl -sI https://0xbf.ch` → 200; the HTML contains the page content and
       `boot.js`.
 - [ ] `curl -s https://0xbf.ch/ | grep -c app-shell` → 1; `curl -s
-      https://0xbf.ch/contact/ | grep -c '<h1>Contact'` → 1.
+    https://0xbf.ch/contact/ | grep -c '<h1>Contact'` → 1.
 - [ ] `ssh 0xbf.ch` → the portfolio; the fingerprint matches the key from
       group 4.
 - [ ] `/cv`, `/age.txt`, `/pgp.txt` resolve; `/404.html` shows for a typo'd path.

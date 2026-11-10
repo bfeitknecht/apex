@@ -51,12 +51,12 @@ subdirectory of another host) is one edit plus the canonical URL.
 
 `content/` is the single definition, read by both toolchains:
 
-| File | Rust | Typst |
-| --- | --- | --- |
-| `content/profile.toml` | `include_str!` + `toml` → `content::profile()` | `toml("../content/profile.toml")` |
-| `content/projects.toml` | same → `profile().projects` | `toml("../content/projects.toml").project` |
-| `content/age.txt`, `pgp.txt`, `cv.pdf` | embedded / linked | emitted with `#file(…)` |
-| `content/portrait.txt` | the `me` document | – |
+| File                                   | Rust                                           | Typst                                      |
+| -------------------------------------- | ---------------------------------------------- | ------------------------------------------ |
+| `content/profile.toml`                 | `include_str!` + `toml` → `content::profile()` | `toml("../content/profile.toml")`          |
+| `content/projects.toml`                | same → `profile().projects`                    | `toml("../content/projects.toml").project` |
+| `content/age.txt`, `pgp.txt`, `cv.pdf` | embedded / linked                              | emitted with `#file(…)`                    |
+| `content/portrait.txt`                 | the `me` document                              | –                                          |
 
 `ssg/config.typ` is the Typst side of that contract: it parses the TOML and
 exposes `destination("cv")`, `contact("github")`, `mail`, `age` and `footer`, so a page
@@ -134,7 +134,7 @@ from thyme for the markup blocks. Three rules earn their place:
 - **No bare boolean attributes in `#htm`.** `hidden` and `defer` reach the
   typed constructors as `true` where a string is expected. Give them a value
   (`hidden="hidden"`) or use the constructor (`html.script(src: "/boot.js",
-  defer: true)`), which is why the boot script is passed through `head:`.
+defer: true)`), which is why the boot script is passed through `head:`.
 - **`<script>` needs an empty body via the constructor.** Markup makes its
   content `content`, and `html.script` wants a string.
 
