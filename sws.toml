@@ -1,41 +1,41 @@
 # static-web-server configuration for 0xbf.ch.
 #
-# One document root, one URL space. What a visitor gets at a given path depends
-# on the browser, not on the path: `/` is the static page, and its boot script
-# replaces it with the WebAssembly app when the browser can run it. There is no
-# /tui, no /static, no second host.
+# One document root and one URL space. The browser decides what a visitor gets
+# at a path, not the path itself. `/` is the static page, and its boot script
+# replaces the page with the WebAssembly app when the browser can run it. The
+# site has no /tui, no /static and no second host.
 #
 #   /                  the page (Typst) + the app's assets, same document root
 #   /contact/          a content page
-#   /age.txt /pgp.txt  plain artifacts, emitted by the page's own build
+#   /age.txt /pgp.txt  plain files, emitted by the page build
 #   /cv                → /cv.pdf (rewrite below)
 #   /404.html          the static site's 404
 #
-# Integers stay rational; the app is a single page.
+# The app is a single page, so the paths stay simple.
 
 [advanced]
 
 [[advanced.headers]]
-# Nothing is content-hashed (`Trunk.toml` sets `filehash = false`) because the
-# page and the app are built by different toolchains and must agree on names.
-# Everything therefore revalidates: cheap 304s, no stale shells.
+# No asset name contains a content hash, because the page and the app come from
+# different toolchains and must agree on the names. All files therefore
+# revalidate: the server sends cheap 304 responses and never a stale shell.
 source = "**"
 headers = { Cache-Control = "no-cache" }
 
 [[advanced.headers]]
-# The page's webfonts are the one thing worth keeping: same bytes, forever.
+# The webfonts never change, so the browser can keep them.
 source = "**/fonts/**"
 headers = { Cache-Control = "public, max-age=31536000, immutable" }
 
 [[advanced.headers]]
-# The CV is one name all the way through: `content/cv.pdf` in the repo,
-# `/cv.pdf` in the document root, `/cv` as the URL, and — this header — `cv.pdf`
-# as the file a browser saves.
+# The CV keeps one name at every layer: `content/cv.pdf` in the repository,
+# `/cv.pdf` in the document root, `/cv` as the URL, and `cv.pdf` as the name that
+# a browser saves (this header).
 source = "**/cv.pdf"
 headers = { Content-Disposition = "inline; filename=\"cv.pdf\"" }
 
 [[advanced.headers]]
-# Tadi Web source views: the .typ sources are meant to be read.
+# Tadi Web source views. The .typ sources are meant to be read.
 source = "**/*.typ"
 headers = { Content-Type = "text/plain; charset=utf-8", Content-Disposition = "inline", X-Content-Type-Options = "nosniff" }
 

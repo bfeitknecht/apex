@@ -1,32 +1,32 @@
-//! Published copy: the shared definition in `content/`, parsed once.
+//! The published text: the shared definition in `content/`, parsed once.
 //!
-//! `content/profile.toml` and `content/projects.toml` are the single source of
-//! truth for everything this site says about itself. The Typst site reads the
-//! same files at build time, so a changed link cannot drift between the
-//! terminal, the SSH session, the browser app and the no-JavaScript page.
+//! `content/profile.toml` and `content/projects.toml` define all the text of the
+//! site. The Typst site reads the same files at build time. A changed link
+//! therefore reaches the terminal, the SSH session, the browser app and the page
+//! without JavaScript at the same time.
 //!
-//! The tables are parsed at runtime because Typst cannot read Rust types and
-//! Rust cannot read Typst; the strings are then frozen (`Box::leak`) so the
-//! rest of the crate can keep using `&'static str` and never think about
-//! lifetimes again. This happens once per process, for a few kilobytes.
+//! The code parses the tables at runtime, because Typst cannot read Rust types
+//! and Rust cannot read Typst. It then freezes the strings with `Box::leak`, so
+//! the rest of the crate uses `&'static str` and needs no lifetime parameters.
+//! This work happens once per process and covers a few kilobytes.
 
 use std::sync::LazyLock;
 
-/// A parenthesised destination in the top bar: the CV, the blog, the gallery.
+/// A destination in the top bar: the CV, the blog, the gallery.
 #[derive(Clone, Copy, Debug)]
 pub struct Destination {
     pub label: &'static str,
     pub url: &'static str,
 }
 
-/// A contact row in the footer. An empty `url` does not open yet.
+/// A contact row in the footer. An empty `url` has no target yet.
 #[derive(Clone, Copy, Debug)]
 pub struct Contact {
     pub label: &'static str,
     pub url: &'static str,
 }
 
-/// A project, as the terminal needs it: one line, no period, no prose.
+/// A project in the form that the terminal needs: one line, no final period.
 #[derive(Clone, Copy, Debug)]
 pub struct Project {
     pub name: &'static str,
@@ -39,13 +39,13 @@ pub struct Profile {
     pub name: &'static str,
     pub email: &'static str,
     pub eyebrow: &'static str,
-    /// One sentence for the page's hero.
+    /// One sentence for the hero of the page.
     pub lede: &'static str,
     /// The shared paragraph, exactly as written.
     pub about: &'static str,
-    /// The same paragraph, lowercased once: the terminal's voice.
+    /// The same paragraph in lowercase, for the terminal.
     pub about_terminal: &'static str,
-    /// Extra hero lines only the terminal shows.
+    /// Extra hero lines that only the terminal shows.
     pub intro: &'static [&'static str],
     pub links: &'static [Destination],
     pub contacts: &'static [Contact],
@@ -60,10 +60,10 @@ pub fn profile() -> &'static Profile {
     &PROFILE
 }
 
-/// Public key artifacts, served from the document root by every surface.
+/// Public key files, served from the document root by every surface.
 pub const AGE_URL: &str = "/age.txt";
 pub const PGP_URL: &str = "/pgp.txt";
-/// The portrait is a terminal document; the browser has no link for it.
+/// The portrait is a document for the terminal. The browser has no link for it.
 pub const ME_URL: &str = "";
 
 pub const AGE_TEXT: &str = include_str!("../content/age.txt");

@@ -9,16 +9,16 @@
   "LICENSE.txt",
 )
 
-// The hero's destinations — `cv`, `blog`, `gallery`, in `content`'s order. No
-// decoration of the terminal's: plain links, dots between them. Mail, github and
-// linkedin live in the contact section below.
+// The destinations of the hero: `cv`, `blog` and `gallery`, in the order of
+// `content/`. The links are plain, with dots between them. Mail, github and
+// linkedin are in the contact section below.
 #let _links = for row in profile.link {
   html.elem("li", html.a(href: row.url, row.label))
 }
 
-// The contact rows, in the order `content/profile.toml` lists them — the same
-// list, in the same order, that the terminal prints under "get in touch". A row
-// with no url yet (`tangled`) is text, not a dead link.
+// The contact rows in the order of `content/profile.toml`. The terminal prints
+// the same list in the same order under "get in touch". A row without a url
+// (`tangled`) is text and not a dead link.
 #let _contacts = for row in profile.contact {
   if row.url == "" {
     html.elem("li", attrs: (class: "pending"), row.label)
@@ -27,8 +27,8 @@
   }
 }
 
-// One entry per project, straight from `content/projects.toml`. The terminal
-// prints `summary` on one line; this page prints `description` and `period`.
+// One entry per project, from `content/projects.toml`. The terminal prints
+// `summary` on one line. This page prints `description` and `period`.
 #let _entries = for project in projects {
   html.elem("li", attrs: (class: "entry"), {
     html.elem("div", attrs: (class: "entry-head"), {
@@ -39,9 +39,9 @@
   })
 }
 
-// A *body fragment*: thyme 0.1.0's `site()` wraps a custom `not-found-page` in
-// its core shell, which brings the stylesheet, the favicon and `theme-color`.
-// Returning a whole document here would nest one `<html>` inside another.
+// A body fragment. `site()` of thyme 0.1.0 puts a custom `not-found-page` into
+// its core shell, which adds the stylesheet, the favicon and `theme-color`. A
+// whole document here would put one `<html>` inside another.
 #let _not-found = html.elem("header", attrs: (class: "notfound"), {
   html.h1("404")
   html.p(class: "lede", "No such page.")
@@ -62,9 +62,9 @@
   rss-path: none,
   atom-path: none,
   not-found-page: _not-found,
-  // The boot script lives in the head: `defer` waits for the DOM, and the
-  // typed constructor is the only way to emit a bare boolean attribute
-  // (`htm`'s parser passes `true` where a string is expected).
+  // The boot script goes in the head. `defer` waits for the DOM. The typed
+  // constructor is the only way to emit a boolean attribute without a value,
+  // because the parser of `htm` passes `true` where a string is expected.
   head: html.script(src: "/boot.js", defer: true),
   assets: _font-files.map(f => (
     path: "assets/fonts/" + f,
@@ -72,18 +72,19 @@
   )),
 )
 
-// Plain artifacts, served from the root next to the page: the keys people copy
-// and the CV the footer links to. Data, not markup — `content/` is the source.
-// (`#file` — thyme 0.1.0 renamed `#raw-file` to this.)
+// Plain files, served from the root next to the page: the keys that people copy
+// and the CV that the footer links to. These are data and not markup, and
+// `content/` is the source. (`#file`: thyme 0.1.0 renamed `#raw-file` to this.)
 #file("age.txt", path("../content/age.txt"))
 #file("pgp.txt", path("../content/pgp.txt"))
 #file("cv.pdf", path("../content/cv.pdf"))
 
 #mount(path("contact.typ")) <contact>
 
-// Light-scheme tone mapping for the colony canvas. Built with `html.elem` rather
-// than markup: the HTML parser lowercases tag names, and SVG's transfer
-// functions are camelCase (`feFuncR`), so a raw fragment would be broken HTML.
+// Light-scheme tone mapping for the colony canvas. It uses `html.elem` and not
+// markup, because the HTML parser lowercases tag names and the transfer
+// functions of SVG are camelCase (`feFuncR`). A raw fragment would be broken
+// HTML.
 #let tone_filter = html.elem(
   "svg",
   attrs: (width: "0", height: "0", "aria-hidden": "true", style: "position:absolute"),
@@ -146,8 +147,8 @@
   eyebrow: profile.eyebrow,
   lede: profile.lede,
   intro: profile.intro.join(" "),
-  // Same paragraph as the terminal's (`about_terminal` in `src/content.rs`),
-  // trimmed the same way — the terminal lowercases it, the page does not.
+  // The same paragraph as the terminal (`about_terminal` in `src/content.rs`),
+  // trimmed in the same way. The terminal lowercases it and the page does not.
   about: profile.about.trim(),
   entries: _entries,
   contacts: _contacts,

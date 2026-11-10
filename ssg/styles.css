@@ -1,4 +1,4 @@
-/* 0xbf.ch — monochrome Helvetica Neue + Commit Mono stylesheet.
+/* 0xbf.ch: monochrome stylesheet, Helvetica Neue and Commit Mono.
    Built with @preview/thyme:0.1.0 core SSG; zero client-side JavaScript. */
 
 @font-face {
@@ -36,7 +36,7 @@
 :root {
   color-scheme: dark light;
 
-  /* Neutral monochrome tokens matching blog.0xbf.ch — dark first */
+  /* Monochrome tokens that match blog.0xbf.ch. Dark values come first. */
   --bg: oklch(18% 0 0);
   --fg: oklch(93% 0 0);
   --muted: oklch(65% 0 0);
@@ -48,8 +48,8 @@
 
   --measure: 44rem;
   --gutter: clamp(1.25rem, 5vw, 3rem);
-  /* The page's vertical rhythm. `--stack` is the gap between blocks, and the
-     source bar pulls itself back out of it so the hero starts at the top. */
+  /* Vertical rhythm. `--stack` is the gap between blocks. The source bar uses a
+     negative margin, so the hero starts at the top of the page. */
   --stack: clamp(2.5rem, 6vw, 4.25rem);
   --top: clamp(1.5rem, 3vw, 2.25rem);
   --bottom: clamp(2.5rem, 5vw, 4rem);
@@ -115,10 +115,10 @@ body > * {
   max-inline-size: var(--measure);
 }
 
-/* The wrapper holds the hero, `main` and the footer, and is its own column: the
-   rhythm is the gap between those three, not `body`'s. As a plain block it was
-   no gap at all, so the hero ran straight into section 01 and the footer sat on
-   the last line of Contact. */
+/* The wrapper holds the hero, `main` and the footer, and it is a column of its
+   own. The rhythm is the gap between these three items, not the gap of `body`.
+   As a plain block the wrapper had no gap, so section 01 touched the hero and
+   the footer touched the last line of Contact. */
 #plain {
   display: flex;
   flex-direction: column;
@@ -126,8 +126,8 @@ body > * {
 }
 
 nav.back-home {
-  /* `gap` still separates the bar from the hero; cancel all of it but 0.75rem
-     so the page starts where the eye expects it. */
+  /* The gap of `body` separates the bar from the hero. This margin removes all of
+     it except 0.75rem, so the page starts near the top. */
   margin-block-end: calc(0.75rem - var(--stack)) !important;
   font-family: var(--mono) !important;
   font-size: var(--step--1) !important;
@@ -224,7 +224,7 @@ h1 {
   color: var(--fg);
 }
 
-/* The terminal's flourish, in the same voice: mono, small, muted. */
+/* The extra line that only the terminal shows: mono, small and muted. */
 .intro {
   margin-block-start: 0.85rem;
   font-family: var(--mono);

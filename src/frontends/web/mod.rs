@@ -1,6 +1,6 @@
-//! Browser frontend: Ratzilla draws the shared UI into WebGL2 (with Canvas 2D
-//! and DOM fallbacks), and two extra canvases enlarge the colony and the
-//! Unicode specimen beyond character cells.
+//! Browser frontend. Ratzilla draws the shared interface into WebGL2, with
+//! Canvas 2D and DOM as fallbacks. Two extra canvases enlarge the colony and the
+//! Unicode specimen beyond the character cells.
 
 mod input;
 mod surfaces;
@@ -115,9 +115,9 @@ where
         }
         app.tick(elapsed);
 
-        // The Unicode view may fall back to the hidden menu for one frame when
-        // there is no specimen to show yet; the real view is restored before
-        // the frame ends so the state never sticks.
+        // Without a specimen, the Unicode view falls back to the hidden menu for
+        // one frame. The code restores the real view before the frame ends, so the
+        // state does not stay behind.
         let real_view = app.view;
         let font_status = fonts.status(&app);
         let status = settle_specimen(&mut app, font_status, &mut held_glyph);
@@ -148,8 +148,8 @@ where
 
 /// Keep the last loaded specimen on screen while its replacement's font loads.
 ///
-/// Without a previous specimen the browser shows the hidden menu for the frame
-/// instead of an empty canvas.
+/// If there is no previous specimen, the browser shows the hidden menu for that
+/// frame and not an empty canvas.
 fn settle_specimen(app: &mut App, status: FontStatus, held: &mut Option<char>) -> FontStatus {
     if !app.is_unicode() || app.help {
         return status;

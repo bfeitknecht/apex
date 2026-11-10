@@ -1,55 +1,57 @@
 # The page (`ssg/`)
 
-`ssg/` is a [thyme](https://github.com/bfeitknecht/thyme) site: pure Typst,
-zero client-side JavaScript, built to static HTML + CSS + the fonts the page
-embeds. It is **the document at `https://0xbf.ch/`** — not a fallback behind a
-URL. A browser that can run WebAssembly replaces it in place (see
-`docs/architecture.md`); everything else reads it as it is.
+`ssg/` is a [thyme](https://github.com/bfeitknecht/thyme) site. It uses pure
+Typst with no client-side JavaScript, and it builds to static HTML, CSS and the
+fonts that the page embeds. It is the document at `https://0xbf.ch/`. It is not
+a fallback behind a separate URL. A browser that can run WebAssembly replaces
+the page in place (see `docs/architecture.md`). All other browsers read the page
+as it is.
 
 ## One document root
 
-The container serves a single tree with a single URL space:
+The container serves one tree with one URL space:
 
 ```text
 public/
-├── index.html                     the page (and the app's boot script)
+├── index.html                     the page (and the boot script of the app)
 ├── site.typ                       its plaintext source (Tadi Web view)
 ├── contact/                       a content page + contact.typ
 ├── 404.html, sitemap.xml, robots.txt
 ├── styles.css, assets/fonts/*.woff2, assets/favicon.svg
 ├── age.txt, pgp.txt, cv.pdf       emitted by the same build, from content/
 ├── apex.js, apex_bg.wasm          the app (Trunk)
-├── app.css, boot.js, cursor.js    the app's shell
-└── *.ttf, *.otf, *-LICENSE.txt    the app's specimen fonts
+├── app.css, boot.js, cursor.js    the shell of the app
+└── *.ttf, *.otf, *-LICENSE.txt    the specimen fonts of the app
 ```
 
-Two toolchains write into that directory and nothing overlaps: `ssg/` builds
-the document, `browser/` + `src/` build the app's assets. `just docroot` (and the Dockerfile) do
-`typst … ssg/site.typ public` then copy `dist/` over it.
+Two toolchains write into this directory and their output does not overlap.
+`ssg/` builds the document. `browser/` and `src/` build the assets of the app.
+`just docroot` and the Dockerfile run `typst … ssg/site.typ public` and then
+copy `dist/` over the result.
 
-`sws.toml` describes how the tree is served: `/cv` rewrites to `/cv.pdf`,
-`.typ` files are `text/plain`, fonts are immutable, everything else is
-`no-cache` (the app's asset names are unhashed, so the shell must revalidate),
-and unknown paths fall through to `404.html`.
+`sws.toml` describes how the server serves the tree. `/cv` rewrites to
+`/cv.pdf`. `.typ` files are `text/plain`. Fonts are immutable. All other files
+use `no-cache`, because the asset names of the app have no hash and the shell
+must revalidate. Unknown paths fall through to `404.html`.
 
 ## Paths belong to content
 
-Every URL on the site is a piece of content. `/contact/` is a page; `/age.txt`,
-`/pgp.txt`, `/cv` are artifacts. No path selects a frontend — that decision is
-the browser's, made once at `/`.
+Every URL on the site is a piece of content. `/contact/` is a page. `/age.txt`,
+`/pgp.txt` and `/cv` are files. No path selects a frontend. The browser makes
+that decision once, at `/`.
 
-`ssg/config.typ` states the prefix in one place:
+`ssg/config.typ` defines the prefix in one place:
 
 ```typst
 #let base = ""   // the site is the document root
 ```
 
-and pages write absolute hrefs as `{base}/…`, so a future move (say, into a
-subdirectory of another host) is one edit plus the canonical URL.
+Pages write absolute hrefs as `{base}/…`. A move to another location, for
+example a subdirectory on another host, needs one edit and the canonical URL.
 
 ## Shared content
 
-`content/` is the single definition, read by both toolchains:
+`content/` is the only definition and both toolchains read it:
 
 | File | Rust | Typst |
 | --- | --- | --- |
@@ -58,11 +60,11 @@ subdirectory of another host) is one edit plus the canonical URL.
 | `content/age.txt`, `pgp.txt`, `cv.pdf` | embedded / linked | emitted with `#file(…)` |
 | `content/portrait.txt` | the `me` document | – |
 
-`ssg/config.typ` is the Typst side of that contract: it parses the TOML and
-exposes `destination("cv")`, `contact("github")`, `mail`, `age` and `footer`, so a page
-never repeats a URL.
+`ssg/config.typ` is the Typst side of this contract. It parses the TOML and
+exposes `destination("cv")`, `contact("github")`, `mail`, `age` and `footer`, so
+no page repeats a URL.
 
-Projects render from data in `ssg/site.typ`:
+The page renders projects from data in `ssg/site.typ`:
 
 ```typst
 #let _entries = for project in projects {
@@ -76,8 +78,9 @@ Projects render from data in `ssg/site.typ`:
 }
 ```
 
-The terminal prints `summary` on one line; the page prints `description` and
-`period`. Same entry, two densities — typography, not a second copy.
+The terminal prints `summary` on one line. The page prints `description` and
+`period`. Both show the same entry, and the difference is typography, not a
+second copy.
 
 ## Build
 
@@ -88,55 +91,55 @@ just app        # ./dist: app assets only
 just docroot    # ./public: page, then dist over it
 ```
 
-The entry point is `ssg/site.typ`, thyme's own convention: the file that calls
-`#show: site.with(…, src: path("site.typ"), …)` is the root document, and thyme
-emits that source view in the bundle under the entry file's own name, so the
-plaintext view is `/site.typ`. Everything else in `ssg/` is either pulled in by it
-(`config.typ`, `contact.typ`, `styles.css`, `assets/`) or vendored
-(`vendor/`).
+The entry point is `ssg/site.typ`, following the convention of thyme. The file
+that calls `#show: site.with(…, src: path("site.typ"), …)` is the root document.
+thyme writes the source view of that file into the bundle under the name of the
+entry file, so the plaintext view is `/site.typ`. All other files in `ssg/` are
+either imported by the entry file (`config.typ`, `contact.typ`, `styles.css`,
+`assets/`) or vendored (`vendor/`).
 
-Typst (local and container use identical flags):
+Typst uses the same flags locally and in the container:
 
 ```sh
 typst compile --features html,bundle --format bundle \
   --package-path .packages --root . ssg/site.typ public
 ```
 
-`--root .` is what lets `ssg/config.typ` read `../content/…` and what lets
-`#raw-file` emit the artifacts at the root. `just packages` lays the vendored
-`@preview/thyme:0.1.0` and `@preview/exemel:0.3.0` out in the
-`preview/<name>/<version>` layout Typst expects.
+`--root .` lets `ssg/config.typ` read `../content/…` and lets `#raw-file` write
+the artifacts at the root. `just packages` copies the vendored
+`@preview/thyme:0.1.0` and `@preview/exemel:0.3.0` into the
+`preview/<name>/<version>` layout that Typst expects.
 
 ## Typst packages
 
-`@preview/thyme:0.1.0` and `@preview/exemel:0.3.0` are vendored under
-`ssg/vendor/` (provenance and refresh steps in `ssg/vendor/README.md`) and
-resolved through `just packages` → `--package-path`. Two things follow from
-that directory being a snapshot:
+`@preview/thyme:0.1.0` and `@preview/exemel:0.3.0` are vendored in `ssg/vendor/`.
+Their provenance and the refresh steps are in `ssg/vendor/README.md`. They
+resolve through `just packages` and `--package-path`. This directory is a
+snapshot, so two rules follow:
 
-- The import name never changes: bumping thyme means replacing `src/` and
-  updating the commit in `ssg/vendor/README.md`, not editing imports.
-- thyme's blog preset imports `@preview/cheq`, `showybox`, `tablem`, `zebraw`
-  and `marge`, and `lib.typ` imports the preset eagerly. Those five come from
-  Typst Universe, so **the first build needs network** and caches them in
-  `~/.cache/typst/packages`. CI and the image build have it; a fully offline
-  build would have to vendor them too.
+- The import name never changes. A thyme update replaces `src/` and updates the
+  commit in `ssg/vendor/README.md`. No import changes.
+- The blog preset of thyme imports `@preview/cheq`, `showybox`, `tablem`,
+  `zebraw` and `marge`, and `lib.typ` imports the preset at once. These five
+  packages come from Typst Universe. The first build therefore needs network
+  access and caches them in `~/.cache/typst/packages`. CI and the image build
+  have network access. A fully offline build must vendor these packages too.
 
 ## Writing HTML in Typst
 
-The page is built with `html.*` (Typst 0.15's built-in module) and `#htm(…)`
-from thyme for the markup blocks. Three rules earn their place:
+The page uses `html.*` (the built-in module of Typst 0.15) and `#htm(…)` from
+thyme for the markup blocks. Three rules matter:
 
-- **`html.elem` for anything case-sensitive.** The HTML parser lowercases tag
+- **Use `html.elem` for case-sensitive names.** The HTML parser lowercases tag
   names, so `<feComponentTransfer>` becomes `<fecomponenttransfer>` and an SVG
-  filter silently stops working. The lichen tone filter is therefore built with
+  filter stops working without a message. The lichen tone filter therefore uses
   `html.elem("feComponentTransfer", …)`, not markup.
-- **No bare boolean attributes in `#htm`.** `hidden` and `defer` reach the
-  typed constructors as `true` where a string is expected. Give them a value
+- **Do not use bare boolean attributes in `#htm`.** `hidden` and `defer` reach
+  the typed constructors as `true` where the code expects a string. Give a value
   (`hidden="hidden"`) or use the constructor (`html.script(src: "/boot.js",
-  defer: true)`), which is why the boot script is passed through `head:`.
-- **`<script>` needs an empty body via the constructor.** Markup makes its
-  content `content`, and `html.script` wants a string.
+  defer: true)`). For this reason the boot script goes through `head:`.
+- **Pass an empty body through the constructor for `<script>`.** Markup makes
+  the content a `content` value, and `html.script` needs a string.
 
 ## Adding a page
 
@@ -145,6 +148,6 @@ from thyme for the markup blocks. Three rules earn their place:
 #mount(path("notes.typ"))
 ```
 
-`#mount` handles the route, the sitemap entry and the link. The 404 page is
-`_not-found` in `site.typ`. Pages are static: the app lives at `/` and a content
-page never boots it.
+`#mount` creates the route, the sitemap entry and the link. The 404 page is
+`_not-found` in `site.typ`. Content pages are static: the app runs at `/` and a
+content page does not start it.

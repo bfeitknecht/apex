@@ -1,12 +1,12 @@
-# Selected work, one list for every surface.
+# Selected work: one list for every surface.
 #
-# The order here is the display order everywhere: the terminal numbers the
-# entries `#01`, `#02`, ... down the page and the static page prints them in the
-# same sequence, so this file is the only place an ordering decision is made.
+# The order here is the display order everywhere. The terminal numbers the
+# entries `#01`, `#02`, ... down the page, and the page prints them in the same
+# sequence. This file is therefore the only place that decides the order.
 #
-# The terminal prints `summary` on the same line as the name, the static page
-# prints `description` and `period` as a proper entry. An empty url is a
-# placeholder that does not open yet.
+# The terminal prints `summary` on the same line as the name. The page prints
+# `description` and `period` as a full entry. An empty url is a placeholder that
+# does not open yet.
 
 [[project]]
 name = "impli"

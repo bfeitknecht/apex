@@ -60,7 +60,7 @@ pub struct App {
     pub lichen: Lichen,
     pub fractal: Fractal,
     pub crash: Crash,
-    /// Display pixelation level; the simulation keeps its own resolution.
+    /// Pixelation of the display. The simulation keeps its own resolution.
     pub lichen_pixelation: u8,
     /// Milliseconds between simulation generations.
     pub lichen_interval_ms: u64,
@@ -78,7 +78,7 @@ pub struct App {
     pub menu: usize,
     logo_activations: u8,
     logo_last_ms: u64,
-    /// Built on first use: parsing the catalogue is not worth doing at startup.
+    /// Built on first use. Parsing the catalogue at startup takes too long.
     pub unicode: Option<Unicode>,
     #[cfg(target_arch = "wasm32")]
     pub unicode_font_status: FontStatus,
@@ -141,12 +141,12 @@ impl App {
         }
     }
 
-    /// Advance whatever the current view animates. Returns `true` when a new
-    /// frame is worth drawing.
+    /// Advance the animation of the current view. Returns `true` when a new frame
+    /// is due.
     ///
-    /// Every frontend calls exactly this once per frame, so the three surfaces
-    /// cannot drift in pacing. Work is capped inside each visual, so a
-    /// suspended browser tab or a stalled session cannot stall the next frame.
+    /// Every frontend calls this function once per frame, so the three surfaces
+    /// keep the same pacing. Each visual caps its own work, so a suspended browser
+    /// tab or a stalled session does not delay the next frame.
     pub fn tick(&mut self, elapsed_ms: u64) -> bool {
         let mut dirty = false;
         if self.view == View::Lichen && !self.paused {

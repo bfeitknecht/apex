@@ -1,10 +1,10 @@
 //! Generative visuals: simulation without rendering.
 //!
-//! Every type here advances its own state and exposes plain data — glyphs,
-//! palette indices, rows of characters. `ui` decides how a terminal renders
-//! that and the browser decides how a canvas does. Nothing in this module
-//! knows about ratatui, crossterm or the DOM, so the visuals are testable on
-//! any target and cheap to run inside an SSH session.
+//! Every type here advances its own state and exposes plain data: glyphs,
+//! palette indices and rows of characters. `ui` decides how a terminal draws that
+//! data, and the browser decides how a canvas does. This module knows nothing
+//! about ratatui, crossterm or the DOM. The visuals are therefore testable on any
+//! target and cheap to run inside an SSH session.
 
 pub mod crash;
 pub mod fractal;

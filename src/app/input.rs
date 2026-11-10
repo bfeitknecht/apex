@@ -1,8 +1,8 @@
 //! Input handling: character keys, pointer hit testing and link activation.
 //!
 //! Keys that do not depend on the surface arrive here as characters. Each
-//! frontend decodes its own device events first: the terminal maps crossterm
-//! key codes, SSH parses the byte stream, the browser reads DOM events.
+//! frontend first decodes its own device events: the terminal maps crossterm key
+//! codes, SSH parses the byte stream and the browser reads DOM events.
 
 use super::{now_ms, seed, App, View};
 use crate::visuals::{Visual, VISUALS};
@@ -166,7 +166,7 @@ impl App {
         (!link.url.is_empty()).then_some(link.url)
     }
 
-    /// Update hover styling using the same geometry as click hit testing.
+    /// Update the hover state with the same geometry as the click hit test.
     pub fn hover(&mut self, x: usize, y: usize) -> bool {
         self.hovered_nav = None;
         self.hovered_link = None;

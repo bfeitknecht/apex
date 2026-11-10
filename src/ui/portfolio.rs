@@ -1,7 +1,7 @@
 //! The portfolio page: its text layout model and its rendering.
 //!
-//! The layout is built from `content` for a given viewport, which makes link
-//! hit testing, scrolling and rendering share one source of truth.
+//! The layout comes from `content` for a given viewport. Link hit testing,
+//! scrolling and rendering therefore use the same data.
 
 use ratatui::style::Modifier;
 use ratatui::Frame;
@@ -109,7 +109,7 @@ pub fn portfolio_page(width: usize, height: usize) -> PortfolioPage {
     offsets[0] = rows.len();
     line(&mut rows, "= 0xbf.ch", true);
     line(&mut rows, "", false);
-    // The terminal reads the shared copy in its own voice: lowercase.
+    // The terminal reads the shared copy in lowercase.
     for text in wrap_lines(&profile.lede.to_lowercase(), content_width) {
         line(&mut rows, text, false);
     }
@@ -186,7 +186,7 @@ pub fn portfolio_page(width: usize, height: usize) -> PortfolioPage {
         );
     }
     let footer_rows = if content_width >= 46 { 3 } else { 4 };
-    // Keep every section jumpable to the top, even while the portfolio is sparse.
+    // Keep every section reachable at the top, even while the portfolio is short.
     let target = (offsets[2] + viewport).max(rows.len() + footer_rows);
     while rows.len() + footer_rows < target {
         line(&mut rows, "", false);

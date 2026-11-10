@@ -1,7 +1,7 @@
 //! Public SSH frontend: every session gets its own portfolio instance.
 //!
-//! The server only serves the portfolio. There is no system shell, no `exec`,
-//! no SFTP and no forwarding, and a PTY is required to start a session.
+//! The server only serves the portfolio. It provides no system shell, no `exec`,
+//! no SFTP and no forwarding. A PTY is required to start a session.
 //!
 //! Configuration is read from the environment:
 //!
@@ -30,7 +30,7 @@ use crate::{ui, App, View};
 /// Concurrent sessions per server process.
 const MAX_SESSIONS: usize = 32;
 
-/// Terminal size limits: a hostile client can request anything.
+/// Limits of the terminal size. A hostile client can request any size.
 const MIN_WIDTH: u32 = 20;
 const MAX_WIDTH: u32 = 240;
 const MIN_HEIGHT: u32 = 8;
@@ -339,8 +339,8 @@ fn dimensions(width: u32, height: u32) -> (u16, u16) {
 
 /// Decode UTF-8 terminal input into application actions.
 ///
-/// `flush_escape` resolves a lone trailing escape byte, which is otherwise held
-/// back to see whether it starts a cursor-key sequence.
+/// `flush_escape` resolves a lone trailing escape byte. The decoder holds that
+/// byte back, to see whether it starts a cursor-key sequence.
 fn apply_input(app: &mut App, pending: &mut Vec<u8>, flush_escape: bool) -> bool {
     let mut cursor = 0;
     while cursor < pending.len() {
@@ -359,7 +359,8 @@ fn apply_input(app: &mut App, pending: &mut Vec<u8>, flush_escape: bool) -> bool
                     .position(|byte| (0x40..=0x7e).contains(byte));
                 if let Some(offset) = final_byte {
                     let end = cursor + 2 + offset;
-                    // Only plain arrow keys navigate; ignore modified sequences.
+                    // Only plain arrow keys navigate. The decoder ignores modified
+                    // sequences.
                     if end == cursor + 2 {
                         match pending[end] {
                             b'A' => app.navigate(-1),
