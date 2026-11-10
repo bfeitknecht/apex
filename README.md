@@ -1,7 +1,6 @@
 # Apex
 
-The personal site at `0xbf.ch`: one interface, three surfaces, one definition of
-the content they all show.
+The personal site at `0xbf.ch`. One URL, three surfaces and one set of content.
 
 | Visitor | Gets | Served by |
 | --- | --- | --- |
@@ -10,68 +9,68 @@ the content they all show.
 | terminal, `ssh 0xbf.ch` | the same app over SSH | `src/frontends/ssh` |
 | your own terminal | the same app natively | `src/frontends/native` |
 
-**One URL.** `/` is a single document: the page Typst builds, plus a boot script
-that swaps in the WebAssembly app when the browser can run it. There is no
-`/tui`, no `/static`, no second hostname — every other path is content.
+**One URL.** `/` returns one document. Typst builds the page. A boot script
+replaces the page with the WebAssembly app if the browser can run it. The site
+has no `/tui`, no `/static` and no second hostname. All other paths hold content.
 
-The portfolio is identical everywhere: introduction, projects, contacts, public
-keys, and a hidden menu of four visuals (Unicode specimens, a lichen colony, a
-quaternion Julia explorer, an EGA framebuffer sweep).
+Every surface shows the same items: introduction, projects, contacts, public
+keys and a hidden menu of four visuals (Unicode specimens, a lichen colony, a
+quaternion Julia explorer and an EGA framebuffer sweep).
 
 ## Quick start
 
 ```sh
 just                 # list the recipes
-just dev             # both toolchains, then serve :8080 in sws
+just dev             # build both artifacts, then serve :8080 in sws
 just native          # terminal portfolio
 just ssh             # SSH server on 0.0.0.0:2222 (needs APEX_SSH_HOST_KEY)
 just check           # clippy, tests, wasm32 build
 ```
 
-`just dev` is the one to use: the site is two builds into one document root
-(Typst for the page, Trunk for the app), and `just serve` then serves `./public`
-with the same `static-web-server` and `sws.toml` the container uses — rewriting
-`/cv`, answering 404 with the page's own 404, sending the same headers. It needs
-Docker, nothing else.
+`just dev` builds the whole site. The build has two parts. Typst builds the
+page, Trunk builds the app, and both write into one document root. `just serve`
+then serves `./public` with the same `static-web-server` and the same `sws.toml`
+as the container. It rewrites `/cv`, it answers unknown paths with the 404 page
+of the site, and it sends the same headers. This step needs Docker.
 
-Toolchains: stable Rust, `cargo install trunk` plus the
-`wasm32-unknown-unknown` target, `typst >= 0.15.1`, `just`, `python3`. The
-vendored Typst packages need no installation — `just packages` lays them out for
+Toolchains: stable Rust, `cargo install trunk` and the `wasm32-unknown-unknown`
+target, `typst >= 0.15.1`, `just` and `python3`. You do not install the vendored
+Typst packages. `just packages` copies them to a package path for
 `--package-path`.
 
 ## Layout
 
 ```text
-content/            THE definition: profile.toml, projects.toml,
+content/            the content of the site: profile.toml, projects.toml,
                     age.txt, pgp.txt, cv.pdf, portrait.txt
 src/                the app (see docs/architecture.md)
-  content.rs        parses content/ once, freezes it to &'static
+  content.rs        reads content/ once and freezes it to &'static
   app/              state machine: view, scroll, keys, pointer, tick
   ui/               rendering: &App → cells, hit ranges
-  visuals/          render-free simulation: lichen, unicode, fractal, crash
+  visuals/          simulations: lichen, unicode, fractal, crash
   frontends/        native, ssh, web
-ssg/                the page: Typst sources + vendored thyme (docs/ssg.md)
-browser/            the app's shell: app.html (Trunk entry), boot.js,
+ssg/                the page: Typst sources and the vendored thyme (docs/ssg.md)
+browser/            the shell of the app: app.html (Trunk entry), boot.js,
                     app.css, cursor.js
 assets/             fonts, Unicode cmaps, licences
-sws.toml            how the container serves the document root
-justfile            every command: build, docroot, serve, image, release,
+sws.toml            server configuration for the document root
+justfile            every command: build, docroot, serve, image, release and
                     `just cmaps` for the font catalogue
 ```
 
 ## Documentation
 
-- `docs/architecture.md` — layering, the one-URL model, the rendering split.
-- `docs/navigation.md` — views, keys, pointer input, what each frontend owns.
-- `docs/ssg.md` — the page: document root, shared content, build.
-- `docs/go-live.md` — the shortlist between here and going live.
+- `docs/architecture.md`: the layers, the one-URL model and the rendering split.
+- `docs/navigation.md`: views, keys, pointer input and the owner of each part.
+- `docs/ssg.md`: the page, its document root, the shared content and the build.
+- `docs/go-live.md`: the tasks between now and the launch.
 
 ## The SSH portfolio
 
-`ssh 0xbf.ch` serves the same interface as the terminal, without an account:
-**by default any username is accepted** and no client key is required. It runs
-the portfolio only — no shell, no commands, no SFTP, no forwarding — requires a
-PTY, caps sessions at 32, times out after 15 idle minutes and clamps the
+`ssh 0xbf.ch` shows the same interface as the terminal. It needs no account. The
+server accepts any username and asks for no client key. It runs the portfolio
+only: no shell, no commands, no SFTP and no forwarding. It needs a PTY. It
+allows 32 sessions, it times out after 15 idle minutes and it limits the
 terminal to 20–240 × 8–120 cells.
 
 ```sh
@@ -80,10 +79,10 @@ APEX_SSH_HOST_KEY="$HOME/.config/apex/ssh_host_ed25519_key" just ssh
 ssh -p 2222 localhost                                              # another terminal
 ```
 
-The server prints its SHA-256 host-key fingerprint at startup; verify it out of
-band before trusting the host. How it is deployed — the two pods, the Traefik
-routes, the Gatus checks, the host-key Secret — lives in the `infra` repository,
-not here.
+The server prints the SHA-256 fingerprint of its host key at startup. Check the
+fingerprint out of band before you trust the host. The deployment (two pods,
+Traefik routes, Gatus checks and the host-key Secret) is in the `infra`
+repository.
 
 | Variable | Default | Meaning |
 | --- | --- | --- |
@@ -93,63 +92,69 @@ not here.
 | `APEX_SSH_USER` | `apex` | the only username in key-only mode |
 | `APEX_SSH_AUTHORIZED_KEYS` | — | allowlist file; `APEX_SSH_PUBLIC=0` for key-only |
 
-Setting an allowlist without choosing a mode explicitly makes the server refuse
-to start, so an accidental public service is impossible.
+If you set an allowlist and do not select a mode, the server does not start.
+This behaviour prevents an accidental public service.
 
 ## Navigation
 
-- `j`/`k`, arrows, wheel, swipe: scroll. `gg`/`G`, Home/End: top/bottom.
-- `h`/`l`, `1`–`3`: about/projects/contact. Tab, `n`/`N`: next/previous link.
-- Enter opens the focused link; in a terminal the destination is shown beside
-  it. `?` toggles help, Esc closes, `q` quits.
-- Hidden visuals: activate `^@` three times (or Tab + Enter three times on the
-  logo), then `h`/`l` to choose among unicode, lichen, fractal and crash.
-- In lichen: space pauses, `-`/`+` set the interval, `0` resets it, scrolling
-  changes pixelation. In fractal: `h/j/k/l` pan, `+`/`-` zoom, `r` resets.
-  In crash: `r` starts the sweep over. Full table: `docs/navigation.md`.
+- `j`/`k`, arrow keys, wheel and swipe scroll by one line. `gg`/`G` and
+  Home/End jump to the top or to the bottom.
+- `h`/`l` and `1`–`3` select about, projects or contact. Tab and `n`/`N` move to
+  the next or previous link.
+- Enter opens the focused link. A terminal shows the destination next to the
+  link. `?` opens the help, Esc closes it and `q` quits.
+- Hidden visuals: press `^@` three times, or press Tab and Enter three times on
+  the logo. Then use `h`/`l` to choose unicode, lichen, fractal or crash.
+- In lichen, space pauses the run, `-`/`+` set the interval, `0` resets it and
+  scrolling changes the pixelation. In fractal, `h/j/k/l` pan, `+`/`-` zoom and
+  `r` resets the camera. In crash, `r` starts the sweep again. The full table is
+  in `docs/navigation.md`.
 
 ## Lichen and the Unicode visual
 
-The colony is a differential-growth simulation, rendered as half-blocks in
-terminals and as pooled pixels in the browser; the browser sizes its cells from
-the viewport, so zooming never re-runs the simulation. It is not a verified
-pixel-perfect reconstruction of the original, and it is not sixel.
+The lichen colony is a differential-growth simulation. Terminals draw it with
+half-blocks. The browser draws it with pooled pixels. The browser sizes its
+cells from the viewport, so zooming does not run the simulation again. The
+output is an approximation: single pixels can differ from the original. It does
+not use sixel.
 
-The Unicode visual samples a code point from the bundled font cmaps — 106,701
-candidates after dropping control, formatting, whitespace, combining,
-private-use and unassigned characters — and shows its Unicode 17 name, block,
-font and position. 79,761 of them have outline fonts; GNU Unifont covers the
-rest, which is why some glyphs are visibly pixelated. This is not every Unicode
-glyph: some assigned characters have no coverage, some need contextual shaping.
-Font licences live in `assets/`.
+The Unicode visual picks a code point from the bundled font cmaps and shows its
+Unicode 17 name, block, font and position. The cmaps hold 106,701 candidates.
+The build drops control, formatting, whitespace, combining, private-use and
+unassigned characters. 79,761 candidates have outline fonts. GNU Unifont covers
+the rest, so some glyphs look pixelated. The visual does not show every Unicode
+glyph: some assigned characters have no font coverage and others need contextual
+shaping. The font licences are in `assets/`.
 
-Rebuild the catalogue (needs `fontTools` and Unicode 17 `UnicodeData.txt`):
+To rebuild the catalogue you need `fontTools` and the Unicode 17
+`UnicodeData.txt`:
 
 ```sh
 just cmaps /path/to/UnicodeData.txt
 ```
 
-That rewrites `assets/{unifont,noto}-cmap.bin`, which `src/visuals/unicode.rs`
-embeds at compile time. The 52 MB BabelStoneHan TTF is only an input to that
-script; the browser ships the 7 MB WOFF2.
+The command rewrites `assets/{unifont,noto}-cmap.bin`.
+`src/visuals/unicode.rs` embeds both files at compile time. The BabelStoneHan
+TTF (52 MB) is only an input for that command. The browser loads the 7 MB WOFF2
+file.
 
 ## Status
 
-The tree compiles on both targets, its tests pass, and both artifacts build.
-That is checked by CI on every push, because it could not be checked here: the
-sandbox this was written in reaches GitHub, PyPI and npm but not
-`static.rust-lang.org` or `crates.io`, so the first `cargo fmt`/`clippy`/build
-happened in Actions. `CI` now runs formatting, lints, tests, the `wasm32` check,
-`trunk build --release` with assertions on the names the page refers to, and the
-Typst bundle with assertions on its shape.
+The tree compiles for both targets, the tests pass and both artifacts build. CI
+checks this on every push. The first `cargo fmt`, `clippy` and build ran in
+Actions, because the sandbox where the code was written can reach GitHub, PyPI
+and npm but not `static.rust-lang.org` or `crates.io`. `CI` runs formatting,
+lints, tests, the `wasm32` check, `trunk build --release` with assertions on the
+file names that the page refers to, and the Typst bundle with assertions on its
+content.
 
-What CI cannot see is anything that needs eyes: the interface at 80×24, the
-fonts actually loading, the SSH handshake, the image. That list is
+CI cannot check the work that needs a person: the interface at 80×24, the fonts
+in a real browser, the SSH handshake and the image. That list is in
 `docs/go-live.md` § 2.
 
-Naming: `ssg/` is the static site generator's input (Typst sources, the vendored
-thyme and exemel, the stylesheet and webfonts) and `browser/` is the app's shell
-(`app.html` for Trunk, `boot.js` that swaps the page for the app, `app.css`,
-`cursor.js`). Neither directory is technology-neutral, on purpose: `ssg/` names
-the toolchain that produces the document, `browser/` names the surface that
-boots the app over it.
+Names: `ssg/` holds the input of the static site generator (Typst sources, the
+vendored thyme and exemel, the stylesheet and the webfonts). `browser/` holds
+the shell of the app (`app.html` for Trunk, `boot.js` which replaces the page
+with the app, `app.css`, `cursor.js`). The names describe the toolchains, not a
+neutral concept: `ssg/` names the toolchain that produces the document,
+`browser/` names the surface that starts the app.

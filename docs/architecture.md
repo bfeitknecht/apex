@@ -1,8 +1,8 @@
 # Architecture
 
-One crate, one state machine, three ways to look at it — and one URL, where the
-document is the plain page until a WebAssembly-capable browser replaces it with
-the app.
+One crate, one state machine and three ways to show it. The site has one URL.
+The document there is the plain page until a browser with WebAssembly replaces
+it with the app.
 
 ```text
                     https://0xbf.ch/                ssh 0xbf.ch
@@ -19,88 +19,89 @@ the app.
                                       │
                               app → ui → visuals
                                       │
-                              content/*.toml  ← the one definition
+                              content/*.toml  ← the only copy
 ```
 
 ## Layout
 
 ```text
-content/               THE definition: profile.toml, projects.toml,
+content/               the content of the site: profile.toml, projects.toml,
                        age.txt, pgp.txt, cv.pdf, portrait.txt
 src/
 ├── main.rs            apex        native terminal (and the wasm entry point)
 ├── bin/ssh.rs         ssh         SSH server entry point (feature `ssh`)
 ├── lib.rs             module map
-├── content.rs         parses content/, freezes it to &'static
+├── content.rs         reads content/ and freezes it to &'static
 ├── app/               state: view, selection, scroll, keys, pointer, tick
 ├── ui/                rendering: &App → cells (draw, nav, portfolio,
 │                      document, visuals, theme)
-├── visuals/           render-free simulation: lichen, unicode, fractal, crash
+├── visuals/           simulations: lichen, unicode, fractal, crash
 └── frontends/         native, ssh, web
 ssg/                   the page: Typst sources, styles, vendor/{thyme,exemel}
-browser/               the app's shell: app.html (Trunk entry), boot.js,
+browser/               the shell of the app: app.html (Trunk entry), boot.js,
                        app.css, cursor.js
 assets/                fonts, Unicode cmaps, licences
-sws.toml               how the container serves the document root
+sws.toml               server configuration for the document root
 ```
 
 ## Five rules
 
-1. **`frontends` → `app` → `content`.** A frontend owns the event loop; it
-   never owns navigation. `app` never names a frontend.
-2. **`ui` is a pure function of `&App`.** It reads, renders and returns hit
-   ranges — it never mutates and never talks to a backend.
-3. **`visuals` is render-free.** No `ratatui`, no `web-sys`, no DOM. Crash
-   returns palette _indices_; `ui` decides that a terminal colour is a colour.
-4. **`content/` is data, and it is the only copy.** Rust embeds it with
-   `include_str!`, Typst reads the same files with `toml(..)`. No sentence, URL
-   or project exists twice.
-5. **One pacing for everyone.** `App::tick(elapsed_ms) -> bool` advances
-   whatever the current view animates and answers "is a new frame due?". Native,
-   SSH and the browser all call exactly that.
+1. **`frontends` → `app` → `content`.** A frontend owns the event loop. It does
+   not own navigation. `app` never names a frontend.
+2. **`ui` is a pure function of `&App`.** It reads state and returns cells and
+   hit ranges. It does not change state and it does not call a backend.
+3. **`visuals` does no rendering.** It uses no `ratatui`, no `web-sys` and no
+   DOM. Crash returns palette indices, and `ui` decides how a terminal shows a
+   colour.
+4. **`content/` is data and it is the only copy.** Rust embeds it with
+   `include_str!`. Typst reads the same files with `toml(..)`. No sentence, URL
+   or project appears twice.
+5. **One clock for all surfaces.** `App::tick(elapsed_ms) -> bool` advances the
+   animation of the current view and reports whether a new frame is due. Native,
+   SSH and the browser all call this function.
 
-## One URL, two surfaces
+## One URL, one document
 
-There is no `/tui`, no `/static`, no second host. `https://0xbf.ch/` is a
-single document:
+The site has no `/tui`, no `/static` and no second host. `https://0xbf.ch/`
+returns one document:
 
-| Visitor               | What happens                                                                                                              |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| WebAssembly available | `browser/boot.js` drops the static markup, shows the app's surfaces, loads `app.css` + `cursor.js` and imports `/apex.js` |
-| no WebAssembly        | nothing runs; the page stays as Typst built it                                                                            |
-| scripting off         | same as above — the script is the only thing that could change it                                                         |
-| terminal              | `ssh 0xbf.ch` → the same interface through russh                                                                          |
+| Visitor | What happens |
+| --- | --- |
+| WebAssembly available | `browser/boot.js` removes the static markup, shows the surfaces of the app, loads `app.css` and `cursor.js` and imports `/apex.js` |
+| no WebAssembly | nothing runs and the page stays as Typst built it |
+| scripting off | the same result, because the script is the only thing that could change the page |
+| terminal | `ssh 0xbf.ch` shows the same interface through russh |
 
-The consequence worth naming: the fallback is not _behind_ a URL, so no visitor
-is ever sent somewhere else, and no crawler needs to know that a second surface
-exists. The price is that a modern visitor downloads the page's HTML and CSS
-before the app replaces it (≈30 KB, against a multi-MB wasm payload) — and that
-the app's asset names cannot be content-hashed, because the page that boots them
-is built by a different toolchain. `Trunk.toml` therefore sets
-`filehash = false` and `sws.toml` sends `no-cache` (ETag revalidation) for
-everything except the webfonts.
+The fallback has no separate URL. No visitor is sent to another address, and no
+crawler must know about the second surface. The cost is the download order: a
+modern visitor downloads the page HTML and CSS before the app replaces them,
+which is about 30 KB against a wasm payload of several MB. The asset names of
+the app cannot include a content hash, because a different toolchain builds the
+page that loads them. `Trunk.toml` therefore sets `filehash = false`, and
+`sws.toml` sends `no-cache` (ETag revalidation) for everything except the
+webfonts.
 
 ## Rendering split in the browser
 
-Ratzilla (WebGL2, falling back to Canvas 2D, then DOM) draws the interface
-exactly as the terminal draws it — same cell grid, same glyphs. Two overlays
-sit on top:
+Ratzilla draws with WebGL2, with Canvas 2D as the first fallback and DOM as the
+second. It uses the same cell grid and the same glyphs as the terminal. Two
+overlays sit on top:
 
-- `#lichen-pixels` — the colony as `ImageData`, max-pooled at
-  `1 << pixelation`, so zooming never re-runs the simulation.
-- `#unicode-glyph` — the current specimen at up to 15× its cell size.
+- `#lichen-pixels` holds the colony as `ImageData`, max-pooled at
+  `1 << pixelation`. Zooming therefore does not run the simulation again.
+- `#unicode-glyph` holds the current specimen at up to 15× the cell size.
 
-Underneath, `#selectable-text` mirrors every cell as real text at the same
-positions, which is what makes selection, copy and text-layer hit testing work
-without a DOM node per cell.
+`#selectable-text` mirrors every cell as real text at the same positions. This
+layer provides selection, copy and find without one DOM node per cell.
 
 ## SSH rendering
 
-`frontends::ssh` gives each session a fixed-size `Buffer`, renders into it with
-the same `ui::draw`, diffs it and flushes at 10 ms. Sessions are independent:
-their own scroll position, their own seeds, their own visual state.
+`frontends::ssh` gives each session a fixed-size `Buffer`. It renders into the
+buffer with the same `ui::draw`, compares it with the previous frame and flushes
+every 10 ms. The sessions are independent: each one has its own scroll position,
+seeds and visual state.
 
 ## Features
 
-- `ssh` — pulls in `russh` + `tokio`; the `ssh` binary is
-  `required-features = ["ssh"]`, so a plain `cargo build` stays wasm-friendly.
+- `ssh`: adds `russh` and `tokio`. The `ssh` binary sets
+  `required-features = ["ssh"]`, so a plain `cargo build` still targets wasm.

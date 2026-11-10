@@ -1,13 +1,14 @@
-// One URL, two surfaces.
+// One URL and two surfaces.
 //
-// The document that arrives at `/` is the static page Typst generates from
-// `ssg/`. This script upgrades it in place: if the browser can run
-// WebAssembly, the page is replaced by the Ratzilla app on the same URL —
-// there is no `/tui`, no `/static`, no second host. If it cannot (or scripting
-// is off, in which case this never runs), the page stays as it is.
+// The document at `/` is the static page that Typst generates from `ssg/`. This
+// script upgrades the page in place. If the browser can run WebAssembly, the
+// Ratzilla app replaces the page at the same URL. The site has no `/tui`, no
+// `/static` and no second host. If the browser cannot run WebAssembly, or if
+// scripting is off, the page stays as it is.
 //
-// The swap happens only once the app's module is loaded, so a failed download
-// leaves the reader with the page instead of a black screen.
+// The script swaps the page only after the module of the app has loaded. A
+// failed download therefore leaves the reader on the page and not on a black
+// screen.
 (function () {
   "use strict";
 
@@ -36,10 +37,10 @@
     document.head.appendChild(element);
   }
 
-  // The app draws the whole viewport: everything the page brought with it (its
-  // own header/footer, thyme's source-link bar) goes, and only the app's
-  // surfaces stay. Keeping both would duplicate the mirrored text layer and
-  // make selection ambiguous.
+  // The app draws the whole viewport. The code removes everything that the page
+  // brought with it, including its header, its footer and the source-link bar of
+  // thyme. Only the surfaces of the app stay. If both remained, the mirrored text
+  // layer would appear twice and selection would be ambiguous.
   function swap() {
     Array.prototype.forEach.call(document.body.children, function (element) {
       if (element !== shell) {
@@ -54,12 +55,12 @@
   import("/apex.js")
     .then(function (module) {
       swap();
-      // The glue is named after the crate; naming the wasm explicitly keeps
-      // this independent of how `import.meta.url` resolves behind a proxy.
+      // The glue module takes the name of the crate. An explicit wasm path keeps
+      // this code independent of how `import.meta.url` resolves behind a proxy.
       return module.default("/apex_bg.wasm");
     })
     .catch(function (error) {
-      // Leave the page alone: the static version is the fallback, not an error.
+      // Leave the page alone. The static version is the fallback and not an error.
       console.warn("apex: the app did not start, staying on the plain page", error);
     });
 })();

@@ -1,4 +1,4 @@
-# Apex: one URL, two surfaces, one definition of the content.
+# Apex: one URL, two surfaces and one set of content.
 #
 #   just dev      build the document root, then serve it on :8080
 #   just native   the terminal
@@ -10,10 +10,11 @@
 
 set shell := ["sh", "-cu"]
 
-# Keep build artifacts in the repo (gitignored) unless the caller says otherwise.
+# Keep the build output in the repository (gitignored) unless the caller says
+# otherwise.
 export CARGO_TARGET_DIR := env("CARGO_TARGET_DIR", justfile_directory() / "target")
 
-# Local Typst package cache resolving the vendored @preview packages.
+# Local Typst package cache for the vendored @preview packages.
 packages_dir := justfile_directory() / ".packages"
 
 default:
@@ -25,7 +26,7 @@ default:
 fmt:
     cargo fmt --all
 
-# Lints, tests and the wasm32 build (what CI runs).
+# Lints, tests and the wasm32 build. CI runs the same commands.
 check:
     cargo clippy --all-targets --features ssh
     cargo test --features ssh
@@ -35,24 +36,24 @@ check:
 native *args:
     cargo run --release -- {{args}}
 
-# SSH server on 0.0.0.0:2222; needs APEX_SSH_HOST_KEY (see README.md).
+# SSH server on 0.0.0.0:2222. It needs APEX_SSH_HOST_KEY (see README.md).
 ssh:
     cargo run --release --features ssh --bin ssh
 
 # ----------------------------------------------------------------------- page
 
-# Link the vendored Typst packages into a throwaway package path.
+# Copy the vendored Typst packages into a temporary package path.
 packages:
     #!/usr/bin/env sh
-    # thyme's blog preset also needs cheq/showybox/tablem/zebraw/marge from
-    # Typst Universe; the first build fetches and caches them.
+    # The blog preset of thyme also needs cheq, showybox, tablem, zebraw and
+    # marge from Typst Universe. The first build fetches and caches them.
     set -eu
     rm -rf "{{packages_dir}}"
     mkdir -p "{{packages_dir}}/preview/exemel" "{{packages_dir}}/preview/thyme"
     cp -R ssg/vendor/exemel "{{packages_dir}}/preview/exemel/0.3.0"
     cp -R ssg/vendor/thyme "{{packages_dir}}/preview/thyme/0.1.0"
 
-# The page and its plain artifacts into ./public (this is the document root).
+# Build the page and its plain files into ./public, the document root.
 ssg: packages
     #!/usr/bin/env sh
     set -eu
@@ -62,7 +63,7 @@ ssg: packages
 
 # ---------------------------------------------------------------- browser app
 
-# The browser app into ./dist (assets only; the page is what serves it).
+# Build the browser app into ./dist. These are assets only; the page serves them.
 app:
     trunk build --dist dist --public-url /
 
@@ -74,8 +75,8 @@ app-release:
 docroot: ssg app-release
     #!/usr/bin/env sh
     set -eu
-    # Trunk renames its entry document to `index.html`; dropping it from `dist`
-    # first is what keeps the page the document, and the app a set of assets.
+    # Trunk renames its entry document to `index.html`. Remove it from `dist`
+    # first, so the page stays the document and the app stays a set of assets.
     rm -f dist/index.html dist/app.html
     cp -R dist/. public/
 
@@ -84,7 +85,8 @@ docroot: ssg app-release
 # Rebuild assets/{unifont,noto}-cmap.bin from a Unicode 17 UnicodeData.txt.
 cmaps udata:
     #!/usr/bin/env python3
-    # needs fontTools; src/visuals/unicode.rs embeds the two files at compile time
+    # Needs fontTools. src/visuals/unicode.rs embeds the two files at compile
+    # time.
     #   just cmaps ~/Downloads/UnicodeData.txt
     import struct
     from pathlib import Path
@@ -116,8 +118,8 @@ cmaps udata:
     (root / 'assets/unifont-cmap.bin').write_bytes(b''.join(struct.pack('<I',p) for p in points))
     print(f'{len(points)} covered assigned standalone code points')
 
-    # Record preferred outline fonts, including BabelStone Han; Unifont is fallback.
-    # The numeric font choice is read by the browser frontend.
+    # Record the preferred outline fonts, BabelStone Han included. Unifont is the
+    # fallback. The browser frontend reads the numeric font choice.
     font_names = ['NotoSans-Regular.ttf', 'NotoSansSymbols-Regular.ttf', 'NotoSansSymbols2-Regular.ttf', 'NotoSansMath-Regular.ttf'] + extra_fonts + ['BabelStoneHan.ttf']
     choice = {}
     for index, filename in enumerate(font_names, 1):
@@ -131,7 +133,7 @@ cmaps udata:
 
 # Serve ./public with the container's own `sws` and `sws.toml`.
 serve:
-    # `/cv` rewrites, the 404 page and the headers are the ones that ship.
+    # The `/cv` rewrite, the 404 page and the headers are the ones that ship.
     # Rebuild in another shell (`just ssg`, `just app-release`) and reload.
     docker run --rm -p 8080:8080 \
         -v "{{justfile_directory()}}/public:/public" \
@@ -146,7 +148,7 @@ dev: docroot serve
 
 # --------------------------------------------------------------- container, release
 
-# Container image: one document root plus the SSH binary.
+# Build the container image: one document root and the SSH binary.
 image:
     docker build -t ghcr.io/bfeitknecht/apex:dev .
 

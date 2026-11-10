@@ -1,7 +1,8 @@
 //! Browser input: DOM listeners decoded into the shared [`App`].
 //!
-//! Keys are captured at the window level rather than on the canvas: selecting
-//! text, clicking empty space or a browser focus change would otherwise blur it.
+//! The code captures keys at the window level, not on the canvas. A text
+//! selection, a click on empty space or a browser focus change would otherwise
+//! remove the focus from the canvas.
 
 use std::cell::{Cell, RefCell};
 use std::io;
@@ -26,7 +27,7 @@ const SWIPE_THRESHOLD: i32 = 35;
 /// Wheel delta in pixels that turns into one scroll step.
 const WHEEL_STEP: f64 = 24.0;
 
-/// Keys the application consumes; everything else stays with the browser.
+/// Keys that the application consumes. The browser keeps all other keys.
 const APPLICATION_KEYS: &str = "12345hjkl nNgGr-+=0?";
 
 /// Register every listener the portfolio needs.

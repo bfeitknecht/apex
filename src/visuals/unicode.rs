@@ -1,8 +1,7 @@
 //! Unicode specimen catalogue, shared by the terminal and the browser.
 //!
-//! Specimens are drawn by block first and then by code point, so the visual
-//! wanders across scripts instead of clustering in one dense block. Two bundled
-//! tables drive it, both written by `just cmaps`:
+//! The visual picks a block first and a code point second, so it moves across
+//! scripts. Two bundled tables drive it, and `just cmaps` writes both:
 //!
 //! - `assets/unifont-cmap.bin`: little-endian `u32` code points that have a glyph
 //!   in at least one bundled font.
@@ -67,7 +66,7 @@ const NOTO_FAMILIES: [&str; 39] = [
     "BabelStoneHan",
 ];
 
-/// Browsing history cap, so a long session cannot grow without bound.
+/// Limit of the browsing history, so a long session does not grow without bound.
 const MAX_HISTORY: usize = 512;
 
 /// A catalogue of specimens plus the visitor's browsing history.
@@ -83,7 +82,7 @@ pub struct Unicode {
 }
 
 impl Unicode {
-    /// Build the catalogue and show a first specimen. Parsing the tables costs
+    /// Build the catalogue and show the first specimen. Parsing the tables takes
     /// a few milliseconds, so callers build the visual on first use.
     pub fn new(seed: u64) -> Self {
         let mut grouped: BTreeMap<u32, Vec<char>> = BTreeMap::new();

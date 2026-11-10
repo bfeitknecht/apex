@@ -1,8 +1,8 @@
 //! The top navigation bar: labels, hit ranges and their terminal widths.
 //!
-//! The three section names are the app's own; the destinations after them come
-//! from `content`, so renaming a link in `content/profile.toml` renames the
-//! top bar too.
+//! The three section names belong to the app. The destinations after them come
+//! from `content`, so a renamed link in `content/profile.toml` renames the top
+//! bar too.
 
 use crate::content;
 

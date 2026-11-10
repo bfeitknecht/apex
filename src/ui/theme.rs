@@ -1,7 +1,7 @@
 //! Monochrome palette and the buffer primitives every screen shares.
 //!
-//! The palette is intentionally tiny: terminals supply their own foreground and
-//! background, so only the accent greys are fixed.
+//! The palette is small. A terminal supplies its own foreground and background,
+//! so only the accent greys are fixed.
 
 use ratatui::style::{Color, Modifier, Style};
 use ratatui::Frame;

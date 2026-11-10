@@ -1,9 +1,10 @@
 //! A grayscale cellular automaton: a slowly growing lichen colony.
 //!
-//! The grid holds an energy value per cell. Each generation decays random
-//! occupied cells and lets their orthogonal neighbours inherit the maximum
-//! energy, which produces the spreading, coral-like growth. Rendering lives in
-//! `ui::visuals` for terminals and in `frontends::web` for the browser canvas.
+//! The grid holds one energy value per cell. At each generation the simulation
+//! decays random occupied cells and gives their orthogonal neighbours the
+//! maximum energy. This rule produces the spreading, coral-like growth.
+//! `ui::visuals` renders it for terminals, and `frontends::web` renders it for
+//! the browser canvas.
 
 /// Grid the colony starts with; it is resized to the viewport when opened.
 const DEFAULT_WIDTH: usize = 320;
@@ -21,7 +22,7 @@ const UPDATES_PER_GENERATION: u64 = 45_000;
 /// One spore is added every `SEED_INTERVAL` random draws.
 const SEED_INTERVAL: u32 = 240;
 
-/// Display divisor: keeps the colony dim so it reads as a background texture.
+/// Display divisor. It keeps the colony dim, so it works as a background.
 const DISPLAY_DIVISOR: u16 = 39;
 
 /// A lichen colony with its own deterministic random source.
@@ -120,7 +121,7 @@ impl Lichen {
         }
     }
 
-    /// Let an empty neighbour inherit the maximum energy.
+    /// Give an empty neighbour the maximum energy.
     fn spread(&mut self, index: usize) {
         if self.energy[index] == 0 {
             self.energy[index] = MAX_ENERGY;

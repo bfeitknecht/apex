@@ -1,8 +1,8 @@
 //! Terminal rendering of the hidden menu and the four visuals.
 //!
-//! The visuals themselves live in [`crate::visuals`]; this module only decides
-//! which cells to paint. The browser frontend reuses [`unicode_layout`] to place
-//! its canvas glyph and draws Lichen as pixels instead of half blocks.
+//! The visuals live in [`crate::visuals`]. This module only decides which cells
+//! to paint. The browser frontend reuses [`unicode_layout`] to place its canvas
+//! glyph, and it draws lichen as pixels instead of half blocks.
 
 use ratatui::style::Color;
 use ratatui::Frame;
@@ -202,8 +202,8 @@ pub(super) fn draw_lichen(frame: &mut Frame, app: &App) {
     let (grid_width, grid_height) = app.lichen.size();
     let factor = 1usize << app.lichen_pixelation;
 
-    // Pool the simulation into display pixels so that a sparse spore survives
-    // the downsample instead of falling between samples.
+    // Pool the simulation into display pixels, so a sparse spore survives the
+    // downsample and does not fall between samples.
     let pooled_width = grid_width.div_ceil(factor);
     let pooled_height = grid_height.div_ceil(factor);
     let mut pooled = vec![0u8; pooled_width * pooled_height];
@@ -251,8 +251,8 @@ pub(super) fn draw_unicode(frame: &mut Frame, app: &App) {
             metadata_foreground(index, heading_lines),
         );
     }
-    // A terminal cannot scale a glyph, so the terminal shows it once at the
-    // top of the specimen area instead of filling it.
+    // A terminal cannot scale a glyph. It shows the glyph once at the top of the
+    // specimen area and leaves the rest empty.
     #[cfg(not(target_arch = "wasm32"))]
     put(
         frame,

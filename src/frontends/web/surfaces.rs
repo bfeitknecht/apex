@@ -105,7 +105,7 @@ impl LichenSurface {
         if lichen.size() != (columns, rows) {
             return;
         }
-        // Pixelation is a display-only downsample: zooming never resizes the
+        // Pixelation only changes the display. Zooming does not resize the
         // simulation, and pooling keeps sparse spores visible.
         let factor = 1usize << pixelation;
         let out_columns = columns.div_ceil(factor);
@@ -151,7 +151,8 @@ pub struct GlyphSurface {
     painted: Option<Painted>,
 }
 
-/// What the last painted frame shows, so an unchanged frame is not repainted.
+/// The content of the last painted frame. The browser does not repaint an
+/// unchanged frame.
 type Painted = (char, u32, u32, u16, u16, FontStatus);
 
 /// Largest font size the specimen is magnified to, as a multiple of 100px.

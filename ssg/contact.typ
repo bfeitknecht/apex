@@ -5,10 +5,10 @@
   title: [Contact],
   description: "Email, socials, and public keys of " + profile.name + ".",
   wrap-main: false,
-  // The default backlink text is `/..`, which reads like a broken path.
+  // The default backlink text is `/..`, which looks like a broken path.
   home-text: "0xbf.ch",
-  // `webpage` writes a whole document of its own, so `site`'s `stylesheets:` and
-  // `favicon:` never reached this page: it was served unstyled.
+  // `webpage` writes a document of its own, so `stylesheets:` and
+  // `favicon:` of `site` never reached this page and the page had no style.
   head: {
     html.link(rel: "stylesheet", href: base + "/styles.css")
     html.link(rel: "icon", href: base + "/assets/favicon.svg", type: "image/svg+xml")

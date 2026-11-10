@@ -1,9 +1,9 @@
 # Navigation and input
 
-What is implemented, not what was proposed. Three portfolio sections, a
-document viewer, four visuals behind a hidden menu, and help on top of it all.
-The same keys work in the browser, the native terminal and an SSH session;
-pointer input mirrors the keyboard.
+This document describes what the code implements. The interface has three
+portfolio sections, a document viewer, four visuals behind a hidden menu and a
+help page on top. The same keys work in the browser, in the native terminal and
+in an SSH session. Pointer input repeats the keyboard.
 
 ## View graph
 
@@ -26,8 +26,9 @@ pointer input mirrors the keyboard.
              unicode | lichen | fractal | crash ──Esc/h──▶ portfolio
 ```
 
-Leaving anything restores the portfolio section, scroll position and focused
-link it was opened from (`App::previous`, `App::document_scroll`).
+When you leave a view, the app returns to the portfolio section, the scroll
+position and the focused link that opened it (`App::previous`,
+`App::document_scroll`).
 
 ## Keys
 
@@ -47,25 +48,26 @@ link it was opened from (`App::previous`, `App::document_scroll`).
 | Esc                              | close help, then close the document | back to the menu, then to the portfolio                           |
 | `q`                              | quit (native / SSH only)            | quit (native / SSH only)                                          |
 
-In lichen, scrolling while it runs changes pixelation instead of position: the
-simulation has a fixed resolution, so zoom is a display concern.
+In lichen, scrolling while the simulation runs changes the pixelation, not the
+position. The simulation has a fixed resolution, so zoom is a property of the
+display.
 
 ## Pointer and touch
 
-Hover reports what is under the cursor (nav item, link, menu entry, visual) and
-`click` activates it. Both go through `App::hover` / `App::clear_hover` /
+Hover reports the item under the cursor (nav item, link, menu entry or visual)
+and `click` activates it. Both use `App::hover`, `App::clear_hover` and
 `App::click`, so the browser and a terminal with mouse reporting share one hit
-test: `ui::nav_ranges` for the top bar, `PortfolioPage::links` for the page,
+test: `ui::nav_ranges` for the top bar, `PortfolioPage::links` for the page and
 `ui::visual_ranges` for the hidden menu.
 
-Text selection in the browser is native: a mirrored text layer sits at the same
-cell positions, so selection, copy and the browser's own find work.
+The browser handles text selection natively. A mirrored text layer sits at the
+same cell positions, so selection, copy and the browser search work.
 
 ## Boundaries
 
 - Every view is a `View` variant and every transition is an `App` method. A
-  frontend only decodes input and calls it.
-- Links are rendered from `content` and carry a `LinkKind`; the terminal shows
-  the destination next to the focused link, the browser opens it.
-- Reduced motion: `tick` is the only clock. A frontend that does not call it
-  (or calls it with `0`) stops lichen, fractal and crash without touching state.
+  frontend only decodes input and calls the method.
+- Links come from `content` and carry a `LinkKind`. The terminal shows the
+  destination next to the focused link. The browser opens the link.
+- Reduced motion: `tick` is the only clock. A frontend that does not call it, or
+  calls it with `0`, stops lichen, fractal and crash and changes no state.

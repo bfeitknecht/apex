@@ -1,7 +1,7 @@
 //! Ratatui rendering: layout and drawing only, no state.
 //!
-//! Every screen is a function of an [`App`], which keeps the native terminal,
-//! the SSH session and the browser (through Ratzilla) pixel-identical.
+//! Every screen is a function of an [`App`]. The native terminal, the SSH
+//! session and the browser (through Ratzilla) therefore draw the same pixels.
 
 mod document;
 mod nav;

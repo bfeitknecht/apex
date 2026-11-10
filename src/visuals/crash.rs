@@ -1,11 +1,11 @@
 //! Crash: an EGA text-mode framebuffer sweeping itself apart.
 //!
-//! Display only — nothing here writes to anything but its own buffer. The
-//! visual advances byte by byte through 80x25 text mode, so the attribute
-//! bytes start describing colours nobody chose.
+//! This module only displays. It writes to its own buffer and to nothing else.
+//! The visual advances byte by byte through 80x25 text mode, until the attribute
+//! bytes describe colours that nobody chose.
 //!
-//! Colours are returned as palette indices: `ui` decides what a terminal
-//! colour is, which keeps this module free of rendering types.
+//! The visual returns colours as palette indices. `ui` decides what a terminal
+//! colour is, so this module uses no rendering types.
 
 /// Milliseconds between sweep steps.
 const PERIOD_MS: u64 = 16;
@@ -88,8 +88,8 @@ impl Crash {
 
     /// Advance by wall-clock time. Returns `true` when a new frame is due.
     ///
-    /// Catch-up is capped so a suspended tab or a stalled session cannot spend
-    /// the next frame writing thousands of bytes.
+    /// The catch-up limit stops a suspended tab or a stalled session from
+    /// writing thousands of bytes in the next frame.
     pub fn advance(&mut self, elapsed_ms: u64) -> bool {
         const MAX_CATCH_UP: u64 = 4;
         self.elapsed_ms = self

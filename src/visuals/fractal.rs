@@ -1,9 +1,9 @@
 //! A fullscreen ASCII explorer of the quaternion Julia set.
 //!
-//! The plane is rotated through four-dimensional space while it slowly zooms;
-//! each cell iterates `q -> q² + c` and maps its escape count and orbit trap to
-//! a character ramp. Only the character grid is produced here — the terminal
-//! paints it and the browser shows the same text through Ratzilla.
+//! The plane rotates through four-dimensional space and zooms in slowly. Each
+//! cell iterates `q -> q² + c` and maps its escape count and orbit trap to a
+//! character ramp. This module produces the character grid only. The terminal
+//! paints it, and the browser shows the same text through Ratzilla.
 
 /// Characters from sparse to dense, chosen for even visual weight.
 const RAMP: &[u8] = b".,:;irsXA253hMHGS#9B&@";
@@ -92,8 +92,8 @@ impl Fractal {
         *self = Self::new();
     }
 
-    /// Discard accumulated time, so leaving and re-entering the visual does not
-    /// make the camera jump by however long it was hidden.
+    /// Discard the accumulated time. The camera therefore does not jump by the
+    /// time that the visual was hidden.
     pub fn reset_clock(&mut self) {
         self.elapsed_ms = 0;
     }
@@ -122,8 +122,8 @@ impl Fractal {
     pub fn rows(&self, width: usize, height: usize) -> Vec<String> {
         let columns = width.max(1) as f64;
         let (sin, cos) = (self.phase.sin(), self.phase.cos());
-        // The two remaining quaternion axes drift on their own, so the slice
-        // never repeats and detail keeps emerging.
+        // The two remaining quaternion axes drift on their own. The slice
+        // therefore never repeats and detail keeps appearing.
         let slice_z = 0.28 * (self.phase * 0.73).sin();
         let slice_w = 0.26 * (self.phase * 0.47).cos();
         let mut rows = Vec::with_capacity(height);
