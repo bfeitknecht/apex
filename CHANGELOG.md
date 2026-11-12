@@ -37,7 +37,7 @@ The first release: one URL, three surfaces and one set of content.
 - **`justfile`.** Every command: `just dev`, `native`, `ssh`, `check`, `app`,
   `ssg`, `docroot`, `serve`, `image`, `image-run`, `cmaps` and `release`.
 - **Container image.** One arm64 image with the document root and the SSH
-  binary. `just release 0.1.0` tags the tree, and the publish workflow builds
-  `:latest` and `:v0.1.0`.
+  binary. `just release v0.1.0` tags the tree with the notes of this file, and
+  the workflows build `:latest` and `:v0.1.0` and publish the GitHub release.
 - **Documentation.** `docs/architecture.md`, `docs/navigation.md`,
   `docs/ssg.md` and `docs/go-live.md`.

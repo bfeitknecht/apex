@@ -59,6 +59,22 @@ justfile            every command: build, docroot, serve, image, release and
 CHANGELOG.md        the release notes
 ```
 
+## Release
+
+`CHANGELOG.md` holds the notes: one dated section per version, in the format of
+Keep a Changelog. `just release` reads the version from `Cargo.toml` and the
+notes from that section.
+
+```sh
+just release v0.1.0 --check   # Cargo.toml, CHANGELOG.md and the tree agree
+just release v0.1.0           # gate, tag and push
+just release --notes          # the notes alone (CI uses this)
+```
+
+The command refuses a dirty tree and a tag that origin does not have. It runs
+`just check`, tags the commit with the notes, and pushes the tag. The workflows
+then build the image and publish the GitHub release.
+
 ## Documentation
 
 - `docs/architecture.md`: the layers, the one-URL model and the rendering split.

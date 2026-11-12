@@ -68,9 +68,10 @@ items in group 2.
 3. [ ] Router: WAN **2223/tcp** → `10.10.20.10:2223` (git). WAN 22 already
    points at the Pi and now reaches the portfolio.
 4. [ ] Update the git remotes and clients for `git.0xbf.ch` on **2223**.
-5. [ ] Run `just release 0.1.0`. The command refuses a dirty tree and a version
-   that `Cargo.toml` does not declare, then tags `v0.1.0`. The publish workflow
-   builds `:latest` and `:v0.1.0`. Wait for Keel to roll both pods.
+5. [ ] Run `just release v0.1.0`. The command reads the version from
+   `Cargo.toml` and the notes from the `0.1.0` section of `CHANGELOG.md`, runs
+   `just check`, then tags and pushes. The workflows build `:latest` and
+   `:v0.1.0` and publish the GitHub release. Wait for Keel to roll both pods.
 
 ## 5. Verify, then leave it alone
 

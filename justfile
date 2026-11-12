@@ -146,30 +146,86 @@ image-run:
         -v "${PWD}/.private/ssh_host_ed25519_key:/run/secrets/apex_ssh_host_key:ro" \
         ghcr.io/bfeitknecht/apex:dev
 
-# Tag a release; the tag drives the image publish workflow.
-#   just release 0.1.0
-#   just release 0.1.0 "what changed"
-release version message="":
-    #!/usr/bin/env sh
-    set -eu
-    # The argument is the version. The tag always starts with `v`, because the
-    # publish workflow runs on `v*`. The version must match `Cargo.toml`.
-    tag="v$(printf '%s' "{{version}}" | sed 's/^v//')"
-    version="${tag#v}"
-    git check-ref-format "refs/tags/$tag"
-    ! git rev-parse -q --verify "refs/tags/$tag"
-    if [ -n "$(git status --porcelain)" ]; then
-        echo "the working tree is not clean; commit first" >&2
-        exit 1
-    fi
-    if ! grep -q "^version = \"$version\"" Cargo.toml; then
-        echo "Cargo.toml does not declare version $version" >&2
-        exit 1
-    fi
-    message="{{message}}"
-    if [ -z "$message" ]; then
-        message="apex $tag"
-    fi
-    git tag -a "$tag" -m "$message"
-    git push origin "$tag"
-    echo "pushed $tag"
+# Cut a release: `just release v0.1.0`, `just release v0.1.0 --check`, `just release --notes`
+release *args:
+    #!/usr/bin/env python3
+    import pathlib, re, subprocess, sys, tomllib
+
+    version = tomllib.loads(pathlib.Path("Cargo.toml").read_text())["package"]["version"]
+    changelog = pathlib.Path("CHANGELOG.md").read_text()
+
+    flags = [a for a in "{{args}}".split() if a.startswith("--")]
+    positional = [a for a in "{{args}}".split() if not a.startswith("--")]
+    unknown = [f for f in flags if f not in ("--check", "--notes")]
+    if unknown:
+        sys.exit(f"release: unknown flag {unknown[0]} (expected --check or --notes)")
+    if len(flags) > 1:
+        sys.exit(f"release: --check and --notes are mutually exclusive (got {flags})")
+    if len(positional) > 1:
+        sys.exit(f"release: expected at most one argument (the tag), got {positional}")
+    tag = positional[0] if positional else ""
+
+    # The release notes are this section of CHANGELOG.md. `--notes` prints them
+    # for the GitHub release, and the tag carries them.
+    match = re.search(
+        rf"^## \[{re.escape(version)}\][^\n]*\n(.*?)(?=^## \[|^\[[^\]]+\]:|\Z)",
+        changelog,
+        re.M | re.S,
+    )
+    notes = match.group(1).strip() if match else ""
+
+    if "--notes" in flags:
+        if not notes:
+            sys.exit(f"CHANGELOG.md has no '## [{version}]' section to publish")
+        print(notes)
+        sys.exit(0)
+
+    problems = []
+    if not re.fullmatch(r"\d+\.\d+\.\d+", version):
+        problems.append(f"Cargo.toml version {version!r} is not plain X.Y.Z")
+    if tag != f"v{version}":
+        problems.append(
+            f"tag {tag!r} does not match the Cargo.toml version (want 'v{version}')"
+        )
+    if not re.search(rf"^## \[{re.escape(version)}\] - \d\d\d\d-\d\d-\d\d", changelog, re.M):
+        problems.append(f"CHANGELOG.md needs a dated '## [{version}] - YYYY-MM-DD' section")
+    elif not notes:
+        problems.append(f"'## [{version}]' in CHANGELOG.md is empty")
+    if "--check" not in flags:
+        if subprocess.run(["git", "check-ref-format", f"refs/tags/{tag}"], capture_output=True).returncode:
+            problems.append(f"{tag!r} is not a valid git tag")
+        elif not subprocess.run(["git", "rev-parse", "-q", "--verify", f"refs/tags/{tag}"], capture_output=True).returncode:
+            problems.append(f"tag {tag} already exists")
+        if subprocess.run(["git", "remote", "get-url", "origin"], capture_output=True).returncode:
+            problems.append("no 'origin' remote configured")
+        if subprocess.run(["git", "status", "--porcelain"], capture_output=True, text=True).stdout.strip():
+            problems.append("the working tree is not clean; commit first")
+
+        # A tag on a commit that origin does not have produces a release whose
+        # workflow runs against a different tree.
+        branch = subprocess.run(
+            ["git", "rev-parse", "--abbrev-ref", "HEAD"], capture_output=True, text=True,
+        ).stdout.strip()
+        head = subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip()
+        remote = subprocess.run(
+            ["git", "rev-parse", f"origin/{branch}"], capture_output=True, text=True,
+        )
+        if remote.returncode:
+            problems.append(f"origin has no branch {branch!r}; push it first")
+        elif remote.stdout.strip() != head:
+            problems.append(f"HEAD is not what origin has for {branch!r}; push or pull first")
+
+    for problem in problems:
+        print(f"error: {problem}", file=sys.stderr)
+    if problems:
+        sys.exit(1)
+    if "--check" in flags:
+        print(f"{tag} is ready: Cargo.toml, CHANGELOG.md and the tree agree")
+        sys.exit(0)
+
+    # The same gate that CI runs, so the tag cannot carry a tree that does not build.
+    subprocess.run(["just", "check"], check=True)
+
+    subprocess.run(["git", "tag", "-a", tag, "-m", notes or tag], check=True)
+    subprocess.run(["git", "push", "origin", tag], check=True)
+    print(f"pushed {tag}; the workflows build the image and publish the release")
