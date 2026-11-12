@@ -21,17 +21,18 @@ quaternion Julia explorer and an EGA framebuffer sweep).
 
 ```sh
 just                 # list the recipes
-just dev             # build both artifacts, then serve :8080 in sws
+just serve           # build the page and the frontend, then serve :8080
 just native          # terminal portfolio
 just ssh             # SSH server on 0.0.0.0:2222 (needs APEX_SSH_HOST_KEY)
 just check           # clippy, tests, wasm32 build
 ```
 
-`just dev` builds the whole site. The build has two parts. Typst builds the
-page, Trunk builds the app, and both write into one document root. `just serve`
-then serves `./public` with the same `static-web-server` and the same `sws.toml`
-as the container. It rewrites `/cv`, it answers unknown paths with the 404 page
-of the site, and it sends the same headers. This step needs Docker.
+`just serve` builds the whole site, then serves it. The build has two parts.
+Typst builds the page and Trunk builds the frontend, and both write into one
+document root. The server is the same `static-web-server` with the same
+`sws.toml` as the container: it rewrites `/cv`, it answers unknown paths with
+the 404 page of the site, and it sends the same headers. This step needs Docker.
+`just build` stops after the document root.
 
 Toolchains: stable Rust, `cargo install trunk` and the `wasm32-unknown-unknown`
 target, `typst >= 0.15.1`, `just` and `python3`. Typst downloads
@@ -54,8 +55,8 @@ browser/            the shell of the app: app.html (Trunk entry), boot.js,
                     app.css, cursor.js
 assets/             fonts, Unicode cmaps, licences
 sws.toml            server configuration for the document root
-justfile            every command: build, docroot, serve, image, release,
-                    `just cmaps` for the font catalogue and `just favicon`
+justfile            every command: `serve`, `build`, `ssg`, `web`, `native`,
+                    `ssh`, `image`, `release`, `favicon` and `unicode`
 CHANGELOG.md        the release notes
 ```
 
@@ -147,7 +148,7 @@ To rebuild the catalogue you need `fontTools` and the Unicode 17
 `UnicodeData.txt`:
 
 ```sh
-just cmaps /path/to/UnicodeData.txt
+just unicode /path/to/UnicodeData.txt
 ```
 
 The command rewrites `assets/{unifont,noto}-cmap.bin`.

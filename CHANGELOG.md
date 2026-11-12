@@ -34,8 +34,8 @@ The first release: one URL, three surfaces and one set of content.
 - **One set of content.** `content/` holds the profile, the eight projects and
   the keys. `src/content.rs` reads it at build time and `ssg/config.typ` does the
   same, so both surfaces show the same text in the same order.
-- **`justfile`.** Every command: `just dev`, `native`, `ssh`, `check`, `app`,
-  `ssg`, `docroot`, `serve`, `image`, `image-run`, `cmaps` and `release`.
+- **`justfile`.** Every command: `serve`, `build`, `ssg`, `web`, `native`,
+  `ssh`, `image`, `release`, `favicon`, `unicode`, `check` and `fmt`.
 - **Container image.** One arm64 image with the document root and the SSH
   binary. `just release v0.1.0` tags the tree with the notes of this file, and
   the workflows build `:latest` and `:v0.1.0` and publish the GitHub release.

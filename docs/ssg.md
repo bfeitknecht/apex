@@ -26,7 +26,7 @@ public/
 
 Two toolchains write into this directory and their output does not overlap.
 `ssg/` builds the document. `browser/` and `src/` build the assets of the app.
-`just docroot` and the Dockerfile run `typst … ssg/site.typ public` and then
+`just build` and the Dockerfile run `typst … ssg/site.typ public` and then
 copy `dist/` over the result.
 
 `sws.toml` describes how the server serves the tree. `/cv` rewrites to
@@ -85,10 +85,10 @@ second copy.
 ## Build
 
 ```sh
-just dev        # both toolchains, then serve ./public on :8080
+just serve      # both toolchains, then serve ./public on :8080
+just build      # ./public: page, then dist over it
 just ssg        # ./public: page + artifacts
-just app        # ./dist: app assets only
-just docroot    # ./public: page, then dist over it
+just web        # ./dist: frontend assets only
 ```
 
 The entry point is `ssg/site.typ`, following the convention of thyme. The file

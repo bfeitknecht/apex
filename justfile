@@ -1,9 +1,10 @@
 # Apex: one URL, two surfaces and one set of content.
 #
-#   just dev      build the document root, then serve it on :8080
-#   just native   the terminal
-#   just ssh      the SSH server (russh)
-#   just app      the browser app (Trunk/Ratzilla)
+#   just serve    build the document root, then serve it on :8080
+#   just build    the document root only
+#   just native   the terminal frontend
+#   just ssh      the SSH frontend
+#   just web      the browser frontend
 #   just ssg      the page (Typst/thyme)
 #
 # Every command this repository has lives here. Run `just` to list the recipes.
@@ -38,7 +39,7 @@ native *args:
 ssh:
     cargo run --release --features ssh --bin ssh
 
-# ----------------------------------------------------------------------- page
+# ----------------------------------------------------------------------- site
 
 # Build the page and its plain files into ./public, the document root.
 ssg:
@@ -49,23 +50,21 @@ ssg:
     mkdir -p public
     typst compile --features html,bundle --format bundle --root . ssg/site.typ public
 
-# ---------------------------------------------------------------- browser app
-
-# Build the browser app into ./dist. Add `--release` for the production build.
-app *args:
+# Build the browser frontend into ./dist. Add `--release` for production.
+web *args:
     trunk build --dist dist --public-url / {{args}}
 
-# Assemble the document root exactly as the container does.
-docroot: ssg
+# Build the document root: the page, then the frontend over it.
+build: ssg
     #!/usr/bin/env sh
     set -eu
-    just app --release
+    just web --release
     # Trunk renames its entry document to `index.html`. Remove it from `dist`
     # first, so the page stays the document and the app stays a set of assets.
     rm -f dist/index.html dist/app.html
     cp -R dist/. public/
 
-# ------------------------------------------------------------- content, fonts
+# --------------------------------------------------------------------- assets
 
 # Render ssg/favicon.typ to ssg/assets/favicon.svg.
 favicon:
@@ -75,11 +74,11 @@ favicon:
     typst compile --format svg --font-path assets ssg/favicon.typ ssg/assets/favicon.svg
 
 # Rebuild assets/{unifont,noto}-cmap.bin from a Unicode 17 UnicodeData.txt.
-cmaps udata:
+unicode data:
     #!/usr/bin/env python3
     # Needs fontTools. src/visuals/unicode.rs embeds the two files at compile
     # time.
-    #   just cmaps ~/Downloads/UnicodeData.txt
+    #   just unicode ~/Downloads/UnicodeData.txt
     import struct
     from pathlib import Path
 
@@ -96,7 +95,7 @@ cmaps udata:
     excluded = {'Cc','Cf','Cs','Co','Cn','Zs','Zl','Zp','Mn','Mc','Me'}
     assigned = set()
     start = None
-    for line in Path("""{{udata}}""").read_text(encoding='utf-8').splitlines():
+    for line in Path("""{{data}}""").read_text(encoding='utf-8').splitlines():
         fields = line.split(';'); cp = int(fields[0], 16); name = fields[1]; category = fields[2]
         if name.endswith(', First>'):
             start = (cp, category)
@@ -121,12 +120,10 @@ cmaps udata:
     (root / 'assets/noto-cmap.bin').write_bytes(b''.join(struct.pack('<IB',cp,i) for cp,i in sorted(choice.items())))
     print(f'{len(choice)} have preferred outline fonts; {sum(i == len(font_names) for i in choice.values())} use BabelStone Han')
 
-# -------------------------------------------------------------------- serving
-
-# Serve ./public with the container's own `sws` and `sws.toml`.
-serve:
+# Build the document root, then serve it with the shipped `sws.toml`.
+serve: build
     # The `/cv` rewrite, the 404 page and the headers are the ones that ship.
-    # Rebuild in another shell (`just ssg`, `just app --release`) and reload.
+    # Rebuild in another shell (`just ssg`, `just web --release`) and reload.
     docker run --rm -p 8080:8080 \
         -v "{{justfile_directory()}}/public:/public" \
         -v "{{justfile_directory()}}/sws.toml:/sws.toml:ro" \
@@ -135,21 +132,21 @@ serve:
         -e SERVER_CACHE_CONTROL_HEADERS=false -e SERVER_LOG_LEVEL=info \
         joseluisq/static-web-server:2.44.1-alpine
 
-# Build the document root, then serve it on :8080.
-dev: docroot serve
-
 # --------------------------------------------------------------- container, release
 
-# Build the container image: one document root and the SSH binary.
-image:
+# Build the container image. `--run` also starts it on :8080 and :2222.
+image *args:
+    #!/usr/bin/env sh
+    set -eu
     docker build -t ghcr.io/bfeitknecht/apex:dev .
-
-# Run the image on :8080 and :2222 with the local host key.
-image-run:
-    docker run --rm -p 8080:8080 -p 2222:2222 \
-        -e APEX_SSH_HOST_KEY=/run/secrets/apex_ssh_host_key \
-        -v "${PWD}/.private/ssh_host_ed25519_key:/run/secrets/apex_ssh_host_key:ro" \
-        ghcr.io/bfeitknecht/apex:dev
+    case " {{args}} " in
+        *" --run "*)
+            docker run --rm -p 8080:8080 -p 2222:2222 \
+                -e APEX_SSH_HOST_KEY=/run/secrets/apex_ssh_host_key \
+                -v "${PWD}/.private/ssh_host_ed25519_key:/run/secrets/apex_ssh_host_key:ro" \
+                ghcr.io/bfeitknecht/apex:dev
+            ;;
+    esac
 
 # Cut a release: `just release v0.1.0`, `just release v0.1.0 --check`, `just release --notes`
 release *args:
