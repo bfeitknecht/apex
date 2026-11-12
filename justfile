@@ -14,9 +14,6 @@ set shell := ["sh", "-cu"]
 # otherwise.
 export CARGO_TARGET_DIR := env("CARGO_TARGET_DIR", justfile_directory() / "target")
 
-# Local Typst package cache for the vendored @preview packages.
-packages_dir := justfile_directory() / ".packages"
-
 default:
     @just --list
 
@@ -42,24 +39,14 @@ ssh:
 
 # ----------------------------------------------------------------------- page
 
-# Copy the vendored Typst packages into a temporary package path.
-packages:
-    #!/usr/bin/env sh
-    # The blog preset of thyme also needs cheq, showybox, tablem, zebraw and
-    # marge from Typst Universe. The first build fetches and caches them.
-    set -eu
-    rm -rf "{{packages_dir}}"
-    mkdir -p "{{packages_dir}}/preview/exemel" "{{packages_dir}}/preview/thyme"
-    cp -R ssg/vendor/exemel "{{packages_dir}}/preview/exemel/0.3.0"
-    cp -R ssg/vendor/thyme "{{packages_dir}}/preview/thyme/0.1.0"
-
 # Build the page and its plain files into ./public, the document root.
-ssg: packages
+ssg:
     #!/usr/bin/env sh
+    # thyme and the packages it imports come from Typst Universe. The first
+    # build downloads them into ~/.cache/typst.
     set -eu
     mkdir -p public
-    typst compile --features html,bundle --format bundle \
-        --package-path "{{packages_dir}}" --root . ssg/site.typ public
+    typst compile --features html,bundle --format bundle --root . ssg/site.typ public
 
 # ---------------------------------------------------------------- browser app
 
@@ -160,12 +147,29 @@ image-run:
         ghcr.io/bfeitknecht/apex:dev
 
 # Tag a release; the tag drives the image publish workflow.
-release tag message:
+#   just release 0.1.0
+#   just release 0.1.0 "what changed"
+release version message="":
     #!/usr/bin/env sh
     set -eu
-    tag="{{tag}}"
+    # The argument is the version. The tag always starts with `v`, because the
+    # publish workflow runs on `v*`. The version must match `Cargo.toml`.
+    tag="v$(printf '%s' "{{version}}" | sed 's/^v//')"
+    version="${tag#v}"
     git check-ref-format "refs/tags/$tag"
     ! git rev-parse -q --verify "refs/tags/$tag"
-    git tag -a "$tag" -m "{{message}}"
+    if [ -n "$(git status --porcelain)" ]; then
+        echo "the working tree is not clean; commit first" >&2
+        exit 1
+    fi
+    if ! grep -q "^version = \"$version\"" Cargo.toml; then
+        echo "Cargo.toml does not declare version $version" >&2
+        exit 1
+    fi
+    message="{{message}}"
+    if [ -z "$message" ]; then
+        message="apex $tag"
+    fi
+    git tag -a "$tag" -m "$message"
     git push origin "$tag"
     echo "pushed $tag"

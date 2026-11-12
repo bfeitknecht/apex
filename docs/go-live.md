@@ -60,14 +60,17 @@ items in group 2.
 
 ## 4. Ship
 
-1. [ ] Create the SSH host key and the `apex-ssh-host-key` Secret. Then
+1. [ ] `@preview/thyme` is on Typst Universe. The page build and the image build
+   download it, so both fail without the package.
+2. [ ] Create the SSH host key and the `apex-ssh-host-key` Secret. Then
    uncomment `ssh-host-key.sops.yaml` in the `infra` repo, commit, push and run
    `flux reconcile` for `traefik` and `apex`.
-2. [ ] Router: WAN **2223/tcp** → `10.10.20.10:2223` (git). WAN 22 already
+3. [ ] Router: WAN **2223/tcp** → `10.10.20.10:2223` (git). WAN 22 already
    points at the Pi and now reaches the portfolio.
-3. [ ] Update the git remotes and clients for `git.0xbf.ch` on **2223**.
-4. [ ] Run `just release v0.1.0 "apex v0.1.0"`. Wait for `:latest` and for Keel
-   to roll both pods.
+4. [ ] Update the git remotes and clients for `git.0xbf.ch` on **2223**.
+5. [ ] Run `just release 0.1.0`. The command refuses a dirty tree and a version
+   that `Cargo.toml` does not declare, then tags `v0.1.0`. The publish workflow
+   builds `:latest` and `:v0.1.0`. Wait for Keel to roll both pods.
 
 ## 5. Verify, then leave it alone
 

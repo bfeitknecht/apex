@@ -36,14 +36,9 @@ WORKDIR /work
 COPY content ./content
 COPY ssg ./ssg
 
-# Typst resolves @preview packages from a package path. The vendored copies are
-# pinned snapshots of thyme 0.1.0 and exemel 0.3.0.
-RUN set -eu; \
-    mkdir -p /packages/preview/exemel /packages/preview/thyme; \
-    cp -R ssg/vendor/exemel /packages/preview/exemel/0.3.0; \
-    cp -R ssg/vendor/thyme /packages/preview/thyme/0.1.0; \
-    typst compile --features html,bundle --format bundle \
-        --package-path /packages --root . ssg/site.typ /public
+# thyme and the packages that it imports come from Typst Universe. This layer
+# downloads them, so the build needs network access.
+RUN typst compile --features html,bundle --format bundle --root . ssg/site.typ /public
 
 # ---------- the SSH frontend: static musl binary ----------
 # This is the target platform, not the build platform. The binary runs on the

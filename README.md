@@ -34,9 +34,8 @@ as the container. It rewrites `/cv`, it answers unknown paths with the 404 page
 of the site, and it sends the same headers. This step needs Docker.
 
 Toolchains: stable Rust, `cargo install trunk` and the `wasm32-unknown-unknown`
-target, `typst >= 0.15.1`, `just` and `python3`. You do not install the vendored
-Typst packages. `just packages` copies them to a package path for
-`--package-path`.
+target, `typst >= 0.15.1`, `just` and `python3`. Typst downloads
+`@preview/thyme` and the packages it imports on the first build.
 
 ## Layout
 
@@ -49,13 +48,15 @@ src/                the app (see docs/architecture.md)
   ui/               rendering: &App → cells, hit ranges
   visuals/          simulations: lichen, unicode, fractal, crash
   frontends/        native, ssh, web
-ssg/                the page: Typst sources and the vendored thyme (docs/ssg.md)
+ssg/                the page: Typst sources, stylesheet, favicon and webfonts
+                    (docs/ssg.md)
 browser/            the shell of the app: app.html (Trunk entry), boot.js,
                     app.css, cursor.js
 assets/             fonts, Unicode cmaps, licences
 sws.toml            server configuration for the document root
 justfile            every command: build, docroot, serve, image, release and
                     `just cmaps` for the font catalogue
+CHANGELOG.md        the release notes
 ```
 
 ## Documentation
@@ -153,7 +154,7 @@ in a real browser, the SSH handshake and the image. That list is in
 `docs/go-live.md` § 2.
 
 Names: `ssg/` holds the input of the static site generator (Typst sources, the
-vendored thyme and exemel, the stylesheet and the webfonts). `browser/` holds
+stylesheet, the favicon and the webfonts). `browser/` holds
 the shell of the app (`app.html` for Trunk, `boot.js` which replaces the page
 with the app, `app.css`, `cursor.js`). The names describe the toolchains, not a
 neutral concept: `ssg/` names the toolchain that produces the document,

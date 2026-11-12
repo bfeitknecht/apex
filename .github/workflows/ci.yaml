@@ -60,14 +60,10 @@ jobs:
       - name: Build the Typst bundle
         run: |
           set -eu
-          mkdir -p .packages/preview/exemel .packages/preview/thyme
-          cp -R ssg/vendor/exemel .packages/preview/exemel/0.3.0
-          cp -R ssg/vendor/thyme .packages/preview/thyme/0.1.0
           docker run --rm -v "$PWD:/work" -w /work \
             ghcr.io/typst/typst:0.15.1 \
             compile --features html,bundle --format bundle \
-            --package-path /work/.packages --root . \
-            ssg/site.typ public
+            --root . ssg/site.typ public
       - name: Bundle looks right
         run: |
           set -eu

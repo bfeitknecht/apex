@@ -95,35 +95,31 @@ The entry point is `ssg/site.typ`, following the convention of thyme. The file
 that calls `#show: site.with(…, src: path("site.typ"), …)` is the root document.
 thyme writes the source view of that file into the bundle under the name of the
 entry file, so the plaintext view is `/site.typ`. All other files in `ssg/` are
-either imported by the entry file (`config.typ`, `contact.typ`, `styles.css`,
-`assets/`) or vendored (`vendor/`).
+either imported by the entry file (`config.typ`, `contact.typ`) or read by it
+(`styles.css`, `assets/`). `favicon.typ` draws `assets/favicon.svg` and is not
+part of the build.
 
 Typst uses the same flags locally and in the container:
 
 ```sh
-typst compile --features html,bundle --format bundle \
-  --package-path .packages --root . ssg/site.typ public
+typst compile --features html,bundle --format bundle --root . ssg/site.typ public
 ```
 
-`--root .` lets `ssg/config.typ` read `../content/…` and lets `#raw-file` write
-the artifacts at the root. `just packages` copies the vendored
-`@preview/thyme:0.1.0` and `@preview/exemel:0.3.0` into the
-`preview/<name>/<version>` layout that Typst expects.
+`--root .` lets `ssg/config.typ` read `../content/…` and lets `#file` write the
+artifacts at the root.
 
 ## Typst packages
 
-`@preview/thyme:0.1.0` and `@preview/exemel:0.3.0` are vendored in `ssg/vendor/`.
-Their provenance and the refresh steps are in `ssg/vendor/README.md`. They
-resolve through `just packages` and `--package-path`. This directory is a
-snapshot, so two rules follow:
+`ssg/site.typ` imports `@preview/thyme:0.1.0`, and thyme imports
+`@preview/syndicate` for the sitemap and `@preview/cheq`, `showybox`, `tablem`,
+`zebraw` and `marge` for its blog preset. All six come from Typst Universe.
+Typst downloads them on the first build and caches them in
+`~/.cache/typst/packages`. CI and the image build have network access. A fully
+offline build needs these packages in a local directory, and `--package-path`
+must point at it.
 
-- The import name never changes. A thyme update replaces `src/` and updates the
-  commit in `ssg/vendor/README.md`. No import changes.
-- The blog preset of thyme imports `@preview/cheq`, `showybox`, `tablem`,
-  `zebraw` and `marge`, and `lib.typ` imports the preset at once. These five
-  packages come from Typst Universe. The first build therefore needs network
-  access and caches them in `~/.cache/typst/packages`. CI and the image build
-  have network access. A fully offline build must vendor these packages too.
+A thyme update touches three places: `ssg/site.typ` and `ssg/contact.typ` carry
+the import, and this directory names the version.
 
 ## Writing HTML in Typst
 
