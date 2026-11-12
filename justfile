@@ -14,6 +14,7 @@ set shell := ["sh", "-cu"]
 # otherwise.
 export CARGO_TARGET_DIR := env("CARGO_TARGET_DIR", justfile_directory() / "target")
 
+# List the recipes.
 default:
     @just --list
 
@@ -50,18 +51,15 @@ ssg:
 
 # ---------------------------------------------------------------- browser app
 
-# Build the browser app into ./dist. These are assets only; the page serves them.
-app:
-    trunk build --dist dist --public-url /
-
-# The browser app, production build.
-app-release:
-    trunk build --release --dist dist --public-url /
+# Build the browser app into ./dist. Add `--release` for the production build.
+app *args:
+    trunk build --dist dist --public-url / {{args}}
 
 # Assemble the document root exactly as the container does.
-docroot: ssg app-release
+docroot: ssg
     #!/usr/bin/env sh
     set -eu
+    just app --release
     # Trunk renames its entry document to `index.html`. Remove it from `dist`
     # first, so the page stays the document and the app stays a set of assets.
     rm -f dist/index.html dist/app.html
@@ -128,7 +126,7 @@ cmaps udata:
 # Serve ./public with the container's own `sws` and `sws.toml`.
 serve:
     # The `/cv` rewrite, the 404 page and the headers are the ones that ship.
-    # Rebuild in another shell (`just ssg`, `just app-release`) and reload.
+    # Rebuild in another shell (`just ssg`, `just app --release`) and reload.
     docker run --rm -p 8080:8080 \
         -v "{{justfile_directory()}}/public:/public" \
         -v "{{justfile_directory()}}/sws.toml:/sws.toml:ro" \
