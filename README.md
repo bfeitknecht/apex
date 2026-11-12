@@ -21,22 +21,22 @@ quaternion Julia explorer and an EGA framebuffer sweep).
 
 ```sh
 just                 # list the recipes
-just dev             # build both artifacts, then serve :8080 in sws
+just serve           # build the page and the frontend, then serve :8080
 just native          # terminal portfolio
 just ssh             # SSH server on 0.0.0.0:2222 (needs APEX_SSH_HOST_KEY)
 just check           # clippy, tests, wasm32 build
 ```
 
-`just dev` builds the whole site. The build has two parts. Typst builds the
-page, Trunk builds the app, and both write into one document root. `just serve`
-then serves `./public` with the same `static-web-server` and the same `sws.toml`
-as the container. It rewrites `/cv`, it answers unknown paths with the 404 page
-of the site, and it sends the same headers. This step needs Docker.
+`just serve` builds the whole site, then serves it. The build has two parts.
+Typst builds the page and Trunk builds the frontend, and both write into one
+document root. The server is the same `static-web-server` with the same
+`sws.toml` as the container: it rewrites `/cv`, it answers unknown paths with
+the 404 page of the site, and it sends the same headers. This step needs Docker.
+`just build` stops after the document root.
 
 Toolchains: stable Rust, `cargo install trunk` and the `wasm32-unknown-unknown`
-target, `typst >= 0.15.1`, `just` and `python3`. You do not install the vendored
-Typst packages. `just packages` copies them to a package path for
-`--package-path`.
+target, `typst >= 0.15.1`, `just` and `python3`. Typst downloads
+`@preview/thyme` and the packages it imports on the first build.
 
 ## Layout
 
@@ -49,14 +49,32 @@ src/                the app (see docs/architecture.md)
   ui/               rendering: &App → cells, hit ranges
   visuals/          simulations: lichen, unicode, fractal, crash
   frontends/        native, ssh, web
-ssg/                the page: Typst sources and the vendored thyme (docs/ssg.md)
+ssg/                the page: Typst sources, stylesheet, favicon and webfonts
+                    (docs/ssg.md)
 browser/            the shell of the app: app.html (Trunk entry), boot.js,
                     app.css, cursor.js
 assets/             fonts, Unicode cmaps, licences
 sws.toml            server configuration for the document root
-justfile            every command: build, docroot, serve, image, release and
-                    `just cmaps` for the font catalogue
+justfile            every command: `serve`, `build`, `ssg`, `web`, `native`,
+                    `ssh`, `image`, `release`, `favicon` and `unicode`
+CHANGELOG.md        the release notes
 ```
+
+## Release
+
+`CHANGELOG.md` holds the notes: one dated section per version, in the format of
+Keep a Changelog. `just release` reads the version from `Cargo.toml` and the
+notes from that section.
+
+```sh
+just release v0.1.0 --check   # Cargo.toml, CHANGELOG.md and the tree agree
+just release v0.1.0           # gate, tag and push
+just release --notes          # the notes alone (CI uses this)
+```
+
+The command refuses a dirty tree and a tag that origin does not have. It runs
+`just check`, tags the commit with the notes, and pushes the tag. The workflows
+then build the image and publish the GitHub release.
 
 ## Documentation
 
@@ -130,7 +148,7 @@ To rebuild the catalogue you need `fontTools` and the Unicode 17
 `UnicodeData.txt`:
 
 ```sh
-just cmaps /path/to/UnicodeData.txt
+just unicode /path/to/UnicodeData.txt
 ```
 
 The command rewrites `assets/{unifont,noto}-cmap.bin`.
@@ -153,7 +171,7 @@ in a real browser, the SSH handshake and the image. That list is in
 `docs/go-live.md` § 2.
 
 Names: `ssg/` holds the input of the static site generator (Typst sources, the
-vendored thyme and exemel, the stylesheet and the webfonts). `browser/` holds
+stylesheet, the favicon and the webfonts). `browser/` holds
 the shell of the app (`app.html` for Trunk, `boot.js` which replaces the page
 with the app, `app.css`, `cursor.js`). The names describe the toolchains, not a
 neutral concept: `ssg/` names the toolchain that produces the document,

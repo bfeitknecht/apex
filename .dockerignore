@@ -1,7 +1,6 @@
 .git
 .github
 .private
-.packages
 target
 dist
 public

@@ -37,7 +37,7 @@ src/
 │                      document, visuals, theme)
 ├── visuals/           simulations: lichen, unicode, fractal, crash
 └── frontends/         native, ssh, web
-ssg/                   the page: Typst sources, styles, vendor/{thyme,exemel}
+ssg/                   the page: Typst sources, stylesheet, favicon, webfonts
 browser/               the shell of the app: app.html (Trunk entry), boot.js,
                        app.css, cursor.js
 assets/                fonts, Unicode cmaps, licences

@@ -25,16 +25,16 @@ The restructure was written in a sandbox without access to
   shell of the app).
 
 CI therefore proves that the code compiles, that the tests pass and that both
-artifacts build. CI does not check `just docroot`, the Docker stages or the
+artifacts build. CI does not check `just build`, the Docker stages or the
 items in group 2.
 
 ## 2. Build both surfaces and look at them
 
-- [ ] Run `just docroot` and open `public/index.html`. The file must contain the
+- [ ] Run `just build` and open `public/index.html`. The file must contain the
       page (with `id="app-shell"` and without `<link data-trunk>`), not the
       Trunk stub. Both builds write into one root and the entry document of
       Trunk also has the name `index.html`.
-- [ ] Run `just dev` and open `http://localhost:8080/`. The page loads and the
+- [ ] Run `just serve` and open `http://localhost:8080/`. The page loads and the
       console shows `/apex.js`; then the interface replaces the page. Block
       WebAssembly (`delete window.WebAssembly` in the console) and reload. The
       page must stay.
@@ -60,14 +60,18 @@ items in group 2.
 
 ## 4. Ship
 
-1. [ ] Create the SSH host key and the `apex-ssh-host-key` Secret. Then
+1. [ ] `@preview/thyme` is on Typst Universe. The page build and the image build
+   download it, so both fail without the package.
+2. [ ] Create the SSH host key and the `apex-ssh-host-key` Secret. Then
    uncomment `ssh-host-key.sops.yaml` in the `infra` repo, commit, push and run
    `flux reconcile` for `traefik` and `apex`.
-2. [ ] Router: WAN **2223/tcp** → `10.10.20.10:2223` (git). WAN 22 already
+3. [ ] Router: WAN **2223/tcp** → `10.10.20.10:2223` (git). WAN 22 already
    points at the Pi and now reaches the portfolio.
-3. [ ] Update the git remotes and clients for `git.0xbf.ch` on **2223**.
-4. [ ] Run `just release v0.1.0 "apex v0.1.0"`. Wait for `:latest` and for Keel
-   to roll both pods.
+4. [ ] Update the git remotes and clients for `git.0xbf.ch` on **2223**.
+5. [ ] Run `just release v0.1.0`. The command reads the version from
+   `Cargo.toml` and the notes from the `0.1.0` section of `CHANGELOG.md`, runs
+   `just check`, then tags and pushes. The workflows build `:latest` and
+   `:v0.1.0` and publish the GitHub release. Wait for Keel to roll both pods.
 
 ## 5. Verify, then leave it alone
 
