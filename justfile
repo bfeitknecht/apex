@@ -69,6 +69,13 @@ docroot: ssg app-release
 
 # ------------------------------------------------------------- content, fonts
 
+# Render ssg/favicon.typ to ssg/assets/favicon.svg.
+favicon:
+    # The drawing uses CommitMono, which is in `assets/`. The page and the app
+    # share the result: the boot script replaces the page in place, so the
+    # document keeps its icon.
+    typst compile --format svg --font-path assets ssg/favicon.typ ssg/assets/favicon.svg
+
 # Rebuild assets/{unifont,noto}-cmap.bin from a Unicode 17 UnicodeData.txt.
 cmaps udata:
     #!/usr/bin/env python3

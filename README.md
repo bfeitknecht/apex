@@ -54,8 +54,8 @@ browser/            the shell of the app: app.html (Trunk entry), boot.js,
                     app.css, cursor.js
 assets/             fonts, Unicode cmaps, licences
 sws.toml            server configuration for the document root
-justfile            every command: build, docroot, serve, image, release and
-                    `just cmaps` for the font catalogue
+justfile            every command: build, docroot, serve, image, release,
+                    `just cmaps` for the font catalogue and `just favicon`
 CHANGELOG.md        the release notes
 ```
 

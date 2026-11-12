@@ -96,8 +96,9 @@ that calls `#show: site.with(…, src: path("site.typ"), …)` is the root docum
 thyme writes the source view of that file into the bundle under the name of the
 entry file, so the plaintext view is `/site.typ`. All other files in `ssg/` are
 either imported by the entry file (`config.typ`, `contact.typ`) or read by it
-(`styles.css`, `assets/`). `favicon.typ` draws `assets/favicon.svg` and is not
-part of the build.
+(`styles.css`, `assets/`). `favicon.typ` is not part of the build: `just
+favicon` renders it to `ssg/assets/favicon.svg`, which the page and the app
+share.
 
 Typst uses the same flags locally and in the container:
 
