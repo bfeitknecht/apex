@@ -16,7 +16,7 @@ public/
 ├── index.html                     the page (and the boot script of the app)
 ├── site.typ                       its plaintext source (Tadi Web view)
 ├── contact/                       a content page + contact.typ
-├── 404.html, sitemap.xml, robots.txt
+├── 404.html, sitemap.xml, robots.txt, llms.txt
 ├── styles.css, assets/fonts/*.woff2, assets/favicon.svg
 ├── age.txt, pgp.txt, cv.pdf       emitted by the same build, from content/
 ├── apex.js, apex_bg.wasm          the app (Trunk)
@@ -60,6 +60,11 @@ example a subdirectory on another host, needs one edit and the canonical URL.
 | `content/age.txt`, `pgp.txt`, `cv.pdf` | embedded / linked | emitted with `#file(…)` |
 | `content/portrait.txt` | the `me` document | – |
 
+`robots.txt` and `llms.txt` are not content files. `ssg/files.typ` builds both
+from the same data as the page: the first points a crawler at the sitemap, the
+second follows [llmstxt.org](https://llmstxt.org) and lists the pages, the
+projects and the contacts.
+
 `ssg/config.typ` is the Typst side of this contract. It parses the TOML and
 exposes `destination("cv")`, `contact("github")`, `mail`, `age` and `footer`, so
 no page repeats a URL.
@@ -95,9 +100,9 @@ The entry point is `ssg/site.typ`, following the convention of thyme. The file
 that calls `#show: site.with(…, src: path("site.typ"), …)` is the root document.
 thyme writes the source view of that file into the bundle under the name of the
 entry file, so the plaintext view is `/site.typ`. All other files in `ssg/` are
-either imported by the entry file (`config.typ`, `contact.typ`) or read by it
-(`styles.css`, `assets/`). `favicon.typ` is not part of the build: `just
-favicon` renders it to `ssg/assets/favicon.svg`, which the page and the app
+either imported by the entry file (`config.typ`, `contact.typ`, `files.typ`) or
+read by it (`styles.css`, `assets/`). `favicon.typ` is not part of the build:
+`just favicon` renders it to `ssg/assets/favicon.svg`, which the page and the app
 share.
 
 Typst uses the same flags locally and in the container:

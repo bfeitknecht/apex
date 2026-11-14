@@ -1,5 +1,6 @@
 #import "@preview/thyme:0.1.0": *
 #import "config.typ": base, profile, projects, footer
+#import "files.typ": llms, robots
 
 #let _font-files = (
   "CommitMono-400-Regular.woff2",
@@ -66,10 +67,17 @@
   // constructor is the only way to emit a boolean attribute without a value,
   // because the parser of `htm` passes `true` where a string is expected.
   head: html.script(src: "/boot.js", defer: true),
-  assets: _font-files.map(f => (
-    path: "assets/fonts/" + f,
-    data: read("assets/fonts/" + f, encoding: none),
-  )),
+  assets: (
+    .._font-files.map(f => (
+      path: "assets/fonts/" + f,
+      data: read("assets/fonts/" + f, encoding: none),
+    )),
+    // The two plain-text files of `ssg/files.typ`. They are data and not
+    // markup, so they go through `assets:` with the fonts. thyme 0.1.0 writes
+    // no `robots.txt` of its own.
+    (path: "robots.txt", data: bytes(robots)),
+    (path: "llms.txt", data: bytes(llms)),
+  ),
 )
 
 // Plain files, served from the root next to the page: the keys that people copy

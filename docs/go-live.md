@@ -21,8 +21,8 @@ The restructure was written in a sandbox without access to
   of `app.css` look for them;
 - `typst compile --format bundle` for the page, with assertions on the content
   of the bundle (`index.html`, `site.typ`, `contact/`, `404.html`,
-  `sitemap.xml`, `robots.txt`, the emitted `age.txt`/`pgp.txt`/`cv.pdf` and the
-  shell of the app).
+  `sitemap.xml`, `robots.txt`, `llms.txt`, the emitted `age.txt`/`pgp.txt`/
+  `cv.pdf` and the shell of the app).
 
 CI therefore proves that the code compiles, that the tests pass and that both
 artifacts build. CI does not check `just build`, the Docker stages or the
@@ -39,8 +39,9 @@ items in group 2.
       WebAssembly (`delete window.WebAssembly` in the console) and reload. The
       page must stay.
 - [ ] Run `just ssg` alone. `public/index.html`, `site.typ`, `contact/`,
-      `404.html`, `sitemap.xml`, `age.txt`, `pgp.txt` and `cv.pdf` must exist,
-      and `grep app-shell public/index.html` must match.
+      `404.html`, `sitemap.xml`, `robots.txt`, `llms.txt`, `age.txt`, `pgp.txt`
+      and `cv.pdf` must exist, and `grep app-shell public/index.html` must
+      match.
 - [ ] Disable JavaScript and reload. The page must not change, `/cv` must work
       and the contact page must render. There must be no `/static` and no
       redirect.

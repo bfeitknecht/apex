@@ -17,6 +17,9 @@ Every surface shows the same items: introduction, projects, contacts, public
 keys and a hidden menu of four visuals (Unicode specimens, a lichen colony, a
 quaternion Julia explorer and an EGA framebuffer sweep).
 
+`/robots.txt` and `/llms.txt` describe the same content to a crawler and to a
+language model. The build writes both from `content/`.
+
 ## Quick start
 
 ```sh
