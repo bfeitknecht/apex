@@ -15,38 +15,32 @@
   },
 )
 
-#htm(
-  ```html
-  <header>
-    <p class="eyebrow"><a href="{base}/">{name}</a></p>
-    <h1>Contact</h1>
-  </header>
+#html.header({
+  html.p(class: "eyebrow", html.a(href: base + "/", profile.name))
+  html.h1("Contact")
+})
 
-  <main>
-    <p>
-      Reach me by mail at <a href="mailto:bfeitknecht@ethz.ch">bfeitknecht@ethz.ch</a>
-      or {mail}.
-      I am also on <a href="{github}">github</a> and
-      <a href="{linkedin}">linkedin</a>, and my CV is at
-      <a href="{cv}">/cv</a>.
-    </p>
+#html.main({
+  html.p[
+    Reach me by mail at
+    #html.a(href: "mailto:bfeitknecht@ethz.ch", "bfeitknecht@ethz.ch")
+    or #mail;.
+    I am also on #html.a(href: contact("github"), "github") and
+    #html.a(href: contact("linkedin"), "linkedin"), and my CV is at
+    #html.a(href: destination("cv"), "/cv").
+  ]
+  html.section(id: "keys", {
+    html.h2({
+      html.span(class: "num", "01")
+      "Keys"
+    })
+    html.p[
+      Encrypt messages with my plaintext
+      #html.a(href: "/age.txt", "age recipient") or
+      #html.a(href: "/pgp.txt", "PGP public key").
+    ]
+    html.p(class: "where", age)
+  })
+})
 
-    <section id="keys">
-      <h2><span class="num">01</span>Keys</h2>
-      <p>
-        Encrypt messages with my plaintext <a href="/age.txt">age recipient</a>
-        or <a href="/pgp.txt">PGP public key</a>.
-      </p>
-      <p class="where">{where}</p>
-    </section>
-  </main>{footer}
-  ```,
-  base: base,
-  name: profile.name,
-  github: contact("github"),
-  linkedin: contact("linkedin"),
-  cv: destination("cv"),
-  mail: mail,
-  where: age,
-  footer: footer,
-)
+#footer

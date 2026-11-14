@@ -35,6 +35,11 @@ source = "**/cv.pdf"
 headers = { Content-Disposition = "inline; filename=\"cv.pdf\"" }
 
 [[advanced.headers]]
+# `llms.txt` is Markdown for language models. Send the bytes as they are.
+source = "**/llms.txt"
+headers = { Content-Type = "text/markdown; charset=utf-8", X-Content-Type-Options = "nosniff" }
+
+[[advanced.headers]]
 # Tadi Web source views. The .typ sources are meant to be read.
 source = "**/*.typ"
 headers = { Content-Type = "text/plain; charset=utf-8", Content-Disposition = "inline", X-Content-Type-Options = "nosniff" }
