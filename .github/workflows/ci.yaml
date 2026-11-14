@@ -16,6 +16,9 @@ concurrency:
 jobs:
   rust:
     runs-on: ubuntu-latest
+    env:
+      # Plain text in the log and in the annotations below.
+      CARGO_TERM_COLOR: never
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
@@ -26,7 +29,22 @@ jobs:
       - name: Formatting
         run: cargo fmt --all -- --check
       - name: Lints
-        run: cargo clippy --all-targets --features ssh -- -D warnings
+        run: |
+          set -o pipefail
+          cargo clippy --all-targets --features ssh -- -D warnings 2>&1 | tee clippy.log
+      - name: Report the lint errors
+        if: failure()
+        # The job log lives in storage that some clients cannot read.
+        # Annotations are readable through the API, so repeat the error lines here.
+        run: |
+          echo "::error::clippy.log: $(wc -c < clippy.log 2>/dev/null || echo 0) bytes, $(wc -l < clippy.log 2>/dev/null || echo 0) lines"
+          echo "::error::$(rustc --version 2>&1) | $(cargo --version 2>&1)"
+          grep -a -i "error" clippy.log 2>/dev/null | head -8 | while IFS= read -r line; do
+            echo "::error::${line//%/%25}"
+          done
+          tail -n 12 clippy.log 2>/dev/null | while IFS= read -r line; do
+            echo "::error::${line//%/%25}"
+          done
       - name: Tests
         run: |
           cargo test
@@ -59,11 +77,22 @@ jobs:
       - uses: actions/checkout@v4
       - name: Build the Typst bundle
         run: |
-          set -eu
+          set -o pipefail
           docker run --rm -v "$PWD:/work" -w /work \
             ghcr.io/typst/typst:0.15.1 \
             compile --features html,bundle --format bundle \
-            --root . ssg/site.typ public
+            --root . ssg/site.typ public 2>&1 | tee ssg.log
+      - name: Report the build errors
+        if: failure()
+        # The job log lives in storage that some clients cannot read.
+        # Annotations are readable through the API, so repeat the error lines here.
+        run: |
+          grep -a -i "error" ssg.log 2>/dev/null | head -12 | while IFS= read -r line; do
+            echo "::error::${line//%/%25}"
+          done
+          tail -n 12 ssg.log 2>/dev/null | while IFS= read -r line; do
+            echo "::error::${line//%/%25}"
+          done
       - name: Bundle looks right
         run: |
           set -eu
