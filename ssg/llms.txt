@@ -1,0 +1,29 @@
+# Basil Feitknecht
+
+> Personal site and portfolio of Basil Feitknecht. BSc Computer Science ETH Zürich. Programming languages, formal methods, information security, computer systems and networks, and machine learning.
+
+The site is one URL with three surfaces and one set of content. A browser with WebAssembly gets a terminal-style app drawn by Ratzilla. A browser without JavaScript gets the same content as a plain HTML page, compiled from Typst with `thyme`. `ssh 0xbf.ch` opens the same app in a terminal, with any username and no key. The static page is the best source for a language model: it is plain HTML and CSS, and its Typst source is at `/site.typ` as `text/plain`.
+
+## Pages
+
+- [Home](https://0xbf.ch/): Introduction, about, the selected projects with dates, and the contact list.
+- [Contact](https://0xbf.ch/contact/): Email addresses, GitHub, LinkedIn, and the public keys for encrypted mail.
+- [CV](https://0xbf.ch/cv): The curriculum vitae as PDF.
+
+## Projects
+
+- [impli](https://github.com/bfeitknecht/impli): An interpreter for the IMP language in Haskell, with a WebAssembly web frontend.
+- [macho](https://github.com/bfeitknecht/ES-mini-project): Abnormal machine sound detection in C, for an embedded systems course.
+- [spicky](https://github.com/bfeitknecht/spicky): A Typst cheatsheet package and template.
+- [infra](https://github.com/bfeitknecht/infra): Talos Linux Kubernetes cluster across a Raspberry Pi and an Oracle Cloud node, reconciled by Flux.
+- [omni](https://github.com/bfeitknecht/omni): One Nix configuration for every machine, from the laptop to the cluster nodes.
+- [thyme](https://github.com/bfeitknecht/thyme): Static site generator and monochrome blog package in pure Typst.
+- [apex](https://github.com/bfeitknecht/apex): This site. A Ratatui app that runs natively, over SSH, and in the browser, with a Typst fallback page.
+- [glob](https://blog.0xbf.ch): The blog, on programming languages, formal methods, systems, and side projects. Built with `thyme`.
+
+## Optional
+
+- [Blog](https://blog.0xbf.ch): Long-form posts. It has its own [llms.txt](https://blog.0xbf.ch/llms.txt).
+- [Gallery](https://gallery.0xbf.ch): Standalone pieces, collections, and writings, in date order.
+- [age.txt](https://0xbf.ch/age.txt) and [pgp.txt](https://0xbf.ch/pgp.txt): Public keys as plain text.
+- [Sitemap](https://0xbf.ch/sitemap.xml): Every URL on the site.

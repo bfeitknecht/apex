@@ -34,6 +34,9 @@ The first release: one URL, three surfaces and one set of content.
 - **One set of content.** `content/` holds the profile, the eight projects and
   the keys. `src/content.rs` reads it at build time and `ssg/config.typ` does the
   same, so both surfaces show the same text in the same order.
+- **Machine-readable files.** `robots.txt` and `llms.txt` at the root. thyme
+  copies both byte for byte. `ssg/llms.txt` is written by hand and follows
+  [llmstxt.org](https://llmstxt.org).
 - **`justfile`.** Every command: `serve`, `build`, `ssg`, `web`, `native`,
   `ssh`, `image`, `release`, `favicon`, `unicode`, `check` and `fmt`.
 - **Container image.** One arm64 image with the document root and the SSH

@@ -62,10 +62,12 @@
   rss-path: none,
   atom-path: none,
   not-found-page: _not-found,
-  // The boot script goes in the head. `defer` waits for the DOM. The typed
-  // constructor is the only way to emit a boolean attribute without a value,
-  // because the parser of `htm` passes `true` where a string is expected.
+  // The boot script goes in the head. `defer` waits for the DOM.
   head: html.script(src: "/boot.js", defer: true),
+  // thyme copies both files byte for byte. `llms.txt` is written by hand
+  // (https://llmstxt.org).
+  robots: path("robots.txt"),
+  llms: path("llms.txt"),
   assets: _font-files.map(f => (
     path: "assets/fonts/" + f,
     data: read("assets/fonts/" + f, encoding: none),
@@ -81,10 +83,8 @@
 
 #mount(path("contact.typ")) <contact>
 
-// Light-scheme tone mapping for the colony canvas. It uses `html.elem` and not
-// markup, because the HTML parser lowercases tag names and the transfer
-// functions of SVG are camelCase (`feFuncR`). A raw fragment would be broken
-// HTML.
+// Light-scheme tone mapping for the colony canvas. The SVG names are camelCase
+// (`feFuncR`) and have no typed constructor, so `html.elem` writes them.
 #let tone_filter = html.elem(
   "svg",
   attrs: (width: "0", height: "0", "aria-hidden": "true", style: "position:absolute"),
@@ -103,56 +103,49 @@
   }),
 )
 
-#htm(
-  ```html
-  <div id="plain">
-    <header>
-      <p class="eyebrow">{eyebrow}</p>
-      <h1>{name}</h1>
-      <p class="lede">{lede}</p>
-      <p class="intro">{intro}</p>
-      <ul class="links">{links}</ul>
-    </header>
+// The section heading of the page: a number and a title.
+#let _heading(num, title) = html.h2({
+  html.span(class: "num", num)
+  title
+})
 
-    <main>
-      <section id="about">
-        <h2><span class="num">01</span>About</h2>
-        <p>{about}</p>
-      </section>
+#html.div(id: "plain", {
+  html.header({
+    html.p(class: "eyebrow", profile.eyebrow)
+    html.h1(profile.name)
+    html.p(class: "lede", profile.lede)
+    html.p(class: "intro", profile.intro.join(" "))
+    html.ul(class: "links", _links)
+  })
+  html.main({
+    html.section(id: "about", {
+      _heading("01", "About")
+      // The same paragraph as the terminal (`about_terminal` in
+      // `src/content.rs`), trimmed in the same way. The terminal lowercases it
+      // and the page does not.
+      html.p(profile.about.trim())
+    })
+    html.section(id: "projects", {
+      _heading("02", "Projects")
+      html.ul(class: "entries", _entries)
+    })
+    html.section(id: "contact", {
+      _heading("03", "Contact")
+      html.ul(class: "contacts", _contacts)
+    })
+  })
+  footer
+})
 
-      <section id="projects">
-        <h2><span class="num">02</span>Projects</h2>
-        <ul class="entries">{entries}</ul>
-      </section>
-
-      <section id="contact">
-        <h2><span class="num">03</span>Contact</h2>
-        <ul class="contacts">{contacts}</ul>
-      </section>
-    </main>{footer}</div>
-
-  <!-- The interactive version's surfaces. Hidden until the boot script below
-       decides the browser can run it; the page above is the fallback. -->
-  <div id="app-shell" hidden="hidden">
-    <pre id="selectable-text"></pre>
-    <canvas id="lichen-pixels" width="320" height="200"></canvas>
-    <canvas id="unicode-glyph"></canvas>
-    <div id="cell-cursor" aria-hidden="true"></div>
-    <div id="selection-highlights" aria-hidden="true"></div>
-    {tone_filter}
-  </div>
-
-  ```,
-  name: profile.name,
-  eyebrow: profile.eyebrow,
-  lede: profile.lede,
-  intro: profile.intro.join(" "),
-  // The same paragraph as the terminal (`about_terminal` in `src/content.rs`),
-  // trimmed in the same way. The terminal lowercases it and the page does not.
-  about: profile.about.trim(),
-  entries: _entries,
-  contacts: _contacts,
-  links: _links,
-  footer: footer,
-  tone_filter: tone_filter,
-)
+// The surfaces of the app. They stay hidden until the boot script decides that
+// the browser can run the app. The page above is the fallback.
+#html.div(id: "app-shell", hidden: true, {
+  html.pre(id: "selectable-text")
+  html.canvas(id: "lichen-pixels", width: 320, height: 200)
+  // The old markup had a space here. Keep it, so the layout does not change.
+  [ ]
+  html.canvas(id: "unicode-glyph")
+  html.div(id: "cell-cursor", aria-hidden: true)
+  html.div(id: "selection-highlights", aria-hidden: true)
+  tone_filter
+})

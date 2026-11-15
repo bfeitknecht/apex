@@ -16,7 +16,7 @@ public/
 ├── index.html                     the page (and the boot script of the app)
 ├── site.typ                       its plaintext source (Tadi Web view)
 ├── contact/                       a content page + contact.typ
-├── 404.html, sitemap.xml, robots.txt
+├── 404.html, sitemap.xml, robots.txt, llms.txt
 ├── styles.css, assets/fonts/*.woff2, assets/favicon.svg
 ├── age.txt, pgp.txt, cv.pdf       emitted by the same build, from content/
 ├── apex.js, apex_bg.wasm          the app (Trunk)
@@ -60,6 +60,12 @@ example a subdirectory on another host, needs one edit and the canonical URL.
 | `content/age.txt`, `pgp.txt`, `cv.pdf` | embedded / linked | emitted with `#file(…)` |
 | `content/portrait.txt` | the `me` document | – |
 
+`ssg/llms.txt` is written by hand, as in glob. It follows
+[llmstxt.org](https://llmstxt.org). `ssg/robots.txt` points a crawler at the
+sitemap. `site.typ` passes both to thyme (`llms: path(...)`, `robots:
+path(...)`), which copies the bytes into the bundle root. No build step
+generates them, so update `llms.txt` when `projects.toml` changes.
+
 `ssg/config.typ` is the Typst side of this contract. It parses the TOML and
 exposes `destination("cv")`, `contact("github")`, `mail`, `age` and `footer`, so
 no page repeats a URL.
@@ -96,8 +102,8 @@ that calls `#show: site.with(…, src: path("site.typ"), …)` is the root docum
 thyme writes the source view of that file into the bundle under the name of the
 entry file, so the plaintext view is `/site.typ`. All other files in `ssg/` are
 either imported by the entry file (`config.typ`, `contact.typ`) or read by it
-(`styles.css`, `assets/`). `favicon.typ` is not part of the build: `just
-favicon` renders it to `ssg/assets/favicon.svg`, which the page and the app
+(`styles.css`, `robots.txt`, `llms.txt`, `assets/`). `favicon.typ` is not part of the build:
+`just favicon` renders it to `ssg/assets/favicon.svg`, which the page and the app
 share.
 
 Typst uses the same flags locally and in the container:
@@ -124,19 +130,17 @@ the import, and this directory names the version.
 
 ## Writing HTML in Typst
 
-The page uses `html.*` (the built-in module of Typst 0.15) and `#htm(…)` from
-thyme for the markup blocks. Three rules matter:
+The page uses only `html.*`, the built-in module of Typst 0.15. thyme 0.1.0 has
+no HTML builder of its own. Three rules matter:
 
-- **Use `html.elem` for case-sensitive names.** The HTML parser lowercases tag
-  names, so `<feComponentTransfer>` becomes `<fecomponenttransfer>` and an SVG
-  filter stops working without a message. The lichen tone filter therefore uses
-  `html.elem("feComponentTransfer", …)`, not markup.
-- **Do not use bare boolean attributes in `#htm`.** `hidden` and `defer` reach
-  the typed constructors as `true` where the code expects a string. Give a value
-  (`hidden="hidden"`) or use the constructor (`html.script(src: "/boot.js",
-  defer: true)`). For this reason the boot script goes through `head:`.
-- **Pass an empty body through the constructor for `<script>`.** Markup makes
-  the content a `content` value, and `html.script` needs a string.
+- **Use the typed constructors** (`html.div`, `html.section`, `html.p`, …).
+  Attributes are arguments: `html.div(id: "app-shell", hidden: true)`. Boolean
+  attributes take `true`, not a string.
+- **Use `html.elem` for names without a constructor.** The lichen tone filter
+  needs camelCase SVG names (`feComponentTransfer`, `feFuncR`), so it uses
+  `html.elem("feComponentTransfer", …)`.
+- **End an expression before a full stop in markup.** `#mail.` reads as a field
+  access. Write `#mail;.` (see `contact.typ`).
 
 ## Adding a page
 

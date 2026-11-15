@@ -10,9 +10,9 @@ fn scrolling_sections_and_footer() {
         app.resize(width, height);
         let page = ui::portfolio_page(width as usize, height as usize);
         assert!(page.max_scroll() > 0);
-        for index in 0..3 {
+        for (index, offset) in page.offsets.iter().enumerate() {
             app.select_section(index);
-            assert_eq!(app.scroll_offset, page.offsets[index]);
+            assert_eq!(app.scroll_offset, *offset);
             assert_eq!(app.nav_index(), index);
         }
         app.key('G');
