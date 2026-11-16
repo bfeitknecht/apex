@@ -21,9 +21,9 @@ default:
 
 # ---------------------------------------------------------------- development
 
-# Format the whole tree.
-fmt:
-    cargo fmt --all
+# Format the whole tree. `just fmt --check` only reports (CI uses it).
+fmt *flags:
+    cargo fmt --all {{flags}}
 
 # Lints, tests and the wasm32 build. CI runs the same commands.
 check:
