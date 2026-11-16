@@ -79,4 +79,5 @@ ENV SERVER_HOST=0.0.0.0 \
 
 USER 1000:1000
 EXPOSE 8080 2222
-ENTRYPOINT ["/static-web-server"]
+# The alpine variant has the binary in PATH. /static-web-server exists only in the scratch variant.
+ENTRYPOINT ["/usr/local/bin/static-web-server"]

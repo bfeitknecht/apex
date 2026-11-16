@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-11-16
+
+### Fixed
+
+- Container entrypoint is `/usr/local/bin/static-web-server`. The alpine base image has no `/static-web-server`, so v0.1.0 did not start.
+
 ## [0.1.0] - 2026-11-12
 
 The first release: one URL, three surfaces and one set of content.
