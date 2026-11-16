@@ -40,9 +40,9 @@ position and the focused link that opened it (`App::previous`,
 | `h` `l`, `1`–`3`                 | previous / next section             | choose a visual (menu only)                                       |
 | Tab / `n` `N`                    | next / previous link                | –                                                                 |
 | Enter                            | open the focused link               | open the highlighted visual                                       |
-| `-` `+`                          | –                                   | lichen: interval; fractal: zoom                                   |
-| `0`                              | –                                   | lichen / fractal: reset                                           |
-| space                            | –                                   | lichen: pause / resume                                            |
+| `-` `+`                          | –                                   | lichen / crash: speed; fractal: zoom                              |
+| `0`                              | –                                   | lichen / crash: default speed; fractal: reset                     |
+| space                            | –                                   | lichen / crash: pause / resume                                    |
 | `r`                              | –                                   | lichen: new seed; fractal: reset camera; crash: restart the sweep |
 | `?` / `H`                        | help                                | help                                                              |
 | Esc                              | close help, then close the document | back to the menu, then to the portfolio                           |

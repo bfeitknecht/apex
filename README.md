@@ -129,7 +129,8 @@ This behaviour prevents an accidental public service.
   the logo. Then use `h`/`l` to choose unicode, lichen, fractal or crash.
 - In lichen, space pauses the run, `-`/`+` set the interval, `0` resets it and
   scrolling changes the pixelation. In fractal, `h/j/k/l` pan, `+`/`-` zoom and
-  `r` resets the camera. In crash, `r` starts the sweep again. The full table is
+  `r` resets the camera. Crash takes the speed keys of lichen (space, `-`/`+`,
+`0`), and `r` starts the sweep again. The full table is
   in `docs/navigation.md`.
 
 ## Lichen and the Unicode visual
