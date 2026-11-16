@@ -41,12 +41,26 @@
   // brought with it, including its header, its footer and the source-link bar of
   // thyme. Only the surfaces of the app stay. If both remained, the mirrored text
   // layer would appear twice and selection would be ambiguous.
-  function swap() {
-    Array.prototype.forEach.call(document.body.children, function (element) {
-      if (element !== shell) {
-        element.remove();
-      }
+  //
+  // The styles of the page go too (`styles.css` and the inline `<style>` of
+  // thyme). Their `body` padding, flex column and `max-inline-size` would put
+  // the canvas of the app in a box and not in the full viewport.
+  //
+  // `children` is a live collection. Copy it first: removal in a live loop
+  // skips the next element.
+  function remove(elements) {
+    Array.prototype.slice.call(elements).forEach(function (element) {
+      element.remove();
     });
+  }
+
+  function swap() {
+    remove(
+      Array.prototype.filter.call(document.body.children, function (element) {
+        return element !== shell;
+      })
+    );
+    remove(document.head.querySelectorAll('link[rel="stylesheet"], style'));
     shell.hidden = false;
     link("/app.css");
     script("/cursor.js");
