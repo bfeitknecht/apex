@@ -124,8 +124,31 @@ fn crash_is_a_menu_entry_like_the_others() {
     let painted = (0..80).any(|x| (0..25).any(|y| app.crash.cell(x, y) != blank));
     assert!(painted, "the sweep writes into video memory");
 
+    app.key('-');
+    assert_eq!(app.crash.period_ms(), 32);
+    app.key('+');
+    app.key('+');
+    assert_eq!(app.crash.period_ms(), 8);
+    for _ in 0..8 {
+        app.key('+');
+    }
+    assert_eq!(app.crash.period_ms(), 1);
+    for _ in 0..12 {
+        app.key('-');
+    }
+    assert_eq!(app.crash.period_ms(), 256);
+    assert!(app.tick(256), "the slowest speed still advances");
+    app.key('0');
+    assert_eq!(app.crash.period_ms(), 16);
+    app.key(' ');
+    assert!(!app.tick(100), "a paused sweep does not advance");
+    app.key(' ');
+    assert!(app.tick(16));
+
+    app.key('+');
     app.key('r');
     assert_eq!(app.crash.cell(0, 0), blank, "reset starts over");
+    assert_eq!(app.crash.period_ms(), 8, "reset keeps the speed");
     app.back();
     assert_eq!(app.view, View::Visuals);
 }

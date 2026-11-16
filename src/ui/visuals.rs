@@ -45,6 +45,9 @@ pub fn visual_ranges(width: usize, height: usize) -> Vec<(usize, usize, usize)> 
 
 /// Metadata lines under the specimen, and how many of them are the heading.
 pub(super) fn unicode_metadata(unicode: &Unicode, width: usize) -> (Vec<String>, usize) {
+    // Text wraps at 100 columns at most. The two position bars use the full
+    // width of the metadata area.
+    let bar_width = width.max(1);
     let width = width.clamp(1, 100);
     let code = unicode.glyph() as u32;
     let mut lines = Vec::new();
@@ -93,6 +96,7 @@ pub(super) fn unicode_metadata(unicode: &Unicode, width: usize) -> (Vec<String>,
     if let Some(block) = unicode.block() {
         lines.push(String::new());
         let bar = |value: u32, lo: u32, hi: u32| {
+            let width = bar_width;
             let mut b = vec![b'-'; width];
             let pos = ((value.saturating_sub(lo) as u64 * (width - 1) as u64)
                 / (hi.saturating_sub(lo).max(1) as u64)) as usize;
@@ -311,6 +315,26 @@ mod tests {
         assert_eq!(ranges.len(), VISUALS.len());
         assert!(ranges.windows(2).all(|pair| pair[0].0 < pair[1].0));
         assert!(ranges.iter().all(|&(_, row, _)| row == 12));
+    }
+
+    #[test]
+    fn unicode_bars_span_the_full_width() {
+        // Wider than the 100-column cap of the text.
+        let width = 180;
+        for seed in 0..32 {
+            let unicode = Unicode::new(seed);
+            if unicode.block().is_none() {
+                continue;
+            }
+            let (lines, _) = unicode_metadata(&unicode, width);
+            let bars: Vec<_> = lines
+                .iter()
+                .filter(|line| !line.is_empty() && line.chars().all(|c| c == '-' || c == '+'))
+                .collect();
+            assert_eq!(bars.len(), 2);
+            assert!(bars.iter().all(|bar| bar.len() == width));
+            assert!(lines.iter().all(|line| line.chars().count() <= width));
+        }
     }
 
     #[test]

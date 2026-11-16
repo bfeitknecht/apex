@@ -63,7 +63,12 @@ impl App {
             '+' | '=' if self.view == View::Fractal => self.fractal.zoom(1.5),
             '-' if self.view == View::Fractal => self.fractal.zoom(1.0 / 1.5),
             'r' | '0' if self.view == View::Fractal => self.fractal.reset(),
-            'r' | '0' if self.view == View::Crash => self.crash.reset(),
+            // Crash takes the speed keys of lichen.
+            '-' if self.view == View::Crash => self.crash.slower(),
+            '+' | '=' if self.view == View::Crash => self.crash.faster(),
+            '0' if self.view == View::Crash => self.crash.reset_speed(),
+            ' ' if self.view == View::Crash => self.crash.toggle_pause(),
+            'r' if self.view == View::Crash => self.crash.reset(),
             '-' if self.view == View::Lichen => {
                 self.lichen_interval_ms = (self.lichen_interval_ms * 2).min(1056);
             }

@@ -9,6 +9,12 @@
 
 /// Milliseconds between sweep steps.
 const PERIOD_MS: u64 = 16;
+/// The speed range: sixteen times slower to sixteen times faster, as in lichen.
+const SLOWEST_MS: u64 = PERIOD_MS * 16;
+const FASTEST_MS: u64 = 1;
+/// Catch-up is capped in time, not in steps, so a short period still runs at
+/// its full rate.
+const MAX_CATCH_UP_MS: u64 = PERIOD_MS * 4;
 
 /// The 16 EGA colours, in attribute order.
 pub const PALETTE: [(u8, u8, u8); 16] = [
@@ -52,6 +58,8 @@ pub struct Crash {
     video: Vec<u8>,
     cursor: u16,
     elapsed_ms: u64,
+    period_ms: u64,
+    paused: bool,
 }
 
 /// Size of the emulated 80x25 video memory, character and attribute bytes.
@@ -67,6 +75,8 @@ impl Default for Crash {
             video: vec![0; VIDEO_MEMORY as usize],
             cursor: 0,
             elapsed_ms: 0,
+            period_ms: PERIOD_MS,
+            paused: false,
         };
         for cell in 0..COLUMNS * ROWS {
             crash.video[cell * 2] = b' ';
@@ -81,9 +91,43 @@ impl Crash {
         Self::default()
     }
 
-    /// Start over from blank paper.
+    /// Start over from blank paper. The speed and the pause stay.
     pub fn reset(&mut self) {
-        *self = Self::default();
+        *self = Self {
+            period_ms: self.period_ms,
+            paused: self.paused,
+            ..Self::default()
+        };
+    }
+
+    /// Milliseconds per step.
+    pub fn period_ms(&self) -> u64 {
+        self.period_ms
+    }
+
+    /// Half the speed (`-`).
+    pub fn slower(&mut self) {
+        self.period_ms = (self.period_ms * 2).min(SLOWEST_MS);
+    }
+
+    /// Double the speed (`+`).
+    pub fn faster(&mut self) {
+        self.period_ms = (self.period_ms / 2).max(FASTEST_MS);
+    }
+
+    /// The default speed (`0`).
+    pub fn reset_speed(&mut self) {
+        self.period_ms = PERIOD_MS;
+    }
+
+    /// Stop or resume the sweep (space).
+    pub fn toggle_pause(&mut self) {
+        self.paused = !self.paused;
+        self.elapsed_ms = 0;
+    }
+
+    pub fn paused(&self) -> bool {
+        self.paused
     }
 
     /// Advance by wall-clock time. Returns `true` when a new frame is due.
@@ -91,13 +135,15 @@ impl Crash {
     /// The catch-up limit stops a suspended tab or a stalled session from
     /// writing thousands of bytes in the next frame.
     pub fn advance(&mut self, elapsed_ms: u64) -> bool {
-        const MAX_CATCH_UP: u64 = 4;
+        if self.paused {
+            return false;
+        }
         self.elapsed_ms = self
             .elapsed_ms
             .saturating_add(elapsed_ms)
-            .min(PERIOD_MS * MAX_CATCH_UP);
-        let steps = self.elapsed_ms / PERIOD_MS;
-        self.elapsed_ms %= PERIOD_MS;
+            .min(MAX_CATCH_UP_MS.max(self.period_ms));
+        let steps = self.elapsed_ms / self.period_ms;
+        self.elapsed_ms %= self.period_ms;
         for _ in 0..steps {
             self.step();
         }
