@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.3] - 2026-11-16
+
+### Fixed
+
+- The two position bars of the unicode visual span the full width. They stopped at 100 columns.
+
+### Changed
+
+- Crash takes the speed keys of lichen: `-`/`+` for the speed, `0` for the default speed, space to pause. `r` restarts the sweep; `0` no longer does.
+
 ## [0.1.2] - 2026-11-16
 
 ### Fixed
