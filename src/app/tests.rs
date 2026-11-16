@@ -267,3 +267,63 @@ fn unicode_navigates_only_once_opened() {
     app.key('r');
     app.navigate(-2);
 }
+
+/// The bytes that a crossterm terminal (native, or SSH) receives for one frame.
+fn terminal_bytes(app: &App, width: u16, height: u16) -> String {
+    use ratatui::backend::CrosstermBackend;
+    use ratatui::layout::Rect;
+    use ratatui::{Terminal, TerminalOptions, Viewport};
+
+    let mut output = Vec::<u8>::new();
+    {
+        let mut terminal = Terminal::with_options(
+            CrosstermBackend::new(&mut output),
+            TerminalOptions {
+                viewport: Viewport::Fixed(Rect::new(0, 0, width, height)),
+            },
+        )
+        .unwrap();
+        terminal.draw(|frame| ui::draw(frame, app)).unwrap();
+    }
+    String::from_utf8(output).unwrap()
+}
+
+fn osc8(url: &str, text: &str) -> String {
+    format!("\x1b]8;;{url}\x1b\\{text}\x1b]8;;\x1b\\")
+}
+
+#[test]
+fn terminal_links_are_osc8_hyperlinks() {
+    let (width, height) = (120, 40);
+    let mut app = App::new();
+    app.resize(width, height);
+
+    // The top bar: the destinations after the three sections.
+    let top = terminal_bytes(&app, width, height);
+    for link in content::profile().links {
+        let url = content::absolute(link.url);
+        assert!(
+            top.contains(&osc8(&url, &format!("({})", link.label))),
+            "{url}"
+        );
+    }
+
+    // The contact rows. The ` \` marker stays outside the link.
+    app.select_section(2);
+    let contact = terminal_bytes(&app, width, height);
+    for row in content::profile()
+        .contacts
+        .iter()
+        .filter(|c| !c.url.is_empty())
+    {
+        assert!(contact.contains(&osc8(row.url, row.label)), "{}", row.label);
+    }
+
+    // The footer: root-relative paths become absolute.
+    app.key('G');
+    let footer = terminal_bytes(&app, width, height);
+    assert!(footer.contains(&osc8("https://0xbf.ch/age.txt", "age.txt")));
+    assert!(footer.contains(&osc8("https://0xbf.ch/pgp.txt", "pgp.txt")));
+    // `me.` has no URL, so it gets no link.
+    assert!(!footer.contains("\x1b\\me"));
+}

@@ -60,6 +60,18 @@ pub fn profile() -> &'static Profile {
     &PROFILE
 }
 
+/// The origin of the site. Terminal links need absolute URLs.
+pub const SITE_URL: &str = "https://0xbf.ch";
+
+/// `url` as an absolute URL: a root-relative path gets [`SITE_URL`].
+pub fn absolute(url: &str) -> String {
+    if url.starts_with('/') {
+        format!("{SITE_URL}{url}")
+    } else {
+        url.to_string()
+    }
+}
+
 /// Public key files, served from the document root by every surface.
 pub const AGE_URL: &str = "/age.txt";
 pub const PGP_URL: &str = "/pgp.txt";

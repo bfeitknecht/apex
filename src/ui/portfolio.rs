@@ -7,6 +7,8 @@ use ratatui::style::Modifier;
 use ratatui::Frame;
 
 use super::nav::{nav_labels, nav_ranges};
+#[cfg(not(target_arch = "wasm32"))]
+use super::theme::hyperlink;
 use super::theme::{put, put_selected, text_style, DIM, MUTED, WHITE};
 use crate::app::App;
 use crate::content;
@@ -281,6 +283,10 @@ fn header(f: &mut Frame, app: &App) {
             put(f, 8, 3, link.url, MUTED);
         }
     }
+    #[cfg(not(target_arch = "wasm32"))]
+    for (link, (start, end)) in content::profile().links.iter().zip(ranges.iter().skip(3)) {
+        hyperlink(f, *start, 1, end - start, &content::absolute(link.url));
+    }
     if w > 4 {
         let mut top = vec![b'-'; w.saturating_sub(1)];
         if top.len() > 4 {
@@ -352,6 +358,17 @@ pub(super) fn draw(f: &mut Frame, app: &App) {
                     put(f, 8 + link.end + 2, y, link.url, MUTED);
                 }
             }
+        }
+        // Last, so the selection style is already in the cells.
+        #[cfg(not(target_arch = "wasm32"))]
+        for link in page.links.iter().filter(|link| link.row == i) {
+            hyperlink(
+                f,
+                8 + link.start,
+                y,
+                link.end.saturating_sub(link.start),
+                &content::absolute(link.url),
+            );
         }
     }
 }
