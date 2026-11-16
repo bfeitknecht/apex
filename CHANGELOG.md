@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-11-16
+
+### Fixed
+
+- The browser app takes the whole viewport. The boot script skipped every second element when it removed the page, so `#plain` stayed, and the styles of the page put the canvas in a box.
+
+### Added
+
+- OSC 8 hyperlinks over SSH and in the native terminal: the top-bar destinations, the projects, the contacts and the key files.
+
 ## [0.1.1] - 2026-11-16
 
 ### Fixed
