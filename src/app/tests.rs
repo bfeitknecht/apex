@@ -369,9 +369,11 @@ fn footer_ring_links_cover_their_labels_at_every_width() {
             .filter(|link| link.row > page.footer_start)
             .map(label)
             .collect();
-        assert_eq!(
-            footer,
-            ["age.txt", "pgp.txt", "<<", "O", ">>", "me"],
+        assert_eq!(&footer[2..], ["<<", "O", ">>", "me"], "width {width}");
+        assert!(footer[0].starts_with("age") && footer[1].starts_with("pgp"));
+        // One line at every width.
+        assert!(
+            page.rows[page.footer_start + 2].text.is_empty(),
             "width {width}"
         );
         let first = &page.rows[page.footer_start + 1].text;

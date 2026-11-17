@@ -42,10 +42,15 @@
   "ul",
   attrs: (class: "links"),
   (
-    html.elem("li", html.a(href: "/age.txt", "age.txt")),
-    html.elem("li", html.a(href: "/pgp.txt", "pgp.txt")),
-    html.elem("li", html.a(href: base + "/sitemap.xml", "sitemap.xml")),
+    html.elem("li", html.a(href: "/age.txt", { "age"; html.span(class: "ext", ".txt") })),
+    html.elem("li", html.a(href: "/pgp.txt", { "pgp"; html.span(class: "ext", ".txt") })),
+    html.elem("li", attrs: (class: "wide"), html.a(href: base + "/sitemap.xml", "sitemap.xml")),
     polyring,
-    html.elem("li", "Made with <3 by me. No JavaScript."),
+    // The footer stays one line: CSS sheds `.nojs`, then `.long` for
+    // `.short`, then `.ext`, as the footer narrows.
+    html.elem("li", {
+      html.span(class: "long", { "Made with <3 by me."; html.span(class: "nojs", " No JavaScript.") })
+      html.span(class: "short", "<3 by me")
+    }),
   ).join(),
 ))

@@ -1,6 +1,6 @@
 [package]
 name = "apex"
-version = "0.1.8"
+version = "0.1.9"
 edition = "2021"
 description = "A monochrome, keyboard-first portfolio: Ratatui TUI, Ratzilla web app and SSH server"
 default-run = "apex"

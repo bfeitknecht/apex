@@ -238,60 +238,80 @@ struct Footer {
     links: Vec<(usize, usize, usize, &'static str, LinkKind)>,
 }
 
-/// The footer segments, packed into as few lines as `width` allows:
-/// `age.txt | pgp.txt | << O >> | made with <3 by me. |`. `O` is the Polyring
-/// hub, `<<` and `>>` the neighbours.
+/// Footer label sets, widest first: (age, pgp, colophon before "me", gap).
+/// The first that fits `width` wins, so the footer is always one line.
+const FOOTER_TIERS: [(&str, &str, &str, &str); 4] = [
+    ("age.txt", "pgp.txt", "made with <3 by ", "  "),
+    ("age.txt", "pgp.txt", "made with <3 by ", " "),
+    ("age", "pgp", "<3 by ", " "),
+    ("age", "pgp", "", " "),
+];
+
+/// The footer on one line: `age.txt | pgp.txt | << O >> | made with <3 by me. |`.
+/// `<<` and `>>` are the Polyring neighbours, `O` its hub.
 fn footer_lines(width: usize) -> Footer {
-    type Part = (&'static str, &'static str, LinkKind);
-    let ring = content::polyring();
-    let segments: [Vec<Part>; 4] = [
-        vec![("age.txt", content::AGE_URL, LinkKind::Age)],
-        vec![("pgp.txt", content::PGP_URL, LinkKind::Pgp)],
-        vec![
-            ("<<", ring.previous.as_str(), LinkKind::External),
-            ("O", ring.hub.as_str(), LinkKind::External),
-            (">>", ring.next.as_str(), LinkKind::External),
-        ],
-        vec![
-            ("made with <3 by ", "", LinkKind::External),
-            ("me", content::ME_URL, LinkKind::Me),
-            (".", "", LinkKind::External),
-        ],
-    ];
     let mut footer = Footer {
-        lines: vec![String::new()],
+        lines: Vec::new(),
         links: Vec::new(),
     };
-    for segment in segments {
-        // `me` sits inside its text; the ring parts are separated by spaces.
-        let spaced = segment.len() == 3 && segment[0].0 == "<<";
-        let text: String = segment
-            .iter()
-            .map(|(label, _, _)| *label)
-            .collect::<Vec<_>>()
-            .join(if spaced { " " } else { "" })
-            + "  |";
-        let current = footer.lines.last_mut().expect("one line");
-        let lead = if current.is_empty() { 0 } else { 2 };
-        if !current.is_empty() && current.chars().count() + lead + text.chars().count() > width {
-            footer.lines.push(String::new());
+    for (tier, (age, pgp, made, gap)) in FOOTER_TIERS.into_iter().enumerate() {
+        footer = footer_line(age, pgp, made, gap);
+        if footer.lines[0].chars().count() <= width || tier == FOOTER_TIERS.len() - 1 {
+            break;
         }
-        let row = footer.lines.len() - 1;
-        let current = footer.lines.last_mut().expect("one line");
-        if !current.is_empty() {
-            current.push_str("  ");
-        }
-        let mut column = current.chars().count();
-        for (label, url, kind) in segment {
-            let end = column + label.chars().count();
-            if !url.is_empty() || matches!(kind, LinkKind::Me) {
-                footer.links.push((row, column, end, url, kind));
-            }
-            column = end + usize::from(spaced);
-        }
-        current.push_str(&text);
     }
     footer
+}
+
+fn footer_line(age: &'static str, pgp: &'static str, made: &'static str, gap: &str) -> Footer {
+    type Part = (&'static str, &'static str, LinkKind);
+    let ring = content::polyring();
+    let segments: [(Vec<Part>, &str); 4] = [
+        (vec![(age, content::AGE_URL, LinkKind::Age)], ""),
+        (vec![(pgp, content::PGP_URL, LinkKind::Pgp)], ""),
+        (
+            vec![
+                ("<<", ring.previous.as_str(), LinkKind::External),
+                ("O", ring.hub.as_str(), LinkKind::External),
+                (">>", ring.next.as_str(), LinkKind::External),
+            ],
+            " ",
+        ),
+        (
+            vec![
+                (made, "", LinkKind::External),
+                ("me", content::ME_URL, LinkKind::Me),
+                (".", "", LinkKind::External),
+            ],
+            "",
+        ),
+    ];
+    let mut line = String::new();
+    let mut links = Vec::new();
+    for (segment, joiner) in segments {
+        if !line.is_empty() {
+            line.push_str(gap);
+        }
+        let mut column = line.chars().count();
+        for (index, (label, url, kind)) in segment.iter().enumerate() {
+            if index > 0 {
+                line.push_str(joiner);
+                column += joiner.len();
+            }
+            let end = column + label.chars().count();
+            if !url.is_empty() || matches!(kind, LinkKind::Me) {
+                links.push((0, column, end, *url, *kind));
+            }
+            line.push_str(label);
+            column = end;
+        }
+        line.push_str(gap);
+        line.push('|');
+    }
+    Footer {
+        lines: vec![line],
+        links,
+    }
 }
 fn header(f: &mut Frame, app: &App) {
     let w = f.area().width as usize;

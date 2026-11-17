@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.9] - 2026-11-17
+
+### Changed
+
+- The footer is one line at every width, in the terminal and on the page. It sheds text in steps (`made with <3 by me.` > `<3 by me.` > `me.`, `age.txt` > `age`, the sitemap link) instead of wrapping. The page uses container queries on the footer's own width.
+
 ## [0.1.8] - 2026-11-17
 
 ### Changed
