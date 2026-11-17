@@ -61,6 +61,12 @@
   --step-3: clamp(2.20rem, 1.70rem + 2.40vw, 3.40rem);
 }
 
+/* Selected text: theme colors swapped (inverted) in both themes. */
+::selection {
+  background: var(--fg);
+  color: var(--bg);
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     --bg: oklch(99% 0 0);

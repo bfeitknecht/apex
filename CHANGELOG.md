@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.5] - 2026-11-17
+
+### Fixed
+
+- Cell cursor and selection invert what is behind them in light mode too (`backdrop-filter: invert(1)` instead of `mix-blend-mode: difference`, which Safari does not blend with the page background).
+- Site: selected text shows inverted theme colors.
+
 ## [0.1.4] - 2026-11-17
 
 ### Changed
