@@ -43,6 +43,8 @@ pub enum LinkKind {
     Age,
     Pgp,
     Me,
+    /// Polyring `??`: a member chosen when activated.
+    Random,
 }
 #[derive(Clone, Debug)]
 pub struct PageLink {
@@ -62,6 +64,8 @@ pub struct PortfolioPage {
     pub offsets: [usize; 3],
     pub links: Vec<PageLink>,
     pub footer_start: usize,
+    /// Columns of the `+` marks in the footer divider (screen x - 1).
+    pub footer_marks: Vec<usize>,
     pub viewport: usize,
 }
 impl PortfolioPage {
@@ -187,7 +191,9 @@ pub fn portfolio_page(width: usize, height: usize) -> PortfolioPage {
             0,
         );
     }
-    let footer_rows = if content_width >= 46 { 3 } else { 4 };
+    let footer = footer_lines(content_width);
+    // Divider, the footer lines, an empty final line.
+    let footer_rows = footer.lines.len() + 2;
     // Keep every section reachable at the top, even while the portfolio is short.
     let target = (offsets[2] + viewport).max(rows.len() + footer_rows);
     while rows.len() + footer_rows < target {
@@ -195,49 +201,102 @@ pub fn portfolio_page(width: usize, height: usize) -> PortfolioPage {
     }
     let footer_start = rows.len();
     line(&mut rows, "", false); // footer divider
-    let row = rows.len();
-    if content_width >= 46 {
-        line(
-            &mut rows,
-            "age.txt  |  pgp.txt  |  made with <3 by me.  |",
-            false,
-        );
-    } else {
-        line(&mut rows, "age.txt  |  pgp.txt  |", false);
-        line(&mut rows, "made with <3 by me.  |", false);
+    let first = rows.len();
+    for text in &footer.lines {
+        line(&mut rows, text.clone(), false);
     }
     line(&mut rows, "", false); // empty final line
-    links.push(PageLink {
-        row,
-        start: 0,
-        end: 7,
-        url: content::AGE_URL,
-        kind: LinkKind::Age,
-    });
-    links.push(PageLink {
-        row,
-        start: 12,
-        end: 19,
-        url: content::PGP_URL,
-        kind: LinkKind::Pgp,
-    });
-    let me_row = if content_width >= 46 { row } else { row + 1 };
-    if let Some(start) = rows[me_row].text.rfind("me.") {
+    for (row, start, end, url, kind) in footer.links {
         links.push(PageLink {
-            row: me_row,
+            row: first + row,
             start,
-            end: start + 2,
-            url: content::ME_URL,
-            kind: LinkKind::Me,
+            end,
+            url,
+            kind,
         });
+    }
+    let mut footer_marks = vec![4];
+    if let Some(text) = footer.lines.first() {
+        footer_marks.extend(
+            text.chars()
+                .enumerate()
+                .filter(|(_, ch)| *ch == '|')
+                .map(|(column, _)| column + 7),
+        );
     }
     PortfolioPage {
         rows,
         offsets,
         links,
         footer_start,
+        footer_marks,
         viewport,
     }
+}
+
+struct Footer {
+    lines: Vec<String>,
+    /// (line, start, end, url, kind), columns within the line.
+    links: Vec<(usize, usize, usize, &'static str, LinkKind)>,
+}
+
+/// The footer segments, packed into as few lines as `width` allows:
+/// `age.txt | pgp.txt | O << ?? >> | made with <3 by me. |`. `O` is the
+/// Polyring hub, `<<` and `>>` its neighbours, `??` a random member.
+fn footer_lines(width: usize) -> Footer {
+    type Part = (&'static str, &'static str, LinkKind);
+    let (previous, next) = content::polyring_neighbours();
+    // Terminals get a real target for `??` (OSC 8). It changes every 30 s.
+    let random = content::polyring_pick(crate::app::now_ms() / 30_000);
+    let segments: [Vec<Part>; 4] = [
+        vec![("age.txt", content::AGE_URL, LinkKind::Age)],
+        vec![("pgp.txt", content::PGP_URL, LinkKind::Pgp)],
+        vec![
+            ("O", content::POLYRING_URL, LinkKind::External),
+            ("<<", previous, LinkKind::External),
+            ("??", random, LinkKind::Random),
+            (">>", next, LinkKind::External),
+        ],
+        vec![
+            ("made with <3 by ", "", LinkKind::External),
+            ("me", content::ME_URL, LinkKind::Me),
+            (".", "", LinkKind::External),
+        ],
+    ];
+    let mut footer = Footer {
+        lines: vec![String::new()],
+        links: Vec::new(),
+    };
+    for segment in segments {
+        // `me` sits inside its text; the ring parts are separated by spaces.
+        let spaced = segment.len() == 4;
+        let text: String = segment
+            .iter()
+            .map(|(label, _, _)| *label)
+            .collect::<Vec<_>>()
+            .join(if spaced { " " } else { "" })
+            + "  |";
+        let current = footer.lines.last_mut().expect("one line");
+        let lead = if current.is_empty() { 0 } else { 2 };
+        if !current.is_empty() && current.chars().count() + lead + text.chars().count() > width {
+            footer.lines.push(String::new());
+        }
+        let row = footer.lines.len() - 1;
+        let current = footer.lines.last_mut().expect("one line");
+        if !current.is_empty() {
+            current.push_str("  ");
+        }
+        let mut column = current.chars().count();
+        for (label, url, kind) in segment {
+            let end = column + label.chars().count();
+            if !url.is_empty() || matches!(kind, LinkKind::Me) {
+                footer.links.push((row, column, end, url, kind));
+            }
+            column = end + usize::from(spaced);
+        }
+        current.push_str(&text);
+    }
+    footer
 }
 fn header(f: &mut Frame, app: &App) {
     let w = f.area().width as usize;
@@ -325,10 +384,7 @@ pub(super) fn draw(f: &mut Frame, app: &App) {
         }
         if i == page.footer_start {
             let mut line = vec![b'-'; w.saturating_sub(1)];
-            for x in [4usize, 16, 28, 52] {
-                if x == 52 && w.saturating_sub(12) < 46 {
-                    continue;
-                }
+            for &x in &page.footer_marks {
                 if x < line.len() {
                     line[x] = b'+';
                 }

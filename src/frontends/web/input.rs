@@ -21,8 +21,17 @@ use super::{open, Shared};
 /// Pointer travel in pixels above which a press counts as a text-selection drag.
 const DRAG_THRESHOLD: i32 = 4;
 
-/// Vertical swipe in pixels that turns into a scroll step.
-const SWIPE_THRESHOLD: i32 = 35;
+/// The animation-frame callback of a glide. It re-schedules itself.
+type FrameSlot = Rc<RefCell<Option<Closure<dyn FnMut(f64)>>>>;
+
+/// Finger travel in pixels below which a touch is a tap.
+const TAP_SLOP: i32 = 10;
+
+/// Glide speed (pixels per millisecond) below which momentum stops.
+const GLIDE_MIN: f64 = 0.05;
+
+/// Velocity kept per 16 ms frame of glide.
+const GLIDE_DECAY: f64 = 0.95;
 
 /// Wheel delta in pixels that turns into one scroll step.
 const WHEEL_STEP: f64 = 24.0;
@@ -290,43 +299,135 @@ fn install_wheel(window: &Window, state: Shared) {
     }
 }
 
-/// Touch swipes scroll, touch taps activate links.
+/// Touch: the page follows the finger row by row and glides on after release.
+/// A tap (little movement) activates the link under it.
 fn install_touch(window: &Window, state: Shared) {
-    let start = Rc::new(RefCell::new(None::<(i32, i32)>));
-    let start_slot = start.clone();
+    #[derive(Default)]
+    struct Touch {
+        start: Option<(i32, i32)>,
+        last_y: f64,
+        last_ms: f64,
+        /// Pixels not yet turned into whole rows.
+        carry: f64,
+        /// Finger velocity in pixels per millisecond (positive: content moves up).
+        velocity: f64,
+        moved: bool,
+        /// Generation of the running glide; a new touch stops it.
+        glide: u32,
+    }
+    let touch = Rc::new(RefCell::new(Touch::default()));
+
+    // Turn `pixels` of finger travel into row steps. Returns false at an end.
+    fn step(state: &Shared, touch: &mut Touch, pixels: f64) -> bool {
+        let Ok(mut app) = state.try_borrow_mut() else {
+            return true;
+        };
+        let row = Viewport::current().height / app.height.max(1) as f64;
+        touch.carry += pixels;
+        let rows = (touch.carry / row).trunc() as i32;
+        if rows == 0 {
+            return true;
+        }
+        touch.carry -= rows as f64 * row;
+        let before = app.scroll_offset;
+        app.clear_hover();
+        app.navigate(rows);
+        app.scroll_offset != before
+    }
+
+    let down_touch = touch.clone();
     let down = Closure::<dyn FnMut(web_sys::TouchEvent)>::new(move |event: web_sys::TouchEvent| {
-        if let Some(touch) = event.touches().item(0) {
-            *start_slot.borrow_mut() = Some((touch.client_x(), touch.client_y()));
+        if let Some(point) = event.touches().item(0) {
+            let mut touch = down_touch.borrow_mut();
+            touch.start = Some((point.client_x(), point.client_y()));
+            touch.last_y = point.client_y() as f64;
+            touch.last_ms = js_sys::Date::now();
+            touch.carry = 0.0;
+            touch.velocity = 0.0;
+            touch.moved = false;
+            touch.glide = touch.glide.wrapping_add(1);
         }
     });
     let _ = window.add_event_listener_with_callback("touchstart", down.as_ref().unchecked_ref());
     down.forget();
 
+    let move_state = state.clone();
+    let move_touch = touch.clone();
+    let moved =
+        Closure::<dyn FnMut(web_sys::TouchEvent)>::new(move |event: web_sys::TouchEvent| {
+            let Some(point) = event.touches().item(0) else {
+                return;
+            };
+            let mut touch = move_touch.borrow_mut();
+            let Some((start_x, start_y)) = touch.start else {
+                return;
+            };
+            let y = point.client_y() as f64;
+            if !touch.moved {
+                let (dx, dy) = (point.client_x() - start_x, point.client_y() - start_y);
+                if dy.abs() < TAP_SLOP || dx.abs() > dy.abs() {
+                    return;
+                }
+                touch.moved = true;
+                touch.last_y = y;
+            }
+            event.prevent_default();
+            let now = js_sys::Date::now();
+            let pixels = touch.last_y - y;
+            let elapsed = (now - touch.last_ms).max(1.0);
+            // Smoothed, so one jittery event does not decide the glide.
+            touch.velocity = 0.8 * (pixels / elapsed) + 0.2 * touch.velocity;
+            touch.last_y = y;
+            touch.last_ms = now;
+            step(&move_state, &mut touch, pixels);
+        });
+    let options = AddEventListenerOptions::new();
+    options.set_passive(false);
+    let _ = window.add_event_listener_with_callback_and_add_event_listener_options(
+        "touchmove",
+        moved.as_ref().unchecked_ref(),
+        &options,
+    );
+    moved.forget();
+
+    let end_touch = touch;
     let end = Closure::<dyn FnMut(web_sys::TouchEvent)>::new(move |event: web_sys::TouchEvent| {
-        let (Some((start_x, start_y)), Some(touch)) =
-            (start.borrow_mut().take(), event.changed_touches().item(0))
+        let (start, moved, glide, velocity, last_ms) = {
+            let mut touch = end_touch.borrow_mut();
+            (
+                touch.start.take(),
+                touch.moved,
+                touch.glide,
+                touch.velocity,
+                touch.last_ms,
+            )
+        };
+        let (Some((start_x, start_y)), Some(point)) = (start, event.changed_touches().item(0))
         else {
             return;
         };
-        let (delta_x, delta_y) = (touch.client_x() - start_x, touch.client_y() - start_y);
-        if delta_y.abs() > SWIPE_THRESHOLD {
-            let steps = (delta_y.abs() / 25).clamp(1, 8);
-            state
-                .borrow_mut()
-                .navigate(if delta_y < 0 { steps } else { -steps });
-            event.prevent_default();
-        } else if delta_x.abs() < 20 {
-            let viewport = Viewport::current();
-            let mut app = state.borrow_mut();
-            let x = (start_x.max(0) as f64 / viewport.width * app.width as f64) as usize;
-            let y = (start_y.max(0) as f64 / viewport.height * app.height as f64) as usize;
-            let url = app.click(x, y);
-            drop(app);
-            if let Some(url) = url {
-                open(url);
+        if !moved {
+            let (dx, dy) = (point.client_x() - start_x, point.client_y() - start_y);
+            if dx.abs() < TAP_SLOP && dy.abs() < TAP_SLOP {
+                let viewport = Viewport::current();
+                let mut app = state.borrow_mut();
+                let x = (start_x.max(0) as f64 / viewport.width * app.width as f64) as usize;
+                let y = (start_y.max(0) as f64 / viewport.height * app.height as f64) as usize;
+                let url = app.click(x, y);
+                drop(app);
+                if let Some(url) = url {
+                    open(url);
+                }
+                event.prevent_default();
             }
-            event.prevent_default();
+            return;
         }
+        event.prevent_default();
+        // A finger that stopped before lifting does not glide.
+        if js_sys::Date::now() - last_ms > 80.0 || velocity.abs() < GLIDE_MIN {
+            return;
+        }
+        glide_on(state.clone(), end_touch.clone(), glide, velocity);
     });
     let options = AddEventListenerOptions::new();
     options.set_passive(false);
@@ -336,6 +437,38 @@ fn install_touch(window: &Window, state: Shared) {
         &options,
     );
     end.forget();
+
+    /// Momentum after release: one animation frame at a time, decaying, until
+    /// it is slow, hits an end, or a new touch starts.
+    fn glide_on(state: Shared, touch: Rc<RefCell<Touch>>, glide: u32, velocity: f64) {
+        let frame: FrameSlot = Rc::new(RefCell::new(None));
+        let next = frame.clone();
+        let mut velocity = velocity;
+        let mut last: Option<f64> = None;
+        *frame.borrow_mut() = Some(Closure::new(move |now: f64| {
+            let elapsed = last.map_or(16.0, |last| (now - last).clamp(1.0, 64.0));
+            last = Some(now);
+            let mut current = touch.borrow_mut();
+            let running = current.glide == glide
+                && velocity.abs() >= GLIDE_MIN
+                && step(&state, &mut current, velocity * elapsed);
+            drop(current);
+            velocity *= GLIDE_DECAY.powf(elapsed / 16.0);
+            if running {
+                request_frame(next.borrow().as_ref());
+            } else {
+                // Drop the closure: this breaks the Rc cycle.
+                next.borrow_mut().take();
+            }
+        }));
+        request_frame(frame.borrow().as_ref());
+    }
+
+    fn request_frame(callback: Option<&Closure<dyn FnMut(f64)>>) {
+        if let (Some(window), Some(callback)) = (web_sys::window(), callback) {
+            let _ = window.request_animation_frame(callback.as_ref().unchecked_ref());
+        }
+    }
 }
 
 fn page_step(app: &crate::App) -> i32 {

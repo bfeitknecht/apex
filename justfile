@@ -25,6 +25,12 @@ default:
 fmt *flags:
     cargo fmt --all {{flags}}
 
+# Refresh the Polyring member snapshot (one URL per line) from the ring's own embed script.
+polyring:
+    curl -fsSL https://polyring.ch/embed.js | grep -o 'url:"[^"]*"' | sed 's/^url:"//; s/"$//' > content/polyring.txt
+    @grep -qx 'https://0xbf.ch' content/polyring.txt || echo "warning: 0xbf.ch is not in the ring" >&2
+    @echo "$(wc -l < content/polyring.txt | tr -d ' ') members"
+
 # Lints, tests and the wasm32 build. CI runs the same commands.
 check:
     cargo clippy --all-targets --features ssh
@@ -49,6 +55,10 @@ ssg:
     set -eu
     mkdir -p public
     typst compile --features html,bundle --format bundle --root . ssg/site.typ public
+
+# Serve only the static page (no app) on :8080. The live site shows it with `?plain`.
+plain: ssg
+    python3 -m http.server 8080 --directory public
 
 # Build the browser frontend into ./dist. Add `--release` for production.
 web *args:

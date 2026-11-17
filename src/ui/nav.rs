@@ -6,33 +6,75 @@
 
 use crate::content;
 
-/// Section labels, shortened as the viewport narrows.
-fn section_labels(inner: usize) -> [&'static str; 3] {
-    if inner < 48 {
-        ["a", "p", "c"]
-    } else if inner < 62 {
-        ["about", "proj", "cont"]
-    } else {
-        ["about", "projects", "contact"]
-    }
+/// Section label sets, widest first.
+const SECTIONS: [[&str; 3]; 4] = [
+    ["about", "projects", "contact"],
+    ["about", "proj", "cont"],
+    ["abt", "prj", "cnt"],
+    ["a", "p", "c"],
+];
+
+/// How a destination label (`cv`, `blog`, `gallery`) is shortened.
+#[derive(Clone, Copy)]
+enum Destination {
+    /// `(gallery)`
+    Full,
+    /// `(gal)`: labels longer than four characters keep three, in parentheses.
+    Short,
+    /// `gal`: no parentheses. The narrowest phones need these three columns.
+    Bare,
 }
 
-/// Every label in the top bar: three sections, then the destinations.
-pub(super) fn nav_labels(inner: usize) -> Vec<String> {
-    let mut labels: Vec<String> = section_labels(inner)
+/// The tiers, widest first. A narrower viewport takes the first tier that
+/// fits, so words survive as long as the width allows and `(c)` for cv never
+/// sits next to `c` for contact.
+const TIERS: [(usize, Destination); 7] = [
+    (0, Destination::Full),
+    (1, Destination::Full),
+    (1, Destination::Short),
+    (2, Destination::Short),
+    (3, Destination::Short),
+    (3, Destination::Bare),
+    (3, Destination::Bare),
+];
+
+fn tier_labels(sections: usize, destination: Destination) -> Vec<String> {
+    let mut labels: Vec<String> = SECTIONS[sections]
         .iter()
         .map(|label| (*label).to_string())
         .collect();
-    let abbreviated = inner < 48;
     for link in content::profile().links {
-        let label = if abbreviated {
-            link.label.chars().take(1).collect()
-        } else {
+        let short: String = if link.label.chars().count() <= 4 {
             link.label.to_string()
+        } else {
+            link.label.chars().take(3).collect()
         };
-        labels.push(format!("({label})"));
+        labels.push(match destination {
+            Destination::Full => format!("({})", link.label),
+            Destination::Short => format!("({short})"),
+            Destination::Bare => short,
+        });
     }
     labels
+}
+
+/// Every label in the top bar for the inner width `inner` (= width - 4):
+/// three sections, then the destinations.
+pub(super) fn nav_labels(inner: usize) -> Vec<String> {
+    let width = inner + 4;
+    for (sections, destination) in TIERS {
+        let labels = tier_labels(sections, destination);
+        // The bar starts at column 7; every label adds ` | ` after it.
+        let end = 7 + labels
+            .iter()
+            .map(|label| label.chars().count() + 3)
+            .sum::<usize>()
+            - 2;
+        if end < width {
+            return labels;
+        }
+    }
+    tier_labels(3, Destination::Bare)
 }
 
 /// Start and end columns of every label in the top bar.

@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.7] - 2026-11-17
+
+### Added
+
+- Polyring webring in the footer: `O << ?? >>` (hub, previous, random, next) in the terminal, the SSH session and the page. Member snapshot `content/polyring.txt`, refreshed by `just polyring`.
+- `?plain` shows the static page in any browser. `just plain` serves only the page locally.
+
+### Changed
+
+- The footer packs its segments to the width and draws the divider marks from them.
+- The top bar shortens in steps (`projects` > `proj` > `prj` > `p`, `(gallery)` > `(gal)` > `gal`) and keeps words as long as they fit. `(c)` for cv no longer sits next to `c` for contact.
+- Touch: the page follows the finger row by row and glides on after release (was one jump at the end of a swipe).
+
+### Fixed
+
+- Light mode: the cell cursor was invisible. Its parent had the light-mode `filter`, which made it the backdrop root of the cursor's `backdrop-filter`.
+- iOS Safari: the footer sat behind the tab bar. The canvas uses `100dvh`.
+
 ## [0.1.6] - 2026-11-17
 
 ### Fixed

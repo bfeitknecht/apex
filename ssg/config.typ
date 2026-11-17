@@ -26,8 +26,23 @@
 /// The mail link, so a page only has to place it.
 #let mail = html.a(href: "mailto:" + profile.email, profile.email_label)
 
-/// The footer, the same on every page: the two keys, the sitemap and the
-/// colophon on one line. These are the three rows that the terminal prints. The
+/// Polyring, the ETH Zurich webring: hub, previous, a member, next. The same
+/// snapshot as the terminal (`content/polyring.txt`, `just polyring`). This page
+/// has no JavaScript, so `??` is the member across the ring from this site.
+#let _ring = read("../content/polyring.txt").split("\n").map(str.trim).filter(u => u != "")
+#let _me = _ring.position(u => u.trim("/", at: end) == "https://0xbf.ch")
+#let _at(offset) = if _me == none { "https://polyring.ch" } else {
+  _ring.at(calc.rem(_me + offset + _ring.len(), _ring.len()))
+}
+#let polyring = html.elem("li", attrs: (class: "ring"), (
+  html.a(href: "https://polyring.ch", title: "Polyring, the ETH Zurich webring", "O"),
+  html.a(href: _at(-1), title: "Previous site in the ring", "<<"),
+  html.a(href: _at(calc.quo(_ring.len(), 2)), title: "Another site in the ring", "??"),
+  html.a(href: _at(1), title: "Next site in the ring", ">>"),
+).join(" "))
+
+/// The footer, the same on every page: the two keys, the sitemap, the webring
+/// and the colophon on one line. These are the three rows that the terminal prints. The
 /// markup lives here, so two pages cannot differ.
 #let footer = html.elem("footer", html.elem(
   "ul",
@@ -36,6 +51,7 @@
     html.elem("li", html.a(href: "/age.txt", "age.txt")),
     html.elem("li", html.a(href: "/pgp.txt", "pgp.txt")),
     html.elem("li", html.a(href: base + "/sitemap.xml", "sitemap.xml")),
+    polyring,
     html.elem("li", "Made with <3 by me. No JavaScript."),
   ).join(),
 ))

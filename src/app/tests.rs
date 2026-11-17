@@ -350,3 +350,35 @@ fn terminal_links_are_osc8_hyperlinks() {
     // `me.` has no URL, so it gets no link.
     assert!(!footer.contains("\x1b\\me"));
 }
+
+#[test]
+fn footer_ring_links_cover_their_labels_at_every_width() {
+    for width in [40usize, 52, 64, 80, 120] {
+        let page = ui::portfolio_page(width, 30);
+        let label = |link: &ui::PageLink| -> String {
+            page.rows[link.row]
+                .text
+                .chars()
+                .skip(link.start)
+                .take(link.end - link.start)
+                .collect()
+        };
+        let footer: Vec<_> = page
+            .links
+            .iter()
+            .filter(|link| link.row > page.footer_start)
+            .map(label)
+            .collect();
+        assert_eq!(
+            footer,
+            ["age.txt", "pgp.txt", "O", "<<", "??", ">>", "me"],
+            "width {width}"
+        );
+        let first = &page.rows[page.footer_start + 1].text;
+        for (column, ch) in first.chars().enumerate() {
+            if ch == '|' {
+                assert!(page.footer_marks.contains(&(column + 7)), "width {width}");
+            }
+        }
+    }
+}

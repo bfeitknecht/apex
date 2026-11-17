@@ -12,6 +12,12 @@
 (function () {
   "use strict";
 
+  // `?plain` keeps the page: a test drive of the static version in any browser
+  // (https://0xbf.ch/?plain).
+  if (/[?&]plain(?:[=&]|$)/.test(location.search)) {
+    return;
+  }
+
   var canRun =
     "WebAssembly" in window && typeof WebAssembly.instantiate === "function";
   if (!canRun) {

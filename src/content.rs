@@ -72,6 +72,52 @@ pub fn absolute(url: &str) -> String {
     }
 }
 
+/// Polyring, the ETH Zurich webring. The hub and a snapshot of its members
+/// (`content/polyring.txt`, refreshed by `just polyring` from the ring's own
+/// embed script). The ring has no redirect service, so every surface computes
+/// its neighbours from the snapshot, as the ring's banner does.
+pub const POLYRING_URL: &str = "https://polyring.ch";
+const POLYRING_MEMBERS: &str = include_str!("../content/polyring.txt");
+
+/// The member URLs in ring order.
+pub fn polyring_members() -> Vec<&'static str> {
+    POLYRING_MEMBERS
+        .lines()
+        .map(str::trim)
+        .filter(|line| !line.is_empty())
+        .collect()
+}
+
+/// The previous and the next site in the ring, wrapping at both ends. The hub
+/// twice if this site is not a member.
+pub fn polyring_neighbours() -> (&'static str, &'static str) {
+    let members = polyring_members();
+    let Some(me) = members
+        .iter()
+        .position(|url| url.trim_end_matches('/') == SITE_URL)
+    else {
+        return (POLYRING_URL, POLYRING_URL);
+    };
+    let n = members.len();
+    (members[(me + n - 1) % n], members[(me + 1) % n])
+}
+
+/// A member other than this site, chosen by `seed`.
+pub fn polyring_pick(seed: u64) -> &'static str {
+    let others: Vec<_> = polyring_members()
+        .into_iter()
+        .filter(|url| url.trim_end_matches('/') != SITE_URL)
+        .collect();
+    if others.is_empty() {
+        return POLYRING_URL;
+    }
+    // splitmix64: neighbouring seeds land far apart.
+    let mut z = seed.wrapping_add(0x9E37_79B9_7F4A_7C15);
+    z = (z ^ (z >> 30)).wrapping_mul(0xBF58_476D_1CE4_E5B9);
+    z = (z ^ (z >> 27)).wrapping_mul(0x94D0_49BB_1331_11EB);
+    others[((z ^ (z >> 31)) % others.len() as u64) as usize]
+}
+
 /// Public key files, served from the document root by every surface.
 pub const AGE_URL: &str = "/age.txt";
 pub const PGP_URL: &str = "/pgp.txt";
@@ -270,5 +316,16 @@ mod tests {
     #[test]
     fn artifacts_are_root_relative() {
         assert!(AGE_URL.starts_with('/') && PGP_URL.starts_with('/'));
+    }
+
+    #[test]
+    fn polyring_snapshot_has_this_site_and_distinct_neighbours() {
+        assert!(polyring_members().len() > 2);
+        let (previous, next) = polyring_neighbours();
+        assert_ne!(previous, POLYRING_URL);
+        assert_ne!(previous, next);
+        for seed in 0..64 {
+            assert_ne!(polyring_pick(seed).trim_end_matches('/'), SITE_URL);
+        }
     }
 }
