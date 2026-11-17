@@ -92,6 +92,8 @@ second copy.
 
 ```sh
 just serve      # both toolchains, then serve ./public on :8080
+just serve --plain  # Typst only: the page without the app
+just serve --app    # Trunk only, over the existing page
 just build      # ./public: page, then dist over it
 just ssg        # ./public: page + artifacts
 just web        # ./dist: frontend assets only

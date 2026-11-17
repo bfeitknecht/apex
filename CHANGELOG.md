@@ -7,12 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- `just serve --plain` (page only) and `just serve --app` (rebuild only the frontend over the page) replace `just plain`.
+
 ## [0.1.7] - 2026-11-17
 
 ### Added
 
 - Polyring webring in the footer: `O << ?? >>` (hub, previous, random, next) in the terminal, the SSH session and the page. Member snapshot `content/polyring.txt`, refreshed by `just polyring`.
-- `?plain` shows the static page in any browser. `just plain` serves only the page locally.
+- `?plain` shows the static page in any browser. `just serve --plain` serves only the page locally (was `just plain` before release).
 
 ### Changed
 

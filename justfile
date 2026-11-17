@@ -56,10 +56,6 @@ ssg:
     mkdir -p public
     typst compile --features html,bundle --format bundle --root . ssg/site.typ public
 
-# Serve only the static page (no app) on :8080. The live site shows it with `?plain`.
-plain: ssg
-    python3 -m http.server 8080 --directory public
-
 # Build the browser frontend into ./dist. Add `--release` for production.
 web *args:
     trunk build --dist dist --public-url / {{args}}
@@ -131,9 +127,32 @@ unicode data:
     print(f'{len(choice)} have preferred outline fonts; {sum(i == len(font_names) for i in choice.values())} use BabelStone Han')
 
 # Build the document root, then serve it with the shipped `sws.toml`.
-serve: build
+# Serve the document root on :8080. `--plain`: the page only, no app (the live
+# site shows it with `?plain`). `--app`: rebuild only the frontend over the
+# existing page, the quick loop for work on the TUI. No flag: build both.
+serve *flags:
+    #!/usr/bin/env sh
+    set -eu
+    mode=both
+    for flag in {{flags}}; do
+        case "$flag" in
+            --plain) mode=plain ;;
+            --app) mode=app ;;
+            *) echo "serve: unknown flag '$flag' (known: --plain, --app)" >&2; exit 1 ;;
+        esac
+    done
+    case "$mode" in
+        # Wipe first: a boot script or wasm left from an earlier build would
+        # upgrade the page to the app.
+        plain) rm -rf public; just ssg ;;
+        app)
+            [ -f public/index.html ] || just ssg
+            just web --release
+            rm -f dist/index.html dist/app.html
+            cp -R dist/. public/ ;;
+        both) just build ;;
+    esac
     # The `/cv` rewrite, the 404 page and the headers are the ones that ship.
-    # Rebuild in another shell (`just ssg`, `just web --release`) and reload.
     docker run --rm -p 8080:8080 \
         -v "{{justfile_directory()}}/public:/public" \
         -v "{{justfile_directory()}}/sws.toml:/sws.toml:ro" \
