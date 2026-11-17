@@ -63,7 +63,9 @@ fn install_text_layer(document: &Document, state: Shared) {
     let hover =
         Closure::<dyn FnMut(web_sys::MouseEvent)>::new(move |event: web_sys::MouseEvent| {
             let viewport = Viewport::current();
-            let mut app = hover_state.borrow_mut();
+            let Ok(mut app) = hover_state.try_borrow_mut() else {
+                return;
+            };
             let x = (event.client_x().max(0) as f64 / viewport.width * app.width as f64) as usize;
             let y = (event.client_y().max(0) as f64 / viewport.height * app.height as f64) as usize;
             let active = app.hover(x, y);
@@ -75,7 +77,9 @@ fn install_text_layer(document: &Document, state: Shared) {
 
     let leave_state = state.clone();
     let leave = Closure::<dyn FnMut(web_sys::MouseEvent)>::new(move |_| {
-        leave_state.borrow_mut().clear_hover();
+        if let Ok(mut app) = leave_state.try_borrow_mut() {
+            app.clear_hover();
+        }
     });
     let _ = layer.add_event_listener_with_callback("mouseleave", leave.as_ref().unchecked_ref());
     leave.forget();
@@ -115,10 +119,11 @@ fn install_text_layer(document: &Document, state: Shared) {
             let mut app = click_state.borrow_mut();
             let x = (event.client_x().max(0) as f64 / viewport.width * app.width as f64) as usize;
             let y = (event.client_y().max(0) as f64 / viewport.height * app.height as f64) as usize;
-            if let Some(url) = app.click(x, y) {
+            let url = app.click(x, y);
+            drop(app);
+            if let Some(url) = url {
                 open(url);
             }
-            drop(app);
             focus_canvas_of(&window);
         });
     let _ = layer.add_event_listener_with_callback("click", click.as_ref().unchecked_ref());
@@ -146,6 +151,7 @@ fn install_keyboard(window: &Window, state: Shared) -> io::Result<()> {
             }
             let key = event.key();
             let mut app = state.borrow_mut();
+            let mut url = None;
             let handled = match key.as_str() {
                 "ArrowLeft" => {
                     app.change_section(-1);
@@ -197,9 +203,7 @@ fn install_keyboard(window: &Window, state: Shared) -> io::Result<()> {
                 }
                 "Enter" => {
                     app.clear_hover();
-                    if let Some(url) = app.activate() {
-                        open(url);
-                    }
+                    url = app.activate();
                     true
                 }
                 _ => {
@@ -213,8 +217,12 @@ fn install_keyboard(window: &Window, state: Shared) -> io::Result<()> {
                     }
                 }
             };
+            drop(app);
             if handled {
                 event.prevent_default();
+            }
+            if let Some(url) = url {
+                open(url);
             }
         });
     window
@@ -230,10 +238,10 @@ where
 {
     let _ = terminal.on_mouse_event(move |event| {
         if matches!(event.kind, MouseEventKind::SingleClick(_)) {
-            if let Some(url) = state
+            let url = state
                 .borrow_mut()
-                .click(event.col as usize, event.row as usize)
-            {
+                .click(event.col as usize, event.row as usize);
+            if let Some(url) = url {
                 open(url);
             }
         }
@@ -261,7 +269,9 @@ fn install_wheel(window: &Window, state: Shared) {
             if accumulated.abs() >= WHEEL_STEP {
                 let steps = ((accumulated.abs() / WHEEL_STEP) as i32).clamp(1, 8);
                 let direction = if accumulated > 0.0 { 1 } else { -1 };
-                state.borrow_mut().navigate(direction * steps);
+                if let Ok(mut app) = state.try_borrow_mut() {
+                    app.navigate(direction * steps);
+                }
                 accumulated -= direction as f64 * steps as f64 * WHEEL_STEP;
                 accumulated = accumulated.clamp(-WHEEL_STEP, WHEEL_STEP);
             }
@@ -310,7 +320,9 @@ fn install_touch(window: &Window, state: Shared) {
             let mut app = state.borrow_mut();
             let x = (start_x.max(0) as f64 / viewport.width * app.width as f64) as usize;
             let y = (start_y.max(0) as f64 / viewport.height * app.height as f64) as usize;
-            if let Some(url) = app.click(x, y) {
+            let url = app.click(x, y);
+            drop(app);
+            if let Some(url) = url {
                 open(url);
             }
             event.prevent_default();

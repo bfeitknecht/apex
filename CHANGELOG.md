@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.6] - 2026-11-17
+
+### Fixed
+
+- Firefox: after a link opened a new tab, scroll, hover and the cursor stopped until a reload. `window.open` ran while the app state was borrowed. Firefox fires events synchronously inside it, a listener panicked on the second borrow, and the borrow stayed stuck. The borrow now ends before `open`, and hover, leave and wheel skip an event while the state is busy.
+
+### Changed
+
+- `just release` takes no tag argument. It tags `v<Cargo.toml version>`.
+
 ## [0.1.5] - 2026-11-17
 
 ### Fixed

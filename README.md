@@ -71,9 +71,9 @@ Keep a Changelog. `just release` reads the version from `Cargo.toml` and the
 notes from that section.
 
 ```sh
-just release v0.1.0 --check   # Cargo.toml, CHANGELOG.md and the tree agree
-just release v0.1.0           # gate, tag and push
-just release --notes          # the notes alone (CI uses this)
+just release --check           # Cargo.toml, CHANGELOG.md and the tree agree
+just release                   # gate, tag v<Cargo.toml version> and push
+just release --notes           # the notes alone (CI uses this)
 ```
 
 The command refuses a dirty tree and a tag that origin does not have. It runs

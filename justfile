@@ -165,7 +165,8 @@ release *args:
         sys.exit(f"release: --check and --notes are mutually exclusive (got {flags})")
     if len(positional) > 1:
         sys.exit(f"release: expected at most one argument (the tag), got {positional}")
-    tag = positional[0] if positional else ""
+    # The tag comes from Cargo.toml. An explicit tag is optional and must match.
+    tag = positional[0] if positional else f"v{version}"
 
     # The release notes are this section of CHANGELOG.md. `--notes` prints them
     # for the GitHub release, and the tag carries them.

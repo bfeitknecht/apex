@@ -28,6 +28,11 @@ const MIN_CELL_SIZE: usize = 2;
 const CELL_AREA: f64 = 500_000.0;
 
 /// Open `url` in the way the visitor expects.
+///
+/// Call this only after the `App` borrow ends. Firefox dispatches events (for
+/// example `mouseleave`) synchronously inside `window.open`. A listener that
+/// borrows the state then panics, and the stuck borrow stops hover, wheel and
+/// drawing until a reload.
 fn open(url: &str) {
     let Some(window) = web_sys::window() else {
         return;
