@@ -43,8 +43,6 @@ pub enum LinkKind {
     Age,
     Pgp,
     Me,
-    /// Polyring `??`: a member chosen when activated.
-    Random,
 }
 #[derive(Clone, Debug)]
 pub struct PageLink {
@@ -241,21 +239,18 @@ struct Footer {
 }
 
 /// The footer segments, packed into as few lines as `width` allows:
-/// `age.txt | pgp.txt | O << ?? >> | made with <3 by me. |`. `O` is the
-/// Polyring hub, `<<` and `>>` its neighbours, `??` a random member.
+/// `age.txt | pgp.txt | << O >> | made with <3 by me. |`. `O` is the Polyring
+/// hub, `<<` and `>>` the neighbours.
 fn footer_lines(width: usize) -> Footer {
     type Part = (&'static str, &'static str, LinkKind);
-    let (previous, next) = content::polyring_neighbours();
-    // Terminals get a real target for `??` (OSC 8). It changes every 30 s.
-    let random = content::polyring_pick(crate::app::now_ms() / 30_000);
+    let ring = content::polyring();
     let segments: [Vec<Part>; 4] = [
         vec![("age.txt", content::AGE_URL, LinkKind::Age)],
         vec![("pgp.txt", content::PGP_URL, LinkKind::Pgp)],
         vec![
-            ("O", content::POLYRING_URL, LinkKind::External),
-            ("<<", previous, LinkKind::External),
-            ("??", random, LinkKind::Random),
-            (">>", next, LinkKind::External),
+            ("<<", ring.previous.as_str(), LinkKind::External),
+            ("O", ring.hub.as_str(), LinkKind::External),
+            (">>", ring.next.as_str(), LinkKind::External),
         ],
         vec![
             ("made with <3 by ", "", LinkKind::External),
@@ -269,7 +264,7 @@ fn footer_lines(width: usize) -> Footer {
     };
     for segment in segments {
         // `me` sits inside its text; the ring parts are separated by spaces.
-        let spaced = segment.len() == 4;
+        let spaced = segment.len() == 3 && segment[0].0 == "<<";
         let text: String = segment
             .iter()
             .map(|(label, _, _)| *label)

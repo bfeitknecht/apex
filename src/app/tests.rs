@@ -371,7 +371,7 @@ fn footer_ring_links_cover_their_labels_at_every_width() {
             .collect();
         assert_eq!(
             footer,
-            ["age.txt", "pgp.txt", "O", "<<", "??", ">>", "me"],
+            ["age.txt", "pgp.txt", "<<", "O", ">>", "me"],
             "width {width}"
         );
         let first = &page.rows[page.footer_start + 1].text;

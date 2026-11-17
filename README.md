@@ -26,8 +26,8 @@ a language model ([llmstxt.org](https://llmstxt.org)). Edit
 ```sh
 just                 # list the recipes
 just serve           # build the page and the frontend, then serve :8080
-just serve --plain   # the page only (no app)
-just serve --app     # rebuild only the frontend over the page (TUI work)
+just serve --static  # the Typst page only (no app)
+just serve --app     # rebuild only the app over the page (TUI work)
 just native          # terminal portfolio
 just ssh             # SSH server on 0.0.0.0:2222 (needs APEX_SSH_HOST_KEY)
 just check           # clippy, tests, wasm32 build
@@ -68,17 +68,16 @@ CHANGELOG.md        the release notes
 
 ## Static page
 
-`https://0xbf.ch/?plain` shows the Typst page in any browser: the boot script
-skips the app. Locally, `just serve --plain` builds `ssg/` and serves only the
+`https://0xbf.ch/?static` shows the Typst page in any browser: the boot script
+skips the app. Locally, `just serve --static` builds `ssg/` and serves only the
 page on `:8080`.
 
 ## Polyring
 
-The footer carries the Polyring webring (`O << ?? >>`: hub, previous, random,
-next) in the terminal, the SSH session and the page. The ring has no redirect
-service, so all surfaces read the member snapshot `content/polyring.txt`.
-Refresh it with `just polyring` (it reads the ring's own `embed.js`) and
-release.
+The footer carries the Polyring webring (`<< O >>`: previous, hub, next) in the
+terminal, the SSH session and the page. The ring has no redirect service, so
+`content/polyring.toml` holds the two neighbours. Refresh them with
+`just polyring` (it reads the ring's own `embed.js`) and release.
 
 ## Release
 

@@ -26,19 +26,13 @@
 /// The mail link, so a page only has to place it.
 #let mail = html.a(href: "mailto:" + profile.email, profile.email_label)
 
-/// Polyring, the ETH Zurich webring: hub, previous, a member, next. The same
-/// snapshot as the terminal (`content/polyring.txt`, `just polyring`). This page
-/// has no JavaScript, so `??` is the member across the ring from this site.
-#let _ring = read("../content/polyring.txt").split("\n").map(str.trim).filter(u => u != "")
-#let _me = _ring.position(u => u.trim("/", at: end) == "https://0xbf.ch")
-#let _at(offset) = if _me == none { "https://polyring.ch" } else {
-  _ring.at(calc.rem(_me + offset + _ring.len(), _ring.len()))
-}
+/// Polyring, the ETH Zurich webring: previous, hub, next. The same links as the
+/// terminal (`content/polyring.toml`, `just polyring`).
+#let _ring = toml("../content/polyring.toml")
 #let polyring = html.elem("li", attrs: (class: "ring"), (
-  html.a(href: "https://polyring.ch", title: "Polyring, the ETH Zurich webring", "O"),
-  html.a(href: _at(-1), title: "Previous site in the ring", "<<"),
-  html.a(href: _at(calc.quo(_ring.len(), 2)), title: "Another site in the ring", "??"),
-  html.a(href: _at(1), title: "Next site in the ring", ">>"),
+  html.a(href: _ring.previous, title: "Previous site in Polyring", "<<"),
+  html.a(href: _ring.hub, title: "Polyring, the ETH Zurich webring", "O"),
+  html.a(href: _ring.next, title: "Next site in Polyring", ">>"),
 ).join(" "))
 
 /// The footer, the same on every page: the two keys, the sitemap, the webring

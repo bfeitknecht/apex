@@ -25,11 +25,19 @@ default:
 fmt *flags:
     cargo fmt --all {{flags}}
 
-# Refresh the Polyring member snapshot (one URL per line) from the ring's own embed script.
+# Refresh the Polyring neighbours in content/polyring.toml from the ring's embed script.
 polyring:
-    curl -fsSL https://polyring.ch/embed.js | grep -o 'url:"[^"]*"' | sed 's/^url:"//; s/"$//' > content/polyring.txt
-    @grep -qx 'https://0xbf.ch' content/polyring.txt || echo "warning: 0xbf.ch is not in the ring" >&2
-    @echo "$(wc -l < content/polyring.txt | tr -d ' ') members"
+    #!/usr/bin/env python3
+    import re, urllib.request, pathlib
+    js = urllib.request.urlopen("https://polyring.ch/embed.js").read().decode()
+    urls = re.findall(r'url:"([^"]+)"', js)
+    me = next(i for i, u in enumerate(urls) if u.rstrip("/") == "https://0xbf.ch")
+    path = pathlib.Path("content/polyring.toml")
+    text = path.read_text()
+    text = re.sub(r'^previous = ".*"$', f'previous = "{urls[me - 1]}"', text, flags=re.M)
+    text = re.sub(r'^next = ".*"$', f'next = "{urls[(me + 1) % len(urls)]}"', text, flags=re.M)
+    path.write_text(text)
+    print(f"previous {urls[me - 1]}, next {urls[(me + 1) % len(urls)]} ({len(urls)} members)")
 
 # Lints, tests and the wasm32 build. CI runs the same commands.
 check:
@@ -127,24 +135,24 @@ unicode data:
     print(f'{len(choice)} have preferred outline fonts; {sum(i == len(font_names) for i in choice.values())} use BabelStone Han')
 
 # Build the document root, then serve it with the shipped `sws.toml`.
-# Serve the document root on :8080. `--plain`: the page only, no app (the live
-# site shows it with `?plain`). `--app`: rebuild only the frontend over the
-# existing page, the quick loop for work on the TUI. No flag: build both.
+# Serve the document root on :8080. `--static`: the Typst page only, no app
+# (the live site shows it with `?static`). `--app`: rebuild only the app over
+# the existing page, the quick loop for work on the TUI. No flag: both.
 serve *flags:
     #!/usr/bin/env sh
     set -eu
     mode=both
     for flag in {{flags}}; do
         case "$flag" in
-            --plain) mode=plain ;;
+            --static) mode=static ;;
             --app) mode=app ;;
-            *) echo "serve: unknown flag '$flag' (known: --plain, --app)" >&2; exit 1 ;;
+            *) echo "serve: unknown flag '$flag' (known: --static, --app)" >&2; exit 1 ;;
         esac
     done
     case "$mode" in
         # Wipe first: a boot script or wasm left from an earlier build would
         # upgrade the page to the app.
-        plain) rm -rf public; just ssg ;;
+        static) rm -rf public; just ssg ;;
         app)
             [ -f public/index.html ] || just ssg
             just web --release

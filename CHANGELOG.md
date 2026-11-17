@@ -7,9 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.8] - 2026-11-17
+
 ### Changed
 
-- `just serve --plain` (page only) and `just serve --app` (rebuild only the frontend over the page) replace `just plain`.
+- The mark is "^@" on a filled black circle (was a square). Transparent around the circle.
+- Polyring footer is `<< O >>` (previous, hub, next). No random member: the ring has no redirect service, and a member list would need upkeep. `content/polyring.toml` holds the two neighbours; `just polyring` refreshes them.
+- `?static` (was `?plain`) shows the Typst page. `just serve --static` (page only) and `just serve --app` (rebuild only the app over the page); `just plain` is gone.
 
 ## [0.1.7] - 2026-11-17
 

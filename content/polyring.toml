@@ -1,0 +1,6 @@
+# Polyring, the ETH Zurich webring (https://polyring.ch). The ring has no
+# redirect service, so the two neighbours are fixed here, as in every member's
+# banner. `just polyring` refreshes them from the ring's embed.js.
+hub = "https://polyring.ch"
+previous = "https://bruceroettgers.eu"
+next = "https://xyquadrat.ch"

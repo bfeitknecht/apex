@@ -387,7 +387,7 @@ impl App {
 }
 
 /// A per-session seed for the visuals.
-pub(crate) fn seed() -> u64 {
+fn seed() -> u64 {
     #[cfg(not(target_arch = "wasm32"))]
     {
         std::time::SystemTime::now()
@@ -402,7 +402,7 @@ pub(crate) fn seed() -> u64 {
 }
 
 /// Wall-clock milliseconds, used to detect repeated logo activations.
-pub(crate) fn now_ms() -> u64 {
+fn now_ms() -> u64 {
     #[cfg(target_arch = "wasm32")]
     {
         js_sys::Date::now() as u64

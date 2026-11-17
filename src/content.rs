@@ -72,50 +72,22 @@ pub fn absolute(url: &str) -> String {
     }
 }
 
-/// Polyring, the ETH Zurich webring. The hub and a snapshot of its members
-/// (`content/polyring.txt`, refreshed by `just polyring` from the ring's own
-/// embed script). The ring has no redirect service, so every surface computes
-/// its neighbours from the snapshot, as the ring's banner does.
-pub const POLYRING_URL: &str = "https://polyring.ch";
-const POLYRING_MEMBERS: &str = include_str!("../content/polyring.txt");
-
-/// The member URLs in ring order.
-pub fn polyring_members() -> Vec<&'static str> {
-    POLYRING_MEMBERS
-        .lines()
-        .map(str::trim)
-        .filter(|line| !line.is_empty())
-        .collect()
+/// Polyring, the ETH Zurich webring: the hub and this site's two neighbours
+/// (`content/polyring.toml`, refreshed by `just polyring`).
+#[derive(serde::Deserialize)]
+pub struct Polyring {
+    pub hub: String,
+    pub previous: String,
+    pub next: String,
 }
 
-/// The previous and the next site in the ring, wrapping at both ends. The hub
-/// twice if this site is not a member.
-pub fn polyring_neighbours() -> (&'static str, &'static str) {
-    let members = polyring_members();
-    let Some(me) = members
-        .iter()
-        .position(|url| url.trim_end_matches('/') == SITE_URL)
-    else {
-        return (POLYRING_URL, POLYRING_URL);
-    };
-    let n = members.len();
-    (members[(me + n - 1) % n], members[(me + 1) % n])
-}
+const POLYRING_TOML: &str = include_str!("../content/polyring.toml");
+static POLYRING: LazyLock<Polyring> =
+    LazyLock::new(|| toml::from_str(POLYRING_TOML).expect("content/polyring.toml"));
 
-/// A member other than this site, chosen by `seed`.
-pub fn polyring_pick(seed: u64) -> &'static str {
-    let others: Vec<_> = polyring_members()
-        .into_iter()
-        .filter(|url| url.trim_end_matches('/') != SITE_URL)
-        .collect();
-    if others.is_empty() {
-        return POLYRING_URL;
-    }
-    // splitmix64: neighbouring seeds land far apart.
-    let mut z = seed.wrapping_add(0x9E37_79B9_7F4A_7C15);
-    z = (z ^ (z >> 30)).wrapping_mul(0xBF58_476D_1CE4_E5B9);
-    z = (z ^ (z >> 27)).wrapping_mul(0x94D0_49BB_1331_11EB);
-    others[((z ^ (z >> 31)) % others.len() as u64) as usize]
+/// The ring links, parsed once.
+pub fn polyring() -> &'static Polyring {
+    &POLYRING
 }
 
 /// Public key files, served from the document root by every surface.
@@ -319,13 +291,11 @@ mod tests {
     }
 
     #[test]
-    fn polyring_snapshot_has_this_site_and_distinct_neighbours() {
-        assert!(polyring_members().len() > 2);
-        let (previous, next) = polyring_neighbours();
-        assert_ne!(previous, POLYRING_URL);
-        assert_ne!(previous, next);
-        for seed in 0..64 {
-            assert_ne!(polyring_pick(seed).trim_end_matches('/'), SITE_URL);
+    fn polyring_links_are_absolute_and_distinct() {
+        let ring = polyring();
+        for url in [&ring.hub, &ring.previous, &ring.next] {
+            assert!(url.starts_with("https://"), "{url}");
         }
+        assert_ne!(ring.previous, ring.next);
     }
 }

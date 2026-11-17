@@ -12,9 +12,9 @@
 (function () {
   "use strict";
 
-  // `?plain` keeps the page: a test drive of the static version in any browser
-  // (https://0xbf.ch/?plain).
-  if (/[?&]plain(?:[=&]|$)/.test(location.search)) {
+  // `?static` keeps the page: a test drive of the static version in any browser
+  // (https://0xbf.ch/?static).
+  if (/[?&]static(?:[=&]|$)/.test(location.search)) {
     return;
   }
 

@@ -159,7 +159,7 @@ impl App {
                 ui::LinkKind::Age => Some(super::Document::Age),
                 ui::LinkKind::Pgp => Some(super::Document::Pgp),
                 ui::LinkKind::Me => Some(super::Document::Me),
-                ui::LinkKind::External | ui::LinkKind::Random => None,
+                ui::LinkKind::External => None,
             };
             if let Some(document) = document {
                 self.document_scroll = 0;
@@ -167,9 +167,6 @@ impl App {
                 self.clear_hover();
                 return None;
             }
-        }
-        if link.kind == ui::LinkKind::Random {
-            return Some(content::polyring_pick(seed()));
         }
         (!link.url.is_empty()).then_some(link.url)
     }
