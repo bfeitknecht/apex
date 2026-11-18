@@ -71,7 +71,7 @@ returns one document:
 | no WebAssembly | nothing runs and the page stays as Typst built it |
 | scripting off | the same result, because the script is the only thing that could change the page |
 | terminal | `ssh -p 2222 0xbf.ch` shows the same interface through russh (the
-| sshmux owns port 2222: any username is apex, `browser@` is browsh) |
+| sshmux owns port 2222: any username is apex) |
 
 The fallback has no separate URL. No visitor is sent to another address, and no
 crawler must know about the second surface. The cost is the download order: a
