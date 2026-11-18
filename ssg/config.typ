@@ -5,7 +5,7 @@
 // session, the browser app and this page therefore show the same project, link
 // and key.
 //
-// `html.*` is the built-in module of Typst 0.15. thyme 0.1.0 does not export a
+// `html.*` is the built-in module of Typst 0.15. thyme 0.1.2 does not export a
 // copy of it, so no import is necessary.
 
 /// The site is the document root: no prefix and no separate path for the app.
