@@ -12,56 +12,56 @@
 name = "impli"
 url = "https://github.com/bfeitknecht/impli"
 summary = "the IMP language interpreter"
-description = "An interpreter for the IMP language in Haskell, with a web frontend powered by WebAssembly and CI/CD on GitHub Actions."
+description = "The IMP language interpreter in Haskell, with web frontend powered by WebAssembly and Preact."
 period = "2025 – 2026"
 
 [[project]]
 name = "macho"
 url = "https://github.com/bfeitknecht/ES-mini-project"
 summary = "abnormal machine sound detection"
-description = "Abnormal machine sound detection for the embedded systems course, in C."
+description = "Abnormal machine sound detection for embedded systems course, in C."
 period = "2024"
 
 [[project]]
 name = "spicky"
 url = "https://github.com/bfeitknecht/spicky"
 summary = "Typst cheatsheet package and template"
-description = "A cheatsheet package and matching template for Typst, so a page of reminders is a few lines of source."
+description = "Typst cheatsheet package and template, created for the course Probability and Statistics."
 period = "2025"
 
 [[project]]
 name = "infra"
 url = "https://github.com/bfeitknecht/infra"
-summary = "homelab cluster configuration"
-description = "Talos Linux Kubernetes cluster across a Raspberry Pi and an Oracle Cloud instance node, deployed with Helm and reconciled by Flux."
+summary = "Talos Linux infrastructure"
+description = "Talos Linux infrastructure with Kubernetes cluster across three nodes, deployed with Helm and reconciled by Flux."
 period = "2026 – Present"
 
 [[project]]
 name = "omni"
 url = "https://github.com/bfeitknecht/omni"
 summary = "everywhere nix configuration"
-description = "One Nix configuration for every machine I use, from the laptop to the cluster nodes."
+description = "Everywhere Nix configuration for comfortable cross system development environment."
 period = "2025"
 
 [[project]]
 name = "thyme"
 url = "https://github.com/bfeitknecht/thyme"
 summary = "Typst based SSG"
-description = "Static site generator and monochrome blog package in pure Typst, with typed HTML, XML sitemaps and feeds, and plaintext .typ source views."
+description = "Typst based static site generator package and monochrome blog template, with XML sitemaps and syndicated feeds, and plaintext .typ source views."
 period = "2026"
 
 [[project]]
 name = "apex"
 url = "https://github.com/bfeitknecht/apex"
 summary = "personal website and portfolio"
-description = "The portfolio you are looking at: a Ratatui interface running natively, over SSH through russh, and in the browser through Ratzilla, with a no-JavaScript Typst fallback for everything else."
+description = "Personal website and portfolio, Ratatui interface for browser and SSH, with no-JavaScript thyme fallback."
 period = "2026 – Present"
 
 [[project]]
 name = "glob"
 url = "https://blog.0xbf.ch"
 summary = "personal blog built with thyme"
-description = "Personal blog on programming languages, formal methods, systems, and sidequests, compiled statically with thyme."
+description = "Personal blog on programming languages, formal methods, systems, and sidequests, built with thyme."
 period = "2026 – Present"
 
 [[project]]
