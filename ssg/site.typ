@@ -1,4 +1,4 @@
-#import "@preview/thyme:0.1.2": *
+#import "@preview/thyme:0.1.0": *
 #import "config.typ": base, profile, projects, footer
 
 #let _font-files = (
@@ -39,7 +39,7 @@
   })
 }
 
-// A body fragment. `site()` of thyme 0.1.2 puts a custom `not-found-page` into
+// A body fragment. `site()` of thyme 0.1.0 puts a custom `not-found-page` into
 // its core shell, which adds the stylesheet, the favicon and `theme-color`. A
 // whole document here would put one `<html>` inside another.
 #let _not-found = html.elem("header", attrs: (class: "notfound"), {
@@ -76,7 +76,7 @@
 
 // Plain files, served from the root next to the page: the keys that people copy
 // and the CV that the footer links to. These are data and not markup, and
-// `content/` is the source. (`#file`: thyme 0.1.2 renamed `#raw-file` to this.)
+// `content/` is the source. (`#file`: thyme 0.1.0 renamed `#raw-file` to this.)
 #file("age.txt", path("../content/age.txt"))
 #file("pgp.txt", path("../content/pgp.txt"))
 #file("cv.pdf", path("../content/cv.pdf"))

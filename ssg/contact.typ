@@ -1,4 +1,4 @@
-#import "@preview/thyme:0.1.2": *
+#import "@preview/thyme:0.1.0": *
 #import "config.typ": base, profile, destination, contact, mail, age, footer
 
 #show: webpage.with(
