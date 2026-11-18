@@ -105,7 +105,7 @@ then build the image and publish the GitHub release.
 ## The SSH portfolio
 
 `ssh -p 2222 0xbf.ch` shows the same interface as the terminal. It needs no
-account. Port `2222` is the sshmux (since 2026-11-18): any username lands in apex,
+account. Port `2222` is the sshmux: any username lands in apex,
 `browser@` in browsh. The
 server accepts any username and asks for no client key. It runs the portfolio
 only: no shell, no commands, no SFTP and no forwarding. It needs a PTY. It

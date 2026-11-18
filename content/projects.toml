@@ -44,6 +44,13 @@ description = "Everywhere Nix configuration for comfortable cross system develop
 period = "2025"
 
 [[project]]
+name = "syndicate"
+url = "https://github.com/bfeitknecht/syndicate"
+summary = "Typst package for syndication feeds"
+description = "Atom feeds, RSS feeds, and sitemaps for Typst websites, written in pure Typst."
+period = "2026"
+
+[[project]]
 name = "thyme"
 url = "https://github.com/bfeitknecht/thyme"
 summary = "Typst based SSG"

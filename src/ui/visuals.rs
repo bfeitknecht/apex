@@ -273,45 +273,29 @@ pub(super) fn draw_unicode(frame: &mut Frame, app: &App) {
 
 /// The keyboard reference, reachable with `?` from every view.
 pub(super) fn draw_help(frame: &mut Frame) {
-    // `?!`, the floating overview of the site: navigation, the ssh route, the
-    // easter eggs, the visuals. A group is a title and (label, text) lines;
-    // empty labels are plain lines, so a group can carry prose. The box is
-    // centred, its width the longest line, and it clears the frame under it.
+    // `?!`, the floating overview: a group is a title and (label, text) lines;
+    // empty labels are plain lines. The box is centred, as wide as its longest
+    // line, and it clears the frame under it.
+    const TITLE: &str = " help ";
     const GROUPS: &[(&str, &[(&str, &str)])] = &[
         (
             "navigation",
             &[
                 ("h / l", "previous / next section"),
-                ("j / k, arrows", "scroll; wheel and touch scroll too"),
+                ("j / k", "scroll"),
                 ("1 - 5", "jump to section"),
-                ("n / shift n", "next / previous link, enter opens"),
-                ("click", "any link; the top bar keeps the section"),
+                ("n / N", "next / previous link"),
+                ("enter", "open link"),
             ],
         ),
-        (
-            "ssh route",
-            &[
-                ("connect", "ssh -p 2222 0xbf.ch"),
-                ("port 2222", "the sshmux, since 2026-11-18"),
-                ("user", "any username, no key needed"),
-                ("browsh", "ssh -p 2222 browser@0xbf.ch"),
-            ],
-        ),
+        ("ssh", &[("connect", "ssh -p 2222 0xbf.ch")]),
         (
             "easter eggs",
-            &[
-                ("^@ x3", "click the mark thrice: the hidden menu"),
-                ("<< O >>", "the polyring: two neighbours and its hub"),
-                ("?!", "this overview; ? toggles it, esc closes"),
-            ],
+            &[("^@ x3", "hidden menu"), ("<< O >>", "polyring")],
         ),
         (
-            "visuals",
-            &[
-                ("menu", "unicode, lichen, fractal, crash"),
-                ("enter", "a visual plays, esc leaves it"),
-                ("q", "quit the terminal"),
-            ],
+            "keys",
+            &[("?", "toggle help"), ("esc", "close"), ("q", "quit")],
         ),
     ];
 
@@ -325,12 +309,17 @@ pub(super) fn draw_help(frame: &mut Frame) {
     let longest: usize = GROUPS
         .iter()
         .flat_map(|(_, rows)| rows.iter())
-        .map(|(label, text)| label_col.min(label.chars().count() + 3) + text.chars().count())
-        .chain(std::iter::once(24))
+        .map(|(label, text)| {
+            let indent = if label.is_empty() { 0 } else { label_col };
+            indent + text.chars().count()
+        })
+        .chain(GROUPS.iter().map(|(title, _)| title.chars().count()))
+        .chain(std::iter::once(TITLE.chars().count() + 2))
         .max()
         .unwrap();
     let area = frame.area();
-    let columns = (longest + 2).min(area.width as usize);
+    // Border, space, content, space, border.
+    let columns = (longest + 4).min(area.width as usize);
     let body: usize = 1 + GROUPS.len() * 2 + GROUPS.iter().map(|(_, r)| r.len()).sum::<usize>();
     let box_rows = (body + 2).min(area.height as usize);
     let x = (area.width as usize).saturating_sub(columns) / 2;
@@ -349,7 +338,7 @@ pub(super) fn draw_help(frame: &mut Frame) {
     frame.render_widget(ratatui::widgets::Clear, box_area);
     frame.render_widget(
         ratatui::widgets::Block::bordered()
-            .title(" 0xbf.ch - how this site works ")
+            .title(TITLE)
             .title_alignment(ratatui::layout::Alignment::Center),
         box_area,
     );
