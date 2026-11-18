@@ -49,9 +49,14 @@
    last rows (the footer) sat behind the tab bar. The grid uses innerHeight,
    which is the dynamic height. */
 html,body{width:100%;height:100%;margin:0;overscroll-behavior:none;overflow:hidden;background:#000;cursor:none}body{font-family:'Commit Mono',monospace}pre{font-family:'Commit Mono',monospace;font-size:16px;line-height:1;margin:0}canvas{display:block}#selectable-text{position:fixed;inset:0;z-index:4;margin:0;color:transparent;background:transparent;white-space:pre;overflow:hidden;user-select:text;cursor:none;outline:none}#selectable-text::selection{color:transparent;background:transparent}body > canvas:not(#lichen-pixels):not(#unicode-glyph){width:100vw!important;height:100vh!important;height:100dvh!important}#unicode-glyph{position:fixed;inset:0;pointer-events:none;z-index:3;display:none}#lichen-pixels{position:fixed;inset:0;width:320px;height:200px;image-rendering:pixelated;pointer-events:none;z-index:2}@media (prefers-color-scheme:light){html,body{background:#fff}canvas,body>div:not(#app-shell):not(#cell-cursor):not(#selection-highlights){filter:invert(1)}#lichen-pixels{filter:url(#lichen-light-tones) invert(1)}}
-/* Invert whatever is behind the cursor and the selection, in both themes.
+/* Invert whatever is behind the cursor and the selection, in both themes:
+   pure black and white swap. grayscale + brightness(4) first snaps every grey
+   (DIM 75 is the darkest) to the theme's text colour, so muted text inverts to
+   full black or white, not to another grey. Dark: snap, then invert (black text
+   on white). Light: the page is already inverted, so invert, then snap (white
+   text on black).
    #app-shell (their parent) must not get a filter: a filtered ancestor is the
    backdrop root, so the cursor saw an empty backdrop and vanished in light mode.
    backdrop-filter also inverts the page background; mix-blend-mode does not
    blend with the root background in Safari (white box on white in light mode). */
-#cell-cursor,.selection-rect{position:fixed;pointer-events:none;background:transparent;-webkit-backdrop-filter:invert(1);backdrop-filter:invert(1);z-index:6}#cell-cursor{display:none}#selection-highlights{display:contents}
+#cell-cursor,.selection-rect{position:fixed;pointer-events:none;background:transparent;-webkit-backdrop-filter:grayscale(1) brightness(4) invert(1);backdrop-filter:grayscale(1) brightness(4) invert(1);z-index:6}@media (prefers-color-scheme:light){#cell-cursor,.selection-rect{-webkit-backdrop-filter:grayscale(1) invert(1) brightness(4);backdrop-filter:grayscale(1) invert(1) brightness(4)}}#cell-cursor{display:none}#selection-highlights{display:contents}

@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.13] - 2026-11-19
+
+### Changed
+
+- The cell cursor and the text selection in the browser swap black and white. Muted and dim text under them turns full black (dark theme) or full white (light theme) instead of another grey.
+
 ## [0.1.12] - 2026-11-19
 
 ### Added
