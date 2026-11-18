@@ -56,6 +56,8 @@ pub enum LinkKind {
     Age,
     Pgp,
     Me,
+    /// The `?!` footer affordance: the floating site overview.
+    Help,
 }
 #[derive(Clone, Debug)]
 pub struct PageLink {
@@ -312,8 +314,8 @@ const FOOTER_TIERS: [(&str, &str, &str, &str); 3] = [
     ("age", "pgp", "", " "),
 ];
 
-/// The footer on one line: `age.txt | pgp.txt | << O >> | made with <3 by me. |`.
-/// `<<` and `>>` are the Polyring neighbours, `O` its hub.
+/// The footer on one line: `age.txt | pgp.txt | << O >> | made with <3 by me. | ?!`.
+/// `<<` and `>>` are the Polyring neighbours, `O` its hub, `?!` the help.
 fn footer_lines(width: usize) -> Footer {
     let mut footer = Footer {
         lines: Vec::new(),
@@ -331,7 +333,7 @@ fn footer_lines(width: usize) -> Footer {
 fn footer_line(age: &'static str, pgp: &'static str, made: &'static str, gap: &str) -> Footer {
     type Part = (&'static str, &'static str, LinkKind);
     let ring = content::polyring();
-    let segments: [(Vec<Part>, &str); 4] = [
+    let segments: [(Vec<Part>, &str); 5] = [
         (vec![(age, content::AGE_URL, LinkKind::Age)], ""),
         (vec![(pgp, content::PGP_URL, LinkKind::Pgp)], ""),
         (
@@ -350,6 +352,7 @@ fn footer_line(age: &'static str, pgp: &'static str, made: &'static str, gap: &s
             ],
             "",
         ),
+        (vec![("?!", "", LinkKind::Help)], ""),
     ];
     let mut line = String::new();
     let mut links = Vec::new();
@@ -364,7 +367,7 @@ fn footer_line(age: &'static str, pgp: &'static str, made: &'static str, gap: &s
                 column += joiner.len();
             }
             let end = column + label.chars().count();
-            if !url.is_empty() || matches!(kind, LinkKind::Me) {
+            if !url.is_empty() || matches!(kind, LinkKind::Me | LinkKind::Help) {
                 links.push((0, column, end, *url, *kind));
             }
             line.push_str(label);

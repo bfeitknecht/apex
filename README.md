@@ -6,7 +6,7 @@ The personal site at `0xbf.ch`. One URL, three surfaces and one set of content.
 | --- | --- | --- |
 | modern browser, `https://0xbf.ch/` | the app, drawn by Ratzilla | `src/frontends/web` |
 | old browser, or JavaScript off, same URL | the plain Typst page | `ssg/` (thyme) |
-| terminal, `ssh 0xbf.ch` | the same app over SSH | `src/frontends/ssh` |
+| terminal, `ssh -p 2222 0xbf.ch` | the same app over SSH | `src/frontends/ssh` |
 | your own terminal | the same app natively | `src/frontends/native` |
 
 **One URL.** `/` returns one document. Typst builds the page. A boot script
@@ -104,7 +104,9 @@ then build the image and publish the GitHub release.
 
 ## The SSH portfolio
 
-`ssh 0xbf.ch` shows the same interface as the terminal. It needs no account. The
+`ssh -p 2222 0xbf.ch` shows the same interface as the terminal. It needs no
+account. Port `2222` is the sshmux (since 2026-11-18): any username lands in apex,
+`browser@` in browsh. The
 server accepts any username and asks for no client key. It runs the portfolio
 only: no shell, no commands, no SFTP and no forwarding. It needs a PTY. It
 allows 32 sessions, it times out after 15 idle minutes and it limits the

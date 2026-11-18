@@ -80,7 +80,8 @@ items in group 2.
       content and `boot.js`.
 - [ ] `curl -s https://0xbf.ch/ | grep -c app-shell` returns 1, and `curl -s
       https://0xbf.ch/contact/ | grep -c '<h1>Contact'` returns 1.
-- [ ] `ssh 0xbf.ch` shows the portfolio, and the fingerprint matches the key
+- [ ] `ssh -p 2222 0xbf.ch` shows the portfolio (the sshmux owns 2222), and the
+      fingerprint matches the key
       from group 4.
 - [ ] `/cv`, `/age.txt` and `/pgp.txt` resolve, and a mistyped path shows
       `/404.html`.

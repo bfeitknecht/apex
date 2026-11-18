@@ -7,7 +7,7 @@
 use ratatui::style::Color;
 use ratatui::Frame;
 
-use super::theme::{put, put_selected, rule, MUTED, WHITE};
+use super::theme::{put, put_selected, MUTED, WHITE};
 use crate::app::App;
 #[cfg(target_arch = "wasm32")]
 use crate::app::FontStatus;
@@ -273,28 +273,110 @@ pub(super) fn draw_unicode(frame: &mut Frame, app: &App) {
 
 /// The keyboard reference, reachable with `?` from every view.
 pub(super) fn draw_help(frame: &mut Frame) {
-    let width = frame.area().width as usize;
-    const KEYS: [&str; 9] = [
-        "h / l           previous / next section",
-        "j / k           scroll down / up",
-        "1 - 3           jump to section",
-        "g g / shift g   top / bottom",
-        "n / shift n     next / previous link",
-        "enter           open selected link",
-        "esc             back / close help",
-        "?               toggle this help",
-        "q               quit terminal",
+    // `?!`, the floating overview of the site: navigation, the ssh route, the
+    // easter eggs, the visuals. A group is a title and (label, text) lines;
+    // empty labels are plain lines, so a group can carry prose. The box is
+    // centred, its width the longest line, and it clears the frame under it.
+    const GROUPS: &[(&str, &[(&str, &str)])] = &[
+        (
+            "navigation",
+            &[
+                ("h / l", "previous / next section"),
+                ("j / k, arrows", "scroll; wheel and touch scroll too"),
+                ("1 - 5", "jump to section"),
+                ("n / shift n", "next / previous link, enter opens"),
+                ("click", "any link; the top bar keeps the section"),
+            ],
+        ),
+        (
+            "ssh route",
+            &[
+                ("connect", "ssh -p 2222 0xbf.ch"),
+                ("port 2222", "the sshmux, since 2026-11-18"),
+                ("user", "any username, no key needed"),
+                ("browsh", "ssh -p 2222 browser@0xbf.ch"),
+            ],
+        ),
+        (
+            "easter eggs",
+            &[
+                ("^@ x3", "click the mark thrice: the hidden menu"),
+                ("<< O >>", "the polyring: two neighbours and its hub"),
+                ("?!", "this overview; ? toggles it, esc closes"),
+            ],
+        ),
+        (
+            "visuals",
+            &[
+                ("menu", "unicode, lichen, fractal, crash"),
+                ("enter", "a visual plays, esc leaves it"),
+                ("q", "quit the terminal"),
+            ],
+        ),
     ];
-    put(frame, 1, 1, "apex / keyboard", WHITE);
-    rule(frame, 3, width);
-    for (index, line) in KEYS.iter().enumerate() {
-        put(
-            frame,
-            1,
-            5 + index * 2,
-            line,
-            if index == 0 { WHITE } else { MUTED },
-        );
+
+    let label_col: usize = GROUPS
+        .iter()
+        .flat_map(|(_, rows)| rows.iter())
+        .map(|(label, _)| label.chars().count())
+        .max()
+        .unwrap_or(8)
+        + 3;
+    let longest: usize = GROUPS
+        .iter()
+        .flat_map(|(_, rows)| rows.iter())
+        .map(|(label, text)| label_col.min(label.chars().count() + 3) + text.chars().count())
+        .chain(std::iter::once(24))
+        .max()
+        .unwrap();
+    let area = frame.area();
+    let columns = (longest + 2).min(area.width as usize);
+    let body: usize = 1 + GROUPS.len() * 2 + GROUPS.iter().map(|(_, r)| r.len()).sum::<usize>();
+    let box_rows = (body + 2).min(area.height as usize);
+    let x = (area.width as usize).saturating_sub(columns) / 2;
+    let y = (area.height as usize)
+        .saturating_sub(box_rows)
+        .saturating_sub(1)
+        / 2
+        + 1;
+
+    let box_area = ratatui::layout::Rect {
+        x: x as u16,
+        y: y as u16,
+        width: columns as u16,
+        height: box_rows as u16,
+    };
+    frame.render_widget(ratatui::widgets::Clear, box_area);
+    frame.render_widget(
+        ratatui::widgets::Block::bordered()
+            .title(" 0xbf.ch - how this site works ")
+            .title_alignment(ratatui::layout::Alignment::Center),
+        box_area,
+    );
+
+    let inner = y + 2;
+    let last = y + box_rows - 2;
+    let mut cy = inner;
+    for (title, rows) in GROUPS.iter().map(|(title, rows)| (*title, *rows)) {
+        if cy >= last {
+            break;
+        }
+        put(frame, x + 2, cy, title, WHITE);
+        cy += 1;
+        for (label, text) in rows.iter().copied() {
+            if cy >= last {
+                break;
+            }
+            if !label.is_empty() {
+                let pad = " ".repeat(label_col - label.chars().count());
+                put(frame, x + 2, cy, &format!("{label}{pad}"), MUTED);
+                put(frame, x + 2 + label_col, cy, text, WHITE);
+            } else {
+                put(frame, x + 2, cy, text, WHITE);
+            }
+            cy += 1;
+        }
+        cy += 1;
     }
 }
 

@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.11] - 2026-11-18
+
+### Added
+
+- **`?!` in the footer opens a floating site overview**: navigation (keys, mouse, the
+  section bar), the ssh route (`ssh -p 2222 0xbf.ch`, the sshmux port; `browser@`
+  gets browsh), the easter eggs (the triple-click logo menu, the Polyring, `?!`
+  itself) and the visuals. `?` still toggles it from the keyboard, `esc` closes.
+- The overview is a centred box over a cleared frame, on every frontend
+  (terminal, SSH, browser).
+
+### Changed
+
+- Docs and the help name the new ssh port: `-p 2222` (the sshmux; any username
+  is apex).
+
+
 ## [0.1.10] - 2026-11-18
 
 ### Added

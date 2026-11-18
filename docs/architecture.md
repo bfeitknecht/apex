@@ -5,7 +5,7 @@ The document there is the plain page until a browser with WebAssembly replaces
 it with the app.
 
 ```text
-                    https://0xbf.ch/                ssh 0xbf.ch
+                    https://0xbf.ch/                ssh -p 2222 0xbf.ch
                  ┌───────────────────┐           ┌──────────────┐
                  │  the page (Typst) │           │    russh     │
                  │  + app if it can  │           │    (tcp)     │
@@ -70,7 +70,8 @@ returns one document:
 | WebAssembly available | `browser/boot.js` removes the static markup, shows the surfaces of the app, loads `app.css` and `cursor.js` and imports `/apex.js` |
 | no WebAssembly | nothing runs and the page stays as Typst built it |
 | scripting off | the same result, because the script is the only thing that could change the page |
-| terminal | `ssh 0xbf.ch` shows the same interface through russh |
+| terminal | `ssh -p 2222 0xbf.ch` shows the same interface through russh (the
+| sshmux owns port 2222: any username is apex, `browser@` is browsh) |
 
 The fallback has no separate URL. No visitor is sent to another address, and no
 crawler must know about the second surface. The cost is the download order: a

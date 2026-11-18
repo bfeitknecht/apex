@@ -153,13 +153,19 @@ impl App {
         }
         let page = ui::portfolio_page(self.width, self.height);
         let link = page.links.get(index)?;
+        // The help overlay opens on every frontend: it is not a document.
+        if matches!(link.kind, ui::LinkKind::Help) {
+            self.help = true;
+            self.clear_hover();
+            return None;
+        }
         #[cfg(not(target_arch = "wasm32"))]
         {
             let document = match link.kind {
                 ui::LinkKind::Age => Some(super::Document::Age),
                 ui::LinkKind::Pgp => Some(super::Document::Pgp),
                 ui::LinkKind::Me => Some(super::Document::Me),
-                ui::LinkKind::External => None,
+                ui::LinkKind::External | ui::LinkKind::Help => None,
             };
             if let Some(document) = document {
                 self.document_scroll = 0;
@@ -168,6 +174,7 @@ impl App {
                 return None;
             }
         }
+        let _ = link.kind;
         (!link.url.is_empty()).then_some(link.url)
     }
 
