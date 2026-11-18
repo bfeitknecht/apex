@@ -6,12 +6,25 @@
 use ratatui::style::Modifier;
 use ratatui::Frame;
 
-use super::nav::{nav_labels, nav_ranges};
+use super::nav::{nav_highlights, nav_labels, nav_ranges};
 #[cfg(not(target_arch = "wasm32"))]
 use super::theme::hyperlink;
 use super::theme::{put, put_selected, text_style, DIM, MUTED, WHITE};
 use crate::app::App;
 use crate::content;
+
+/// Character column of `word` in `text` as a whole word, if present.
+fn word_column(text: &str, word: &str) -> Option<usize> {
+    let chars: Vec<char> = text.chars().collect();
+    let target: Vec<char> = word.chars().collect();
+    (0..=chars.len().saturating_sub(target.len())).find(|&i| {
+        chars[i..].starts_with(&target)
+            && (i == 0 || !chars[i - 1].is_alphanumeric())
+            && chars
+                .get(i + target.len())
+                .is_none_or(|c| !c.is_alphanumeric())
+    })
+}
 
 pub fn wrap_lines(text: &str, width: usize) -> Vec<String> {
     let width = width.max(1);
@@ -57,16 +70,34 @@ pub struct PageRow {
     pub text: String,
     pub heading: bool,
 }
+/// Portfolio sections: about, projects, contact, hire me, click them. The
+/// index after the last one opens the hidden visuals menu.
+pub const SECTIONS: usize = 5;
+
 pub struct PortfolioPage {
     pub rows: Vec<PageRow>,
-    pub offsets: [usize; 3],
+    pub offsets: [usize; SECTIONS],
     pub links: Vec<PageLink>,
     pub footer_start: usize,
     /// Columns of the `+` marks in the footer divider (screen x - 1).
     pub footer_marks: Vec<usize>,
     pub viewport: usize,
 }
+/// Screen column of body text, and of the footer: one space after the gutter
+/// pipe in the footer (like the top bar), two in the body.
+pub const BODY_X: usize = 8;
+pub const FOOTER_X: usize = 7;
+
 impl PortfolioPage {
+    /// Screen column where `row` starts.
+    pub fn row_x(&self, row: usize) -> usize {
+        if row > self.footer_start {
+            FOOTER_X
+        } else {
+            BODY_X
+        }
+    }
+
     pub fn max_scroll(&self) -> usize {
         self.rows.len().saturating_sub(self.viewport)
     }
@@ -82,7 +113,7 @@ pub fn portfolio_page(width: usize, height: usize) -> PortfolioPage {
     let content_width = width.saturating_sub(12).max(1);
     let mut rows = Vec::<PageRow>::new();
     let mut links = Vec::<PageLink>::new();
-    let mut offsets = [0; 3];
+    let mut offsets = [0; SECTIONS];
     fn line(rows: &mut Vec<PageRow>, text: impl Into<String>, heading: bool) {
         rows.push(PageRow {
             text: text.into(),
@@ -189,11 +220,46 @@ pub fn portfolio_page(width: usize, height: usize) -> PortfolioPage {
             0,
         );
     }
+    line(&mut rows, "", false);
+    line(&mut rows, "", false);
+    offsets[3] = rows.len();
+    line(&mut rows, "== hire me", true);
+    line(&mut rows, "", false);
+    let cv = profile.links.iter().find(|link| link.label == "cv");
+    for text in wrap_lines(&profile.hire.to_lowercase(), content_width) {
+        let row = rows.len();
+        if let (Some(cv), Some(start)) = (cv, word_column(&text, "cv")) {
+            links.push(PageLink {
+                row,
+                start,
+                end: start + 2,
+                url: cv.url,
+                kind: LinkKind::External,
+            });
+        }
+        line(&mut rows, text, false);
+    }
+    line(&mut rows, "", false);
+    line(&mut rows, "", false);
+    offsets[4] = rows.len();
+    line(&mut rows, "== click them", true);
+    line(&mut rows, "", false);
+    for destination in profile.links.iter().filter(|link| link.label != "cv") {
+        let row = rows.len();
+        links.push(PageLink {
+            row,
+            start: 2,
+            end: 2 + destination.label.chars().count(),
+            url: destination.url,
+            kind: LinkKind::External,
+        });
+        line(&mut rows, format!("- {}", destination.label), false);
+    }
     let footer = footer_lines(content_width);
     // Divider, the footer lines, an empty final line.
     let footer_rows = footer.lines.len() + 2;
     // Keep every section reachable at the top, even while the portfolio is short.
-    let target = (offsets[2] + viewport).max(rows.len() + footer_rows);
+    let target = (offsets[SECTIONS - 1] + viewport).max(rows.len() + footer_rows);
     while rows.len() + footer_rows < target {
         line(&mut rows, "", false);
     }
@@ -219,7 +285,7 @@ pub fn portfolio_page(width: usize, height: usize) -> PortfolioPage {
             text.chars()
                 .enumerate()
                 .filter(|(_, ch)| *ch == '|')
-                .map(|(column, _)| column + 7),
+                .map(|(column, _)| column + FOOTER_X - 1),
         );
     }
     PortfolioPage {
@@ -240,8 +306,7 @@ struct Footer {
 
 /// Footer label sets, widest first: (age, pgp, colophon before "me", gap).
 /// The first that fits `width` wins, so the footer is always one line.
-const FOOTER_TIERS: [(&str, &str, &str, &str); 4] = [
-    ("age.txt", "pgp.txt", "made with <3 by ", "  "),
+const FOOTER_TIERS: [(&str, &str, &str, &str); 3] = [
     ("age.txt", "pgp.txt", "made with <3 by ", " "),
     ("age", "pgp", "<3 by ", " "),
     ("age", "pgp", "", " "),
@@ -342,7 +407,7 @@ fn header(f: &mut Frame, app: &App) {
             *start,
             1,
             &labels[i],
-            (i < 3 && i == app.nav_index())
+            nav_highlights(app.nav_index(), i)
                 || app.hovered_nav == Some(i)
                 || app.focused_nav == Some(i),
         );
@@ -407,11 +472,12 @@ pub(super) fn draw(f: &mut Frame, app: &App) {
             put(f, 1, y, &String::from_utf8(line).unwrap_or_default(), DIM);
             continue;
         }
-        put(f, 8, y, &row.text, if row.heading { WHITE } else { MUTED });
+        let x0 = page.row_x(i);
+        put(f, x0, y, &row.text, if row.heading { WHITE } else { MUTED });
         if i > page.footer_start {
             for (column, ch) in row.text.chars().enumerate() {
                 if ch == '|' {
-                    put(f, 8 + column, y, "|", DIM);
+                    put(f, x0 + column, y, "|", DIM);
                 }
             }
         }
@@ -423,10 +489,10 @@ pub(super) fn draw(f: &mut Frame, app: &App) {
                     .skip(link.start)
                     .take(link.end.saturating_sub(link.start))
                     .collect();
-                put_selected(f, 8 + link.start, y, &text, true);
+                put_selected(f, x0 + link.start, y, &text, true);
                 #[cfg(not(target_arch = "wasm32"))]
                 if i < page.footer_start && !link.url.is_empty() {
-                    put(f, 8 + link.end + 2, y, link.url, MUTED);
+                    put(f, x0 + link.end + 2, y, link.url, MUTED);
                 }
             }
         }
@@ -435,7 +501,7 @@ pub(super) fn draw(f: &mut Frame, app: &App) {
         for link in page.links.iter().filter(|link| link.row == i) {
             hyperlink(
                 f,
-                8 + link.start,
+                x0 + link.start,
                 y,
                 link.end.saturating_sub(link.start),
                 &content::absolute(link.url),

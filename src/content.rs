@@ -47,6 +47,8 @@ pub struct Profile {
     pub about_terminal: &'static str,
     /// Extra hero lines that only the terminal shows.
     pub intro: &'static [&'static str],
+    /// The "hire me" sentence. The word "cv" in it links to the cv.
+    pub hire: &'static str,
     pub links: &'static [Destination],
     pub contacts: &'static [Contact],
     pub projects: &'static [Project],
@@ -156,6 +158,8 @@ struct RawProfile {
     #[serde(default)]
     intro: Vec<String>,
     #[serde(default)]
+    hire: String,
+    #[serde(default)]
     link: Vec<RawEntry>,
     #[serde(default)]
     contact: Vec<RawEntry>,
@@ -220,6 +224,7 @@ fn load() -> Profile {
         about,
         about_terminal: frozen(about.to_lowercase()),
         intro,
+        hire: frozen(raw.hire),
         links,
         contacts,
         projects,

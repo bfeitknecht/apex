@@ -189,8 +189,10 @@ impl App {
     pub fn nav_index(&self) -> usize {
         match self.view {
             View::Portfolio(index) => index,
-            // Past the three sections: no top-bar entry is active in a visual.
-            View::Visuals | View::Unicode | View::Lichen | View::Fractal | View::Crash => 3,
+            // Past the sections: no top-bar entry is active in a visual.
+            View::Visuals | View::Unicode | View::Lichen | View::Fractal | View::Crash => {
+                ui::SECTIONS
+            }
             View::Document(_) => {
                 ui::portfolio_page(self.width, self.height).active(self.scroll_offset)
             }
@@ -204,14 +206,14 @@ impl App {
         self.view = View::Portfolio(page.active(self.scroll_offset));
     }
 
-    /// Jump to a portfolio section, or open the hidden menu for index 3.
+    /// Jump to a portfolio section, or open the hidden menu for index `SECTIONS`.
     pub fn select_section(&mut self, index: usize) {
         self.help = false;
         self.pending_g = false;
         self.focused_link = None;
         self.focused_nav = None;
         self.hovered_link = None;
-        if index >= 3 {
+        if index >= ui::SECTIONS {
             if let View::Portfolio(section) = self.view {
                 self.previous = section;
             }
@@ -309,7 +311,7 @@ impl App {
             self.menu = (self.menu as i32 + delta).clamp(0, last) as usize;
             return;
         }
-        let next = (self.nav_index() as i32 + delta).clamp(0, 2) as usize;
+        let next = (self.nav_index() as i32 + delta).clamp(0, ui::SECTIONS as i32 - 1) as usize;
         self.select_section(next);
     }
 

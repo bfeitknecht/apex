@@ -112,7 +112,7 @@ fn menu_opens_and_cycles_every_visual() {
 fn crash_is_a_menu_entry_like_the_others() {
     let mut app = App::new();
     app.resize(80, 24);
-    app.select_section(3);
+    app.select_section(ui::SECTIONS);
     assert_eq!(app.view, View::Visuals);
     let (x, y, _) = *ui::visual_ranges(80, 24).last().expect("menu entry");
     assert!(app.hover(x, y));
@@ -158,7 +158,7 @@ fn every_visual_is_reachable_from_the_menu() {
     for (index, visual) in crate::visuals::VISUALS.iter().enumerate() {
         let mut app = App::new();
         app.resize(80, 24);
-        app.select_section(3);
+        app.select_section(ui::SECTIONS);
         app.menu = index;
         app.activate();
         assert!(app.view.is_visual(), "{visual:?} did not open");
@@ -220,8 +220,9 @@ fn footer_documents_open_inside_the_terminal_and_return() {
                 .unwrap();
             let link = &page.links[index];
             let y = 4 + link.row - original_scroll;
-            assert!(app.hover(8 + link.start, y));
-            assert_eq!(app.click(8 + link.start, y), None);
+            let x = page.row_x(link.row) + link.start;
+            assert!(app.hover(x, y));
+            assert_eq!(app.click(x, y), None);
             assert_eq!(app.view, View::Document(document));
             app.key('G');
             assert_eq!(
@@ -379,7 +380,10 @@ fn footer_ring_links_cover_their_labels_at_every_width() {
         let first = &page.rows[page.footer_start + 1].text;
         for (column, ch) in first.chars().enumerate() {
             if ch == '|' {
-                assert!(page.footer_marks.contains(&(column + 7)), "width {width}");
+                assert!(
+                    page.footer_marks.contains(&(column + ui::FOOTER_X - 1)),
+                    "width {width}"
+                );
             }
         }
     }

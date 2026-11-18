@@ -16,7 +16,9 @@ use crate::app::{App, View};
 
 pub use document::{document_lines, document_max_scroll};
 pub use nav::nav_ranges;
-pub use portfolio::{portfolio_page, wrap_lines, LinkKind, PageLink, PageRow, PortfolioPage};
+pub use portfolio::{
+    portfolio_page, wrap_lines, LinkKind, PageLink, PageRow, PortfolioPage, FOOTER_X, SECTIONS,
+};
 pub use visuals::{unicode_layout, visual_ranges, UnicodeLayout};
 
 /// Draw the current view.

@@ -25,7 +25,7 @@ impl App {
             return;
         }
         match key {
-            '1'..='3' => self.select_section((key as u8 - b'1') as usize),
+            '1'..='5' => self.select_section((key as u8 - b'1') as usize),
             'h' => self.change_section(-1),
             'l' => self.change_section(1),
             'j' => self.navigate(1),
@@ -140,7 +140,7 @@ impl App {
         self.logo_last_ms = now;
         if self.logo_activations >= 3 {
             self.logo_activations = 0;
-            self.select_section(3);
+            self.select_section(ui::SECTIONS);
         } else {
             self.select_section(0);
             self.focused_nav = Some(0);
@@ -195,10 +195,11 @@ impl App {
             let page = ui::portfolio_page(self.width, self.height);
             let row = self.scroll_offset + y - 4;
             if row < page.footer_start || self.scroll_offset == page.max_scroll() {
-                self.hovered_link = page
-                    .links
-                    .iter()
-                    .position(|link| link.row == row && x >= 8 + link.start && x < 8 + link.end);
+                self.hovered_link = page.links.iter().position(|link| {
+                    link.row == row
+                        && x >= page.row_x(row) + link.start
+                        && x < page.row_x(row) + link.end
+                });
             }
         }
         self.hovered_nav.is_some() || self.hovered_link.is_some()
@@ -259,7 +260,10 @@ impl App {
                 return None;
             }
             for (index, link) in page.links.iter().enumerate() {
-                if link.row == row && x >= 8 + link.start && x < 8 + link.end {
+                if link.row == row
+                    && x >= page.row_x(row) + link.start
+                    && x < page.row_x(row) + link.end
+                {
                     self.focused_nav = None;
                     self.focused_link = Some(index);
                     return self.activate_link(index);

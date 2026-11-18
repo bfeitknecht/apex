@@ -90,3 +90,45 @@ pub fn nav_ranges(w: usize) -> Vec<(usize, usize)> {
         })
         .collect()
 }
+
+/// Whether top-bar entry `nav` lights up for portfolio section `section`:
+/// the three section names for their own sections, (cv) for "hire me", and
+/// the other destinations (blog, gallery) together for "click them".
+pub(super) fn nav_highlights(section: usize, nav: usize) -> bool {
+    if nav < 3 {
+        return nav == section;
+    }
+    let Some(link) = content::profile().links.get(nav - 3) else {
+        return false;
+    };
+    match section {
+        3 => link.label == "cv",
+        4 => link.label != "cv",
+        _ => false,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn sections_light_up_their_top_bar_entries() {
+        let labels: Vec<&str> = content::profile().links.iter().map(|l| l.label).collect();
+        let lit = |section: usize| -> Vec<usize> {
+            (0..3 + labels.len())
+                .filter(|&nav| nav_highlights(section, nav))
+                .collect()
+        };
+        assert_eq!(lit(0), [0]);
+        assert_eq!(lit(2), [2]);
+        let cv = 3 + labels.iter().position(|l| *l == "cv").unwrap();
+        assert_eq!(lit(3), [cv]);
+        let others: Vec<usize> = (0..labels.len())
+            .filter(|&i| labels[i] != "cv")
+            .map(|i| 3 + i)
+            .collect();
+        assert_eq!(lit(4), others);
+        assert!(lit(5).is_empty(), "visuals menu lights nothing");
+    }
+}

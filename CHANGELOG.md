@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.10] - 2026-11-18
+
+### Added
+
+- Terminal sections "hire me" (the word cv links to the cv) and "click them" (blog, gallery). Arrow keys, h/l and 1-5 reach them; the top bar lights (cv) in "hire me" and (blog) and (gallery) together in "click them".
+- Project exhib in the list.
+
+### Changed
+
+- One space around every pipe, top bar and footer alike; the footer starts one column further left, like the top bar.
+- Profile text reflowed into shorter lines.
+
 ## [0.1.9] - 2026-11-17
 
 ### Changed
