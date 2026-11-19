@@ -119,7 +119,7 @@ artifacts at the root.
 
 ## Typst packages
 
-`ssg/site.typ` imports `@preview/thyme:0.1.0`, and thyme imports
+`ssg/site.typ` imports `@preview/thyme:0.1.2`, and thyme imports
 `@preview/syndicate` for the sitemap and `@preview/cheq`, `showybox`, `tablem`,
 `zebraw` and `marge` for its blog preset. All six come from Typst Universe.
 Typst downloads them on the first build and caches them in
@@ -132,7 +132,7 @@ the import, and this directory names the version.
 
 ## Writing HTML in Typst
 
-The page uses only `html.*`, the built-in module of Typst 0.15. thyme 0.1.0 has
+The page uses only `html.*`, the built-in module of Typst 0.15. thyme 0.1.2 has
 no HTML builder of its own. Three rules matter:
 
 - **Use the typed constructors** (`html.div`, `html.section`, `html.p`, …).
