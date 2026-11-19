@@ -75,8 +75,7 @@ fn install_text_layer(document: &Document, state: Shared) {
             let Ok(mut app) = hover_state.try_borrow_mut() else {
                 return;
             };
-            let x = (event.client_x().max(0) as f64 / viewport.width * app.width as f64) as usize;
-            let y = (event.client_y().max(0) as f64 / viewport.height * app.height as f64) as usize;
+            let (x, y) = viewport.cell_at(event.client_x(), event.client_y(), app.width as u16, app.height as u16);
             let active = app.hover(x, y);
             let _ =
                 hover_layer.set_attribute("data-clickable", if active { "true" } else { "false" });
@@ -126,8 +125,7 @@ fn install_text_layer(document: &Document, state: Shared) {
             }
             let viewport = Viewport::current();
             let mut app = click_state.borrow_mut();
-            let x = (event.client_x().max(0) as f64 / viewport.width * app.width as f64) as usize;
-            let y = (event.client_y().max(0) as f64 / viewport.height * app.height as f64) as usize;
+            let (x, y) = viewport.cell_at(event.client_x(), event.client_y(), app.width as u16, app.height as u16);
             let url = app.click(x, y);
             drop(app);
             if let Some(url) = url {
@@ -322,7 +320,9 @@ fn install_touch(window: &Window, state: Shared) {
         let Ok(mut app) = state.try_borrow_mut() else {
             return true;
         };
-        let row = Viewport::current().height / app.height.max(1) as f64;
+        let row = Viewport::current()
+            .cell_for(app.width as u16, app.height as u16)
+            .1;
         touch.carry += pixels;
         let rows = (touch.carry / row).trunc() as i32;
         if rows == 0 {
@@ -411,8 +411,7 @@ fn install_touch(window: &Window, state: Shared) {
             if dx.abs() < TAP_SLOP && dy.abs() < TAP_SLOP {
                 let viewport = Viewport::current();
                 let mut app = state.borrow_mut();
-                let x = (start_x.max(0) as f64 / viewport.width * app.width as f64) as usize;
-                let y = (start_y.max(0) as f64 / viewport.height * app.height as f64) as usize;
+                let (x, y) = viewport.cell_at(start_x, start_y, app.width as u16, app.height as u16);
                 let url = app.click(x, y);
                 drop(app);
                 if let Some(url) = url {

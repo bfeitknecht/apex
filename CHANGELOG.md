@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.14] - 2026-11-19
+
+### Fixed
+
+- The cell cursor, the text selection, the specimen glyph and the hover and click hit-tests use the renderer's own cell size. They took `window / columns`, which is a little too large, so they drifted off the characters towards the right and the bottom.
+- The selection is one highlight per row, snapped to whole cells. Overlapping and gapped rects drew thin vertical lines under the inverting filter.
+
 ## [0.1.13] - 2026-11-19
 
 ### Changed

@@ -87,6 +87,8 @@ where
 
     let state: Shared = Rc::new(RefCell::new(App::new()));
     let mut terminal = Terminal::new(backend)?;
+    let (cell_width, cell_height) = terminal.backend().cell_size_css_px();
+    surfaces::set_cell_size(cell_width as f64, cell_height as f64);
     input::install(&mut terminal, &window, &document, state.clone())?;
 
     let mut colony_surface = LichenSurface::new(&document);

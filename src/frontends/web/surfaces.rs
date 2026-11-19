@@ -17,6 +17,21 @@ use crate::app::{App, FontStatus};
 use crate::ui;
 use crate::visuals::{Lichen, Unicode};
 
+thread_local! {
+    /// The renderer's cell size in CSS pixels, from the backend at start.
+    static CELL: std::cell::Cell<Option<(f64, f64)>> = const { std::cell::Cell::new(None) };
+}
+
+/// Record the cell size the backend draws with. The renderer lays its cells
+/// from the top left at this size and leaves the rest of the canvas empty, so
+/// `viewport / columns` is a little too large and drifts to the right and the
+/// bottom.
+pub fn set_cell_size(width: f64, height: f64) {
+    if width > 0.0 && height > 0.0 {
+        CELL.with(|cell| cell.set(Some((width, height))));
+    }
+}
+
 /// The browser viewport in CSS pixels.
 #[derive(Clone, Copy, Debug)]
 pub struct Viewport {
@@ -44,9 +59,33 @@ impl Viewport {
 
     /// Size of one character cell in pixels.
     pub fn cell(self, area: Rect) -> (f64, f64) {
+        self.cell_for(area.width, area.height)
+    }
+
+    /// Cell size for a grid of `columns` x `rows`: the backend's size when it
+    /// fits the grid, else the viewport divided evenly.
+    pub fn cell_for(self, columns: u16, rows: u16) -> (f64, f64) {
+        let even = (
+            self.width / columns.max(1) as f64,
+            self.height / rows.max(1) as f64,
+        );
+        match CELL.with(|cell| cell.get()) {
+            Some((width, height))
+                if width * columns as f64 <= self.width + 0.5
+                    && height * rows as f64 <= self.height + 0.5 =>
+            {
+                (width, height)
+            }
+            _ => even,
+        }
+    }
+
+    /// The grid cell under the CSS pixel `(x, y)`.
+    pub fn cell_at(self, x: i32, y: i32, columns: u16, rows: u16) -> (usize, usize) {
+        let (width, height) = self.cell_for(columns, rows);
         (
-            self.width / area.width.max(1) as f64,
-            self.height / area.height.max(1) as f64,
+            (x.max(0) as f64 / width) as usize,
+            (y.max(0) as f64 / height) as usize,
         )
     }
 }
