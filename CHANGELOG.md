@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.16] - 2026-11-19
+
+### Added
+
+- `/favicon.ico` and `/apple-touch-icon.png` at the root, rendered from the round mark. Safari, iOS and tools that ignore the SVG link now show the same icon.
+
 ## [0.1.15] - 2026-11-19
 
 ### Changed

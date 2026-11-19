@@ -80,6 +80,10 @@
 #file("age.txt", path("../content/age.txt"))
 #file("pgp.txt", path("../content/pgp.txt"))
 #file("cv.pdf", path("../content/cv.pdf"))
+// Root fallbacks: Safari, iOS and tools ask for these without a <link>.
+// Rendered from assets/favicon.svg (the round mark).
+#file("favicon.ico", path("assets/favicon.ico"))
+#file("apple-touch-icon.png", path("assets/apple-touch-icon.png"))
 
 #mount(path("contact.typ")) <contact>
 
