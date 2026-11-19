@@ -75,7 +75,12 @@ fn install_text_layer(document: &Document, state: Shared) {
             let Ok(mut app) = hover_state.try_borrow_mut() else {
                 return;
             };
-            let (x, y) = viewport.cell_at(event.client_x(), event.client_y(), app.width as u16, app.height as u16);
+            let (x, y) = viewport.cell_at(
+                event.client_x(),
+                event.client_y(),
+                app.width as u16,
+                app.height as u16,
+            );
             let active = app.hover(x, y);
             let _ =
                 hover_layer.set_attribute("data-clickable", if active { "true" } else { "false" });
@@ -125,7 +130,12 @@ fn install_text_layer(document: &Document, state: Shared) {
             }
             let viewport = Viewport::current();
             let mut app = click_state.borrow_mut();
-            let (x, y) = viewport.cell_at(event.client_x(), event.client_y(), app.width as u16, app.height as u16);
+            let (x, y) = viewport.cell_at(
+                event.client_x(),
+                event.client_y(),
+                app.width as u16,
+                app.height as u16,
+            );
             let url = app.click(x, y);
             drop(app);
             if let Some(url) = url {
@@ -411,7 +421,8 @@ fn install_touch(window: &Window, state: Shared) {
             if dx.abs() < TAP_SLOP && dy.abs() < TAP_SLOP {
                 let viewport = Viewport::current();
                 let mut app = state.borrow_mut();
-                let (x, y) = viewport.cell_at(start_x, start_y, app.width as u16, app.height as u16);
+                let (x, y) =
+                    viewport.cell_at(start_x, start_y, app.width as u16, app.height as u16);
                 let url = app.click(x, y);
                 drop(app);
                 if let Some(url) = url {
