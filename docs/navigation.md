@@ -1,15 +1,16 @@
 # Navigation and input
 
-This document describes what the code implements. The interface has three
-portfolio sections, a document viewer, four visuals behind a hidden menu and a
-help page on top. The same keys work in the browser, in the native terminal and
+This document describes what the code implements. The interface has one
+portfolio page with five sections (about, projects, contact, hire me, click
+them), a document viewer, four visuals behind a hidden menu and a
+help box on top (`?`, or the `?!` footer link). The same keys work in the browser, in the native terminal and
 in an SSH session. Pointer input repeats the keyboard.
 
 ## View graph
 
 ```text
                  ┌─────────────── portfolio ───────────────┐
-                 │  about (0) ⇄ projects (1) ⇄ contact (2) │
+                 │ about ⇄ projects ⇄ contact ⇄ hire ⇄ click │
                  └───────┬─────────────────────────┬───────┘
                          │ cv / blog / gallery      │ age, pgp, me
                          ▼                          ▼
@@ -37,14 +38,14 @@ position and the focused link that opened it (`App::previous`,
 | `j` `k` / arrows / wheel / swipe | scroll a line                       | –                                                                 |
 | `d` `u` / PgDn, PgUp             | scroll half a page                  | –                                                                 |
 | `gg` / `G`, Home / End           | top / bottom                        | –                                                                 |
-| `h` `l`, `1`–`3`                 | previous / next section             | choose a visual (menu only)                                       |
+| `h` `l` / `1`–`5`                | previous / next / jump to section   | choose a visual (menu only)                                       |
 | Tab / `n` `N`                    | next / previous link                | –                                                                 |
 | Enter                            | open the focused link               | open the highlighted visual                                       |
 | `-` `+`                          | –                                   | lichen / crash: speed; fractal: zoom                              |
 | `0`                              | –                                   | lichen / crash: default speed; fractal: reset                     |
 | space                            | –                                   | lichen / crash: pause / resume                                    |
 | `r`                              | –                                   | lichen: new seed; fractal: reset camera; crash: restart the sweep |
-| `?` / `H`                        | help                                | help                                                              |
+| `?`                              | toggle help                         | toggle help                                                       |
 | Esc                              | close help, then close the document | back to the menu, then to the portfolio                           |
 | `q`                              | quit (native / SSH only)            | quit (native / SSH only)                                          |
 
@@ -61,7 +62,10 @@ test: `ui::nav_ranges` for the top bar, `PortfolioPage::links` for the page and
 `ui::visual_ranges` for the hidden menu.
 
 The browser handles text selection natively. A mirrored text layer sits at the
-same cell positions, so selection, copy and the browser search work.
+same cell positions, so selection, copy and the browser search work. Cell
+positions come from the renderer's own cell size (`set_cell_size`), not from
+`window / columns`. The cell cursor and the selection swap black and white:
+the selection is one rect per row, snapped to whole cells.
 
 ## Boundaries
 

@@ -100,13 +100,14 @@ then build the image and publish the GitHub release.
 - `docs/architecture.md`: the layers, the one-URL model and the rendering split.
 - `docs/navigation.md`: views, keys, pointer input and the owner of each part.
 - `docs/ssg.md`: the page, its document root, the shared content and the build.
-- `docs/go-live.md`: the tasks between now and the launch.
+- `docs/go-live.md`: the launch record (2026-11-16) and what is still open.
 
 ## The SSH portfolio
 
 `ssh -p 2222 0xbf.ch` shows the same interface as the terminal. It needs no
-account. Port `2222` is the sshmux: any username lands in apex. The
-server accepts any username and asks for no client key. It runs the portfolio
+account. Port `2222` is the sshmux (infra): the usernames `someone`, `apex` and
+`guest` land in apex; press Enter at the mux password prompt. apex-ssh behind it
+accepts any username and asks for no client key. It runs the portfolio
 only: no shell, no commands, no SFTP and no forwarding. It needs a PTY. It
 allows 32 sessions, it times out after 15 idle minutes and it limits the
 terminal to 20–240 × 8–120 cells.

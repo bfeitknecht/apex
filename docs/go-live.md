@@ -1,5 +1,10 @@
 # Checklist for the launch of 0xbf.ch
 
+**Done: launched 2026-11-16 with v0.1.0.** This file is the record of the
+launch. Current deploy facts (ports, routes, checks) are in the `infra` repo
+(`AGENTS.md`, apex and sshmux notes). Facts below are updated where they
+changed (2026-11-19); open boxes are the ones still open.
+
 The groups are in order. Group 2 blocks the launch. Group 3 is the launch.
 Group 4 comes afterwards. The deployment (manifests, Traefik routes, Gatus
 checks and the host-key Secret) is in the `infra` repository and is integrated
@@ -50,26 +55,25 @@ items in group 2.
 
 ## 3. Content before anyone looks
 
-- [ ] `content/projects.toml` holds one merged list of 8 entries in display
+- [x] `content/projects.toml` holds one merged list of 10 entries in display
       order. It is the only copy. Both the page and the app render this file, so
       the order in the file is the order on both surfaces.
-- [ ] The `gallery` destination (`https://gallery.0xbf.ch`) is linked but does
-      not exist yet. Build it, or empty its `url` in `content/profile.toml`.
+- [x] The `gallery` destination (`https://gallery.0xbf.ch`) is live (exhib).
 - [ ] `content/portrait.txt` is a cat. Replace it with the real ASCII portrait.
 - [ ] Read the text in `content/profile.toml`. `lede` and `about` appear on both
       surfaces. `intro` belongs to the terminal only.
 
 ## 4. Ship
 
-1. [ ] `@preview/thyme` is on Typst Universe. The page build and the image build
+1. [x] `@preview/thyme` is on Typst Universe. The page build and the image build
    download it, so both fail without the package.
 2. [ ] Create the SSH host key and the `apex-ssh-host-key` Secret. Then
    uncomment `ssh-host-key.sops.yaml` in the `infra` repo, commit, push and run
    `flux reconcile` for `traefik` and `apex`.
-3. [ ] Router: WAN **2223/tcp** → `10.10.20.10:2223` (git). WAN 22 already
-   points at the Pi and now reaches the portfolio.
-4. [ ] Update the git remotes and clients for `git.0xbf.ch` on **2223**.
-5. [ ] Run `just release v0.1.0`. The command reads the version from
+3. [ ] Router: WAN **2222/tcp** → `10.10.20.10:2222` (the sshmux, which
+   carries the portfolio since 2026-11-18). WAN 22 is git again.
+4. [x] Git remotes for `git.0xbf.ch` use the clean 22 (omni ssh config).
+5. [x] Run `just release v0.1.0`. The command reads the version from
    `Cargo.toml` and the notes from the `0.1.0` section of `CHANGELOG.md`, runs
    `just check`, then tags and pushes. The workflows build `:latest` and
    `:v0.1.0` and publish the GitHub release. Wait for Keel to roll both pods.
@@ -81,12 +85,11 @@ items in group 2.
 - [ ] `curl -s https://0xbf.ch/ | grep -c app-shell` returns 1, and `curl -s
       https://0xbf.ch/contact/ | grep -c '<h1>Contact'` returns 1.
 - [ ] `ssh -p 2222 0xbf.ch` shows the portfolio (the sshmux owns 2222), and the
-      fingerprint matches the key
-      from group 4.
+      fingerprint matches the mux host key (infra `sshmux-keys`).
 - [ ] `/cv`, `/age.txt` and `/pgp.txt` resolve, and a mistyped path shows
       `/404.html`.
 - [ ] `blog.0xbf.ch` and `git.0xbf.ch` still work after the Traefik roll.
-- [ ] Gatus shows `apex` and `apex-ssh` green, and both pods are `Running`.
+- [ ] Gatus shows `apex` and `sshmux` green, and both pods are `Running`.
 - [ ] Back up the host key with the other secrets. Note its fingerprint next to
       them, so a future rebuild can be compared.
 
@@ -97,5 +100,5 @@ items in group 2.
 - Caching: the asset names have no hash, so responses use `no-cache`. If the
   wasm becomes heavy on revalidation, hash only the app bundle and inject the
   names into the page at build time.
-- Rate limiting on port 22 if the public SSH listener attracts abuse, or
+- Rate limiting on the sshmux (2222) if the public SSH path attracts abuse, or
   `APEX_SSH_PUBLIC=0` with `APEX_SSH_AUTHORIZED_KEYS`.
