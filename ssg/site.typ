@@ -76,7 +76,7 @@
 
 // Plain files, served from the root next to the page: the keys that people copy
 // and the CV that the footer links to. These are data and not markup, and
-// `content/` is the source. (`#file`: thyme 0.1.2 renamed `#raw-file` to this.)
+// `content/` is the source. (`#file`: thyme 0.1.0 renamed `#raw-file` to this.)
 #file("age.txt", path("../content/age.txt"))
 #file("pgp.txt", path("../content/pgp.txt"))
 #file("cv.pdf", path("../content/cv.pdf"))
