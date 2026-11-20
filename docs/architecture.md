@@ -306,7 +306,7 @@ artifacts at the root.
 
 ### Typst packages
 
-`ssg/site.typ` imports `@preview/thyme:0.1.2`, and thyme imports
+`ssg/site.typ` imports `@preview/thyme:0.1.3`, and thyme imports
 `@preview/syndicate` for the sitemap and `@preview/cheq`, `showybox`, `tablem`,
 `zebraw` and `marge` for its blog preset. All six come from Typst Universe.
 Typst downloads them on the first build and caches them in

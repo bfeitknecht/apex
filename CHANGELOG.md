@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.17] - 2026-11-20
+
+### Changed
+
+- The page builds on `@preview/thyme:0.1.3` (was 0.1.2).
+
 ## [0.1.16] - 2026-11-19
 
 ### Added
