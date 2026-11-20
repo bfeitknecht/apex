@@ -56,7 +56,7 @@ src/                the app (see docs/architecture.md)
   visuals/          simulations: lichen, unicode, fractal, crash
   frontends/        native, ssh, web
 ssg/                the page: Typst sources, stylesheet, favicon and webfonts
-                    (docs/ssg.md)
+                    (docs/architecture.md)
 browser/            the shell of the app: app.html (Trunk entry), boot.js,
                     app.css, cursor.js
 assets/             fonts, Unicode cmaps, licences
@@ -97,10 +97,7 @@ then build the image and publish the GitHub release.
 
 ## Documentation
 
-- `docs/architecture.md`: the layers, the one-URL model and the rendering split.
-- `docs/navigation.md`: views, keys, pointer input and the owner of each part.
-- `docs/ssg.md`: the page, its document root, the shared content and the build.
-- `docs/go-live.md`: the launch record (2026-11-16) and what is still open.
+- `docs/architecture.md`: the layers, the one-URL model, the rendering split, navigation and input, the page (`ssg/`), and the checks CI cannot do.
 
 ## The SSH portfolio
 
@@ -148,7 +145,7 @@ This behaviour prevents an accidental public service.
   scrolling changes the pixelation. In fractal, `h/j/k/l` pan, `+`/`-` zoom and
   `r` resets the camera. Crash takes the speed keys of lichen (space, `-`/`+`,
 `0`), and `r` starts the sweep again. The full table is
-  in `docs/navigation.md`.
+  in `docs/architecture.md`.
 
 ## Lichen and the Unicode visual
 
@@ -190,7 +187,7 @@ content.
 
 CI cannot check the work that needs a person: the interface at 80×24, the fonts
 in a real browser, the SSH handshake and the image. That list is in
-`docs/go-live.md` § 2.
+`docs/architecture.md`, "Checks CI cannot do".
 
 Names: `ssg/` holds the input of the static site generator (Typst sources, the
 stylesheet, the favicon and the webfonts). `browser/` holds
