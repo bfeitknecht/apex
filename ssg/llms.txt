@@ -19,11 +19,11 @@ The site is one URL with three surfaces and one set of content. A browser with W
 - [omni](https://github.com/bfeitknecht/omni): One Nix configuration for every machine, from the laptop to the cluster nodes.
 - [thyme](https://github.com/bfeitknecht/thyme): Static site generator and monochrome blog package in pure Typst.
 - [apex](https://github.com/bfeitknecht/apex): This site. A Ratatui app that runs natively, over SSH, and in the browser, with a Typst fallback page.
-- [glob](https://blog.0xbf.ch): The blog, on programming languages, formal methods, systems, and side projects. Built with `thyme`.
+- [glob](https://blg.0xbf.ch): The blog, on programming languages, formal methods, systems, and side projects. Built with `thyme`.
 
 ## Optional
 
-- [Blog](https://blog.0xbf.ch): Long-form posts. It has its own [llms.txt](https://blog.0xbf.ch/llms.txt).
-- [Gallery](https://gallery.0xbf.ch): Standalone pieces, collections, and writings, in date order.
+- [Blog](https://blg.0xbf.ch): Long-form posts. It has its own [llms.txt](https://blg.0xbf.ch/llms.txt).
+- [Gallery](https://glry.0xbf.ch): Standalone pieces, collections, and writings, in date order.
 - [age.txt](https://0xbf.ch/age.txt) and [pgp.txt](https://0xbf.ch/pgp.txt): Public keys as plain text.
 - [Sitemap](https://0xbf.ch/sitemap.xml): Every URL on the site.

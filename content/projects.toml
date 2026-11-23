@@ -66,14 +66,14 @@ period = "2026 – Present"
 
 [[project]]
 name = "glob"
-url = "https://blog.0xbf.ch"
+url = "https://blg.0xbf.ch"
 summary = "personal blog built with thyme"
 description = "Personal blog on programming languages, formal methods, systems, and sidequests, built with thyme."
 period = "2026 – Present"
 
 [[project]]
 name = "exhib"
-url = "https://gallery.0xbf.ch"
+url = "https://glry.0xbf.ch"
 summary = "personal showcase of creative works"
 description = "Personal showcase of creative works. Photography, graphic design, and writing. Simple and static."
 period = "2026 – Present"

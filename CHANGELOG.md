@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.18] - 2026-11-24
+
+### Changed
+
+- The blog and the gallery have new hostnames: `blg.0xbf.ch` and `glry.0xbf.ch` (profile, projects, `llms.txt`). The old names redirect.
+
 ## [0.1.17] - 2026-11-20
 
 ### Changed

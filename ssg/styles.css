@@ -36,7 +36,7 @@
 :root {
   color-scheme: dark light;
 
-  /* Monochrome tokens that match blog.0xbf.ch. Dark values come first. */
+  /* Monochrome tokens that match blg.0xbf.ch. Dark values come first. */
   --bg: oklch(18% 0 0);
   --fg: oklch(93% 0 0);
   --muted: oklch(65% 0 0);
