@@ -14,15 +14,18 @@ const SECTIONS: [[&str; 3]; 4] = [
     ["a", "p", "c"],
 ];
 
-/// How a destination label (`cv`, `blog`, `gallery`) is shortened.
+/// How a destination label (`cv`, `blog`, `gallery`) is shortened. Labels of
+/// four characters or fewer (`cv`, `blog`) never change.
 #[derive(Clone, Copy)]
 enum Destination {
     /// `(gallery)`
     Full,
-    /// `(gal)`: labels longer than four characters keep three, in parentheses.
+    /// `(glry)`: the first letter, then the consonants, repeats dropped.
     Short,
-    /// `gal`: no parentheses. The narrowest phones need these three columns.
+    /// `glry`: no parentheses.
     Bare,
+    /// `g`: the first letter. The narrowest phones need these columns.
+    Initial,
 }
 
 /// The tiers, widest first. A narrower viewport takes the first tier that
@@ -35,8 +38,24 @@ const TIERS: [(usize, Destination); 7] = [
     (2, Destination::Short),
     (3, Destination::Short),
     (3, Destination::Bare),
-    (3, Destination::Bare),
+    (3, Destination::Initial),
 ];
+
+/// `gallery` -> `glry`: keep the first letter, drop the vowels after it and
+/// collapse repeated letters, at most four characters.
+fn abbreviate(label: &str) -> String {
+    let mut chars = label.chars();
+    let Some(first) = chars.next() else {
+        return String::new();
+    };
+    let mut out = vec![first];
+    for c in chars {
+        if !"aeiou".contains(c) && out.last() != Some(&c) {
+            out.push(c);
+        }
+    }
+    out.into_iter().take(4).collect()
+}
 
 fn tier_labels(sections: usize, destination: Destination) -> Vec<String> {
     let mut labels: Vec<String> = SECTIONS[sections]
@@ -44,15 +63,17 @@ fn tier_labels(sections: usize, destination: Destination) -> Vec<String> {
         .map(|label| (*label).to_string())
         .collect();
     for link in content::profile().links {
-        let short: String = if link.label.chars().count() <= 4 {
-            link.label.to_string()
-        } else {
-            link.label.chars().take(3).collect()
-        };
+        let label = link.label;
+        let fits = label.chars().count() <= 4;
         labels.push(match destination {
-            Destination::Full => format!("({})", link.label),
-            Destination::Short => format!("({short})"),
-            Destination::Bare => short,
+            Destination::Full => format!("({label})"),
+            _ if fits => match destination {
+                Destination::Short => format!("({label})"),
+                _ => label.to_string(),
+            },
+            Destination::Short => format!("({})", abbreviate(label)),
+            Destination::Bare => abbreviate(label),
+            Destination::Initial => label.chars().take(1).collect(),
         });
     }
     labels
@@ -74,7 +95,7 @@ pub(super) fn nav_labels(inner: usize) -> Vec<String> {
             return labels;
         }
     }
-    tier_labels(3, Destination::Bare)
+    tier_labels(3, Destination::Initial)
 }
 
 /// Start and end columns of every label in the top bar.
@@ -111,6 +132,20 @@ pub(super) fn nav_highlights(section: usize, nav: usize) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn destinations_shorten_to_consonants_then_initial() {
+        assert_eq!(abbreviate("gallery"), "glry");
+        let short = tier_labels(3, Destination::Short);
+        let bare = tier_labels(3, Destination::Bare);
+        let initial = tier_labels(3, Destination::Initial);
+        assert!(short.contains(&"(glry)".to_string()));
+        assert!(short.contains(&"(blog)".to_string()));
+        assert!(bare.contains(&"glry".to_string()));
+        assert!(initial.contains(&"g".to_string()));
+        assert!(initial.contains(&"blog".to_string()));
+        assert!(initial.contains(&"cv".to_string()));
+    }
 
     #[test]
     fn sections_light_up_their_top_bar_entries() {

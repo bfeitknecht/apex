@@ -46,11 +46,11 @@ url = "https://0xbf.ch/cv"
 
 [[link]]
 label = "blog"
-url = "https://blg.0xbf.ch"
+url = "https://blog.0xbf.ch"
 
 [[link]]
 label = "gallery"
-url = "https://glry.0xbf.ch"
+url = "https://gallery.0xbf.ch"
 
 # Contact rows. An empty url is a placeholder that does not open yet.
 [[contact]]

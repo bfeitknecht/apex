@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.19] - 2026-11-24
+
+### Changed
+
+- Top bar on narrow screens: `gallery` shortens to `glry`, then to `g` on the narrowest phones (was `gal`). Labels of four characters or fewer (`cv`, `blog`) stay whole.
+- The blog and gallery links are `blog.0xbf.ch` and `gallery.0xbf.ch` again (0.1.18 renamed them by mistake).
+
 ## [0.1.18] - 2026-11-24
 
 ### Changed
