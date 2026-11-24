@@ -36,12 +36,14 @@
 :root {
   color-scheme: dark light;
 
-  /* Monochrome tokens that match blog.0xbf.ch. Dark values come first. */
-  --bg: oklch(18% 0 0);
-  --fg: oklch(93% 0 0);
-  --muted: oklch(65% 0 0);
-  --line: oklch(29% 0 0);
-  --frame: oklch(84% 0 0);
+  /* The 0xbf palette (brand/palette.json), shared with the blog and the
+     gallery. --line is the palette's surface step, --frame its fg. Dark
+     values come first. */
+  --bg: oklch(17% 0 0);
+  --fg: oklch(95% 0 0);
+  --muted: oklch(70% 0 0);
+  --line: oklch(27% 0 0);
+  --frame: oklch(95% 0 0);
 
   --sans: "Helvetica Neue", Helvetica, Arial, ui-sans-serif, sans-serif;
   --mono: "Commit Mono", ui-monospace, monospace;
@@ -69,21 +71,21 @@
 
 @media (prefers-color-scheme: light) {
   :root {
-    --bg: oklch(99% 0 0);
-    --fg: oklch(18% 0 0);
-    --muted: oklch(52% 0 0);
-    --line: oklch(89% 0 0);
-    --frame: oklch(20% 0 0);
+    --bg: oklch(96% 0 0);
+    --fg: oklch(21% 0 0);
+    --muted: oklch(47% 0 0);
+    --line: oklch(92% 0 0);
+    --frame: oklch(21% 0 0);
   }
 }
 
 @supports (color: light-dark(oklch(0% 0 0), oklch(100% 0 0))) {
   :root {
-    --bg: light-dark(oklch(99% 0 0), oklch(18% 0 0));
-    --fg: light-dark(oklch(18% 0 0), oklch(93% 0 0));
-    --muted: light-dark(oklch(52% 0 0), oklch(65% 0 0));
-    --line: light-dark(oklch(89% 0 0), oklch(29% 0 0));
-    --frame: light-dark(oklch(20% 0 0), oklch(84% 0 0));
+    --bg: light-dark(oklch(96% 0 0), oklch(17% 0 0));
+    --fg: light-dark(oklch(21% 0 0), oklch(95% 0 0));
+    --muted: light-dark(oklch(47% 0 0), oklch(70% 0 0));
+    --line: light-dark(oklch(92% 0 0), oklch(27% 0 0));
+    --frame: light-dark(oklch(21% 0 0), oklch(95% 0 0));
   }
 }
 

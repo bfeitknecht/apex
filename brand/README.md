@@ -28,9 +28,10 @@ One grey scale, `oklch(L 0 0)`, no hue.
 | `muted` | `oklch(47% 0 0)` `#5b5b5b` | `oklch(70% 0 0)` `#9e9e9e` | secondary text, rules |
 | `surface` | `oklch(92% 0 0)` `#e4e4e4` | `oklch(27% 0 0)` `#262626` | raised blocks, code |
 
-The blog (thyme's default theme), the gallery, the Forgejo theme `0xbf` and the
-authentik brand CSS use these values. 0xbf.ch itself (`ssg/styles.css`) still has
-its own, slightly wider steps (`99/18/52` light, `18/93/65` dark).
+0xbf.ch (`ssg/styles.css`: `--line` = `surface`, `--frame` = `fg`), the blog
+(thyme's default theme), the gallery, the Forgejo theme `0xbf` and the authentik
+brand CSS use these values. The app (the TUI and its web canvas) stays black and
+white on purpose: it is a terminal.
 
 ## Copies elsewhere
 

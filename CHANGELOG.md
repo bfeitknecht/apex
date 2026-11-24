@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.20] - 2026-11-24
+
+### Changed
+
+- The page uses the shared 0xbf palette of the blog and the gallery (`brand/palette.json`): light `96/21/47`, dark `17/95/70` (was `99/18/52` and `18/93/65`). Rules and frames follow its surface and text steps.
+
+### Added
+
+- `brand/`: the mark's Typst source (light and dark variant), SVGs, PNGs from 16 to 1024 px, `favicon.ico`, the palette as JSON and CSS. `just brand` renders them and replaces `just favicon`.
+
 ## [0.1.19] - 2026-11-24
 
 ### Changed
