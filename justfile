@@ -80,12 +80,13 @@ build: ssg
 
 # --------------------------------------------------------------------- assets
 
-# Render ssg/favicon.typ to ssg/assets/favicon.svg.
-favicon:
-    # The drawing uses CommitMono, which is in `assets/`. The page and the app
-    # share the result: the boot script replaces the page in place, so the
+# Render brand/ (mark SVGs and PNGs, favicon.ico, palette.css) from
+# brand/mark.typ and brand/palette.json; copies the favicon into ssg/assets.
+brand:
+    # The mark uses CommitMono, which is in `assets/`. The page and the app
+    # share the favicon: the boot script replaces the page in place, so the
     # document keeps its icon.
-    typst compile --format svg --font-path assets ssg/favicon.typ ssg/assets/favicon.svg
+    uv run brand/build.py
 
 # Rebuild assets/{unifont,noto}-cmap.bin from a Unicode 17 UnicodeData.txt.
 unicode data:

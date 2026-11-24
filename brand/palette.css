@@ -1,0 +1,8 @@
+/* The 0xbf palette. Generated from palette.json by `just brand`; edit the JSON. */
+:root {
+  color-scheme: light dark;
+  --bg: light-dark(oklch(96% 0 0), oklch(17% 0 0));
+  --fg: light-dark(oklch(21% 0 0), oklch(95% 0 0));
+  --muted: light-dark(oklch(47% 0 0), oklch(70% 0 0));
+  --surface: light-dark(oklch(92% 0 0), oklch(27% 0 0));
+}

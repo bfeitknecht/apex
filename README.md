@@ -60,9 +60,11 @@ ssg/                the page: Typst sources, stylesheet, favicon and webfonts
 browser/            the shell of the app: app.html (Trunk entry), boot.js,
                     app.css, cursor.js
 assets/             fonts, Unicode cmaps, licences
+brand/              the 0xbf mark (Typst source, SVG, PNGs, favicon.ico) and
+                    palette; every copy elsewhere is listed in brand/README.md
 sws.toml            server configuration for the document root
 justfile            every command: `serve`, `build`, `ssg`, `web`, `native`,
-                    `ssh`, `image`, `release`, `favicon` and `unicode`
+                    `ssh`, `image`, `release`, `brand` and `unicode`
 CHANGELOG.md        the release notes
 ```
 

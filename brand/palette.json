@@ -1,0 +1,47 @@
+{
+  "comment": "The 0xbf palette: one perceptual grey scale, oklch(L 0 0). Light and dark. Source of truth for glob (thyme default), exhib, Forgejo theme-0xbf, authentik brand CSS.",
+  "light": {
+    "bg": {
+      "oklch": "oklch(96% 0 0)",
+      "hex": "#f2f2f2",
+      "use": "paper"
+    },
+    "fg": {
+      "oklch": "oklch(21% 0 0)",
+      "hex": "#181818",
+      "use": "text"
+    },
+    "muted": {
+      "oklch": "oklch(47% 0 0)",
+      "hex": "#5b5b5b",
+      "use": "secondary text, rules"
+    },
+    "surface": {
+      "oklch": "oklch(92% 0 0)",
+      "hex": "#e4e4e4",
+      "use": "raised blocks, code"
+    }
+  },
+  "dark": {
+    "bg": {
+      "oklch": "oklch(17% 0 0)",
+      "hex": "#0f0f0f",
+      "use": "paper"
+    },
+    "fg": {
+      "oklch": "oklch(95% 0 0)",
+      "hex": "#eeeeee",
+      "use": "text"
+    },
+    "muted": {
+      "oklch": "oklch(70% 0 0)",
+      "hex": "#9e9e9e",
+      "use": "secondary text, rules"
+    },
+    "surface": {
+      "oklch": "oklch(27% 0 0)",
+      "hex": "#262626",
+      "use": "raised blocks, code"
+    }
+  }
+}
