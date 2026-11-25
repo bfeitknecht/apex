@@ -4,7 +4,6 @@
 #
 #   static-web-server   /            the static version (Typst) with the assets
 #                                    of the dynamic version (browser frontend)
-#                       /contact/    a content page
 #                       /age.txt /pgp.txt /cv.pdf
 #   apex-ssh            the dynamic version over SSH
 #

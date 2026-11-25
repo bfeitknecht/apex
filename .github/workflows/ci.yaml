@@ -101,7 +101,6 @@ jobs:
           test -f public/sitemap.xml
           test -f public/robots.txt
           test -f public/llms.txt
-          test -f public/contact/index.html
           test -f public/assets/favicon.svg
           test -f public/age.txt
           test -f public/pgp.txt
@@ -109,10 +108,10 @@ jobs:
           grep -q 'id="dynamic-shell"' public/index.html
           grep -q 'src="/boot.js"' public/index.html
           # The static version is unstyled on purpose: no stylesheet, no <style>.
-          ! grep -q -e 'rel="stylesheet"' -e '<style' public/index.html public/contact/index.html public/404.html
-          # Both ways between the versions: `dynamic` back to /, `static` in the dynamic one.
-          grep -q '<a href="/" title="The dynamic version of this site">dynamic</a>' public/index.html
-          # The top row is the three destinations, as plain links.
+          ! grep -q -e 'rel="stylesheet"' -e '<style' public/index.html public/404.html
+          # Both ways between the versions: a link back to / here, `</>` in the dynamic one.
+          grep -q '<a href="/" title="The dynamic version of this site">' public/index.html
+          # The three destinations.
           grep -q '>cv</a>' public/index.html
           grep -q '>blog</a>' public/index.html
           grep -q '>gallery</a>' public/index.html
@@ -129,7 +128,7 @@ jobs:
           projects = tomllib.loads(pathlib.Path("content/projects.toml").read_text())
           expected = [project["name"] for project in projects["project"]]
           html = pathlib.Path("public/index.html").read_text()
-          listed = re.findall(r"<li><a[^>]*>([^<]+)</a> \(", html)
+          listed = re.findall(r"<tr><td><b><a[^>]*>([^<]+)</a>", html)
           assert listed == expected, f"page lists {listed}, content has {expected}"
           print(len(listed), "projects, in content order:", " ".join(listed))
           CHECK

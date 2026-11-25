@@ -77,7 +77,7 @@ CHANGELOG.md        the release notes
 
 `https://0xbf.ch/?static` shows the static version in any browser: the boot
 script skips the dynamic one. The dynamic version's footer links to it
-(`static`), and the static version's footer links back (`dynamic`). Locally,
+(`</>`), and the static version's footer links back. Locally,
 `just serve --static` builds `static/` and serves only the static version on
 `:8080`.
 

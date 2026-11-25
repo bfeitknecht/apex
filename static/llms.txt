@@ -6,8 +6,7 @@ The site is one URL with two versions and one set of content. The static version
 
 ## Pages
 
-- [Home](https://0xbf.ch/): Introduction, about, the selected projects with dates, and the contact list.
-- [Contact](https://0xbf.ch/contact/): Email addresses, GitHub, LinkedIn, and the public keys for encrypted mail.
+- [Home](https://0xbf.ch/): A short hello, the projects with dates, the contact links and the public keys.
 - [CV](https://0xbf.ch/cv): The curriculum vitae as PDF.
 
 ## Projects

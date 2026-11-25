@@ -1,19 +1,46 @@
-// The static version of 0xbf.ch: plain HTML, the browser's own styles, no
-// stylesheet, no webfont. Typst writes every file with its bundle export
-// (`document` and `asset`); no package is involved.
+// The static version of 0xbf.ch: raw HTML. No stylesheet, no style attribute,
+// no webfont: everything bold or loud is an HTML element the browser already
+// knows (h1, mark, marquee, table border, details). Typst writes every file
+// with its bundle export (`document` and `asset`); no package is involved.
 //
 //   typst compile --features html,bundle --format bundle --root . static/site.typ public
+//
+// It is its own thing: only the projects, the keys and the links come from
+// `content/` (config.typ). The words below are the static version's own.
 //
 // It is also the shell of the dynamic version: `boot.js` in the head replaces
 // it with the dynamic version (browser frontend, WebAssembly) when the browser
 // can run that, unless the URL has `?static`. The hidden `#dynamic-shell` at
 // the end of `/` holds the elements the dynamic version draws on.
 
-#import "config.typ": origin, profile, projects, age, destination, contact, flow, joined, footer
+#import "config.typ": origin, projects, age, pgp, destinations, contacts, ring
 
-/// One HTML file. `path` is the public path without the leading slash and
-/// `index.html` (`""` is the root). The head holds what a reader or a
-/// crawler needs and nothing for looks.
+// ---- the words of the static version (edit freely) ---------------------------
+
+#let words = (
+  title: "basil feitknecht",
+  description: "basil feitknecht. computer science at eth zürich, projects, links and keys.",
+  ticker: "~~~ grüezi and welcome ~~~ you found the static version ~~~ no css, no javascript, just html ~~~ thanks for stopping by ~~~",
+  ticker-back: "under construction since 2026 ~~~ under construction forever ~~~",
+  name: "basil feitknecht",
+  hello: [*hi, i'm basil.* i study computer science at eth zürich and take things apart to see how they work. sometimes they even go back together.],
+  tagline: "young, curious and full of ~~~semicolons~~~",
+  projects: "things i made (some of them even work)",
+  elsewhere: "where else i lurk",
+  keys: "secret handshakes",
+  age: "age, for the modern spy",
+  pgp: "pgp, for the vintage spy",
+  ring: [this site is part of polyring, the eth zürich webring. hop to the],
+  dynamic: "too plain? try the dynamic version",
+  colophon: "made by hand with typst. no css was harmed.",
+  not-found: "this page wandered off.",
+)
+
+// ---- page shell ----------------------------------------------------------------
+
+/// One HTML file. `path` is the public path without the leading slash (`""` is
+/// the root), or none (404). The head holds what a reader or a crawler needs
+/// and nothing for looks.
 #let page(path, file, title: none, description: none, boot: false, body) = document(
   file,
   html.html(lang: "en", {
@@ -22,9 +49,8 @@
       html.meta(name: "viewport", content: "width=device-width, initial-scale=1")
       html.title(title)
       if description != none {
-        html.meta(name: "description", content: flow(description))
+        html.meta(name: "description", content: description)
       }
-      html.meta(name: "author", content: profile.name)
       if path != none {
         html.link(rel: "canonical", href: origin + "/" + path)
       }
@@ -37,7 +63,29 @@
   }),
 )
 
-// ---- / ----------------------------------------------------------------------
+#let link(url, label) = if url == "" { label } else { html.a(href: url, label) }
+
+#let footer = {
+  html.hr()
+  html.p({
+    words.ring
+    " "
+    html.a(href: ring.previous, title: "Previous site in Polyring", "previous one")
+    ", the "
+    html.a(href: ring.hub, title: "Polyring, the ETH Zurich webring", "ring itself")
+    " or the "
+    html.a(href: ring.next, title: "Next site in Polyring", "next one")
+    "."
+  })
+  html.p(html.b(html.a(href: "/", title: "The dynamic version of this site", words.dynamic)))
+  html.p(html.small({
+    words.colophon
+    " "
+    html.a(href: "/sitemap.xml", "sitemap")
+  }))
+}
+
+// ---- / ---------------------------------------------------------------------------
 
 // The colony canvas in the light scheme: a tone map `dynamic.css` refers to.
 // The SVG names are camelCase (`feFuncR`) and have no typed constructor.
@@ -56,37 +104,48 @@
   )),
 )
 
-#page("", "index.html", title: profile.site_title, description: profile.site_description, boot: true, {
-  html.h1(profile.name)
-  html.p({
-    profile.eyebrow + "! "
-    flow(profile.lede)
-  })
-  html.p(joined(profile.link.map(row => html.a(href: row.url, row.label))))
+#page("", "index.html", title: words.title, description: words.description, boot: true, {
+  html.elem("marquee", attrs: (scrollamount: "8"), html.b(words.ticker))
+  html.h1(html.elem("big", words.name))
+  // The mark, bouncing from wall to wall.
+  html.elem(
+    "marquee",
+    attrs: (behavior: "alternate", scrollamount: "4"),
+    html.img(src: "/assets/favicon.svg", width: 48, height: 48, alt: "the ^@ mark of 0xbf"),
+  )
+  html.p(words.hello)
+  html.p(html.i(words.tagline))
+  // The destinations, loud: they are why most people come here.
+  html.h2(destinations.map(row => html.mark(link(row.url, row.label))).join(" ~ "))
 
-  html.h2("about")
-  html.p(flow(profile.about))
-
-  html.h2("projects")
-  // The order of `content/projects.toml`, which both versions share.
-  html.ul(for project in projects {
-    html.li({
-      if project.url == "" { project.name } else { html.a(href: project.url, project.name) }
-      " (" + project.period + "): "
-      flow(project.description)
-    })
+  html.h2(words.projects)
+  // The shared order of `content/projects.toml`.
+  html.elem("table", attrs: (border: "1", cellpadding: "6", cellspacing: "0"), {
+    for project in projects {
+      html.tr({
+        html.td(html.b(link(project.url, project.name)))
+        html.td(project.period)
+        html.td(project.description)
+      })
+    }
   })
 
-  html.h2("contact")
-  // A row without a url (`tangled`) is text, not a dead link.
-  html.p(joined(profile.contact.map(row => {
-    if row.url == "" { row.label } else { html.a(href: row.url, row.label) }
-  })))
-  html.p({
-    "Keys and more: "
-    html.a(href: "/contact/", "contact")
-    "."
+  html.h2(words.elsewhere)
+  html.ul(for row in contacts { html.li(link(row.url, row.label)) })
+
+  html.h2(words.keys)
+  html.details({
+    html.summary(words.age)
+    html.pre(age)
+    html.p(html.a(href: "/age.txt", "age.txt"))
   })
+  html.details({
+    html.summary(words.pgp)
+    html.pre(pgp)
+    html.p(html.a(href: "/pgp.txt", "pgp.txt"))
+  })
+
+  html.elem("marquee", attrs: (direction: "right", scrollamount: "5"), html.small(words.ticker-back))
 
   footer
 
@@ -101,65 +160,28 @@
   })
 })
 
-// ---- /contact/ ----------------------------------------------------------------
+// ---- /404.html ---------------------------------------------------------------------
 
-#page(
-  "contact/",
-  "contact/index.html",
-  title: "Contact · " + profile.name,
-  description: "Email, socials, and public keys of " + profile.name + ".",
-  {
-    html.p(html.a(href: "/", "← " + profile.name))
-    html.h1("contact")
-    html.p({
-      "Mail: "
-      html.a(href: "mailto:bfeitknecht@ethz.ch", "bfeitknecht@ethz.ch")
-      " or "
-      html.a(href: "mailto:" + profile.email, profile.email_label)
-      ". Also on "
-      html.a(href: contact("github"), "github")
-      " and "
-      html.a(href: contact("linkedin"), "linkedin")
-      "; my cv is at "
-      html.a(href: destination("cv"), "/cv")
-      "."
-    })
-    html.h2("keys")
-    html.p({
-      "Encrypt to my "
-      html.a(href: "/age.txt", "age recipient")
-      " or my "
-      html.a(href: "/pgp.txt", "PGP key")
-      ":"
-    })
-    html.pre(age)
-    footer
-  },
-)
-
-// ---- /404.html ------------------------------------------------------------------
-
-#page(none, "404.html", title: "404 · " + profile.name, {
-  html.h1("404")
+#page(none, "404.html", title: "404 · " + words.title, {
+  html.elem("marquee", attrs: (scrollamount: "12"), html.b("404 ~~~ 404 ~~~ 404 ~~~ 404 ~~~ 404"))
+  html.h1(html.elem("big", "404"))
   html.p({
-    "No such page. "
-    html.a(href: "/", "Back to /")
-    "."
+    words.not-found
+    " "
+    html.mark(html.a(href: "/", "go home"))
   })
 })
 
-// ---- plain files ------------------------------------------------------------------
+// ---- plain files ---------------------------------------------------------------------
 
-#let _pages = ("", "contact/")
 #asset("sitemap.xml", {
   "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
   "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n"
-  for p in _pages { "  <url><loc>" + origin + "/" + p + "</loc></url>\n" }
+  "  <url><loc>" + origin + "/</loc></url>\n"
   "</urlset>\n"
 })
 #asset("robots.txt", read("robots.txt"))
-// Written by hand (https://llmstxt.org): update it when a page or a project
-// changes.
+// Written by hand (https://llmstxt.org): update it when the site changes.
 #asset("llms.txt", read("llms.txt"))
 // The keys people copy and the CV: data, with `content/` as the source.
 #asset("age.txt", read("../content/age.txt", encoding: none))

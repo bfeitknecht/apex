@@ -7,7 +7,6 @@
 # host.
 #
 #   /                  the static version (Typst) + the dynamic version's assets
-#   /contact/          a content page of the static version
 #   /age.txt /pgp.txt  plain files, emitted by the static build
 #   /cv                → /cv.pdf (rewrite below)
 #   /404.html          the 404 of the static version

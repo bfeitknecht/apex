@@ -315,9 +315,9 @@ const FOOTER_TIERS: [(&str, &str, &str, &str); 3] = [
 ];
 
 /// The footer on one line:
-/// `age.txt | pgp.txt | << O >> | made with <3 by me. | static | ?!`.
-/// `<<` and `>>` are the Polyring neighbours, `O` its hub, `static` the plain
-/// HTML version of the site, `?!` the help.
+/// `age.txt | pgp.txt | << O >> | made with <3 by me. | </> | ?!`.
+/// `<<` and `>>` are the Polyring neighbours, `O` its hub, `</>` the static
+/// version of the site (plain HTML), `?!` the help.
 fn footer_lines(width: usize) -> Footer {
     let mut footer = Footer {
         lines: Vec::new(),
@@ -354,10 +354,7 @@ fn footer_line(age: &'static str, pgp: &'static str, made: &'static str, gap: &s
             ],
             "",
         ),
-        (
-            vec![("static", content::STATIC_URL, LinkKind::External)],
-            "",
-        ),
+        (vec![("</>", content::STATIC_URL, LinkKind::External)], ""),
         (vec![("?!", "", LinkKind::Help)], ""),
     ];
     let mut line = String::new();

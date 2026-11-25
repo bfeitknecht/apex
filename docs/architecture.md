@@ -185,13 +185,16 @@ the selection is one rect per row, snapped to whole cells.
 
 `static/` is plain Typst. Its bundle export writes every file with the two
 built-in functions `document(path, …)` and `asset(path, data)`; no package is
-involved. It is unstyled on purpose: no stylesheet, no webfont, no inline
-style, the browser's own defaults (serif text, blue links), like the early web.
+involved. It is raw HTML on purpose: no stylesheet, no style attribute, no
+webfont. Everything loud is an element the browser already knows (`h1`,
+`mark`, `marquee`, a bordered `table`, `details`), like the early web. It is
+its own thing: only the projects, the keys and the links come from `content/`
+(`static/config.typ`); its words are in `static/site.typ`.
 It is the document at `https://0xbf.ch/`, not a fallback behind a separate URL.
 A browser that can run WebAssembly replaces it in place with the dynamic
 version (see above), unless the URL has `?static`. All other browsers read it
-as it is. Its footer links to the dynamic version (`dynamic`, `/`), and the
-dynamic version's footer links back (`static`, `/?static`).
+as it is. Its footer links to the dynamic version (`/`), and the dynamic
+version's footer links back (`</>`, `/?static`).
 
 ### One document root
 
@@ -200,7 +203,6 @@ The container serves one tree with one URL space:
 ```text
 public/
 ├── index.html                     static (and boot.js, which may swap in dynamic)
-├── contact/index.html             a content page
 ├── 404.html, sitemap.xml, robots.txt, llms.txt
 ├── assets/favicon.svg, favicon.ico, apple-touch-icon.png
 ├── age.txt, pgp.txt, cv.pdf       emitted by the same build, from content/
@@ -222,30 +224,26 @@ hash, because a different toolchain builds the static version that loads them. `
 
 ### Content
 
-`content/` is the only definition and both toolchains read it:
+`content/` holds what both versions share: the projects, the keys and the
+links. Everything else is each version's own: the dynamic version's words are
+in `content/profile.toml` (and `src/`), the static version's in
+`static/site.typ`.
 
-| File | Rust | Typst |
+| File | Dynamic (Rust) | Static (Typst) |
 | --- | --- | --- |
-| `content/profile.toml` | `include_str!` + `toml` → `content::profile()` | `toml("../content/profile.toml")` |
-| `content/projects.toml` | same → `profile().projects` | `toml("../content/projects.toml").project` |
-| `content/age.txt`, `pgp.txt`, `cv.pdf` | embedded / linked | emitted with `#asset(…)` |
+| `content/projects.toml` | `include_str!` + `toml` | `toml(..).project`: the projects table |
+| `content/profile.toml` | all of it: words, links, contacts | only `link` and `contact` |
+| `content/polyring.toml` | `<< O >>` in the footer | a sentence in the footer |
+| `content/age.txt`, `pgp.txt`, `cv.pdf` | embedded / linked | shown in `<details>`, emitted with `#asset(…)` |
 | `content/portrait.txt` | the `me` document | – |
+
+`static/config.typ` reads exactly these shared parts (`projects`, `age`,
+`pgp`, `destinations`, `contacts`, `ring`) and nothing else.
 
 `static/llms.txt` is written by hand, as in glob. It follows
 [llmstxt.org](https://llmstxt.org). `static/robots.txt` points a crawler at the
 sitemap. `site.typ` copies both into the bundle root with `#asset`. No build
 step generates them, so update `llms.txt` when `projects.toml` changes.
-
-`static/config.typ` is the Typst side of this contract. It parses the TOML and
-exposes `destination("cv")`, `contact("github")`, `age`, `flow` (a TOML text
-block as one paragraph), `joined` and `footer`, so no page repeats a URL.
-
-The static version renders projects from data in `static/site.typ`, one list item each:
-the name as a link, the period and the description.
-
-The dynamic version prints `summary` on one line. The static one prints `description` and
-`period`. Both show the same entry, and the difference is typography, not a
-second copy.
 
 ### Build
 
@@ -307,14 +305,14 @@ Before a release that changes the look or the build, by hand:
       Trunk also has the name `index.html`.
 - Run `just serve` and open `http://localhost:8080/`. The static version loads
       and the console shows `/apex.js`; then the dynamic version replaces it.
-      `static` in its footer goes to `/?static` in the same tab, and `dynamic`
-      there goes back. Block WebAssembly (`delete window.WebAssembly` in the
+      `</>` in its footer goes to `/?static` in the same tab, and the static
+      version's link to the dynamic one goes back. Block WebAssembly (`delete window.WebAssembly` in the
       console) and reload: the static version must stay.
-- Run `just static` alone. `public/index.html`, `contact/`,
+- Run `just static` alone. `public/index.html`,
       `404.html`, `sitemap.xml`, `robots.txt`, `llms.txt`, `age.txt`, `pgp.txt`
       and `cv.pdf` must exist, and `grep dynamic-shell public/index.html` must
       match.
 - Disable JavaScript and reload. The static version must not change, `/cv`
-      must work and the contact page must render. There must be no redirect.
+      must work. There must be no redirect.
 - Test touch, keyboard and selection in the dynamic version. Test lichen, Unicode,
       fractal and crash.
