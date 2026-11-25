@@ -167,9 +167,12 @@ serve *flags:
     esac
     # The `/cv` rewrite, the 404 page and the headers are the ones that ship.
     # PORT picks the local port (default 8080): `PORT=8090 just serve --static`.
+    # IPv4 loopback only: Docker on macOS publishes [::] but does not pass IPv6
+    # to the container, so `localhost` (::1 first) would hang. Bound to
+    # 127.0.0.1, ::1 is refused at once and the browser falls back to IPv4.
     port="${PORT:-8080}"
-    echo "serving on http://localhost:${port}/"
-    docker run --rm -p "${port}:8080" \
+    echo "serving on http://127.0.0.1:${port}/"
+    docker run --rm -p "127.0.0.1:${port}:8080" \
         -v "{{justfile_directory()}}/public:/public" \
         -v "{{justfile_directory()}}/sws.toml:/sws.toml:ro" \
         -e SERVER_HOST=0.0.0.0 -e SERVER_PORT=8080 -e SERVER_ROOT=/public \
@@ -186,7 +189,7 @@ image *args:
     docker build -t ghcr.io/bfeitknecht/apex:dev .
     case " {{args}} " in
         *" --run "*)
-            docker run --rm -p 8080:8080 -p 2222:2222 \
+            docker run --rm -p 127.0.0.1:8080:8080 -p 127.0.0.1:2222:2222 \
                 -e APEX_SSH_HOST_KEY=/run/secrets/apex_ssh_host_key \
                 -v "${PWD}/.private/ssh_host_ed25519_key:/run/secrets/apex_ssh_host_key:ro" \
                 ghcr.io/bfeitknecht/apex:dev
