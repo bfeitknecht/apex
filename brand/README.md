@@ -16,7 +16,7 @@ generated: edit `mark.typ` or `palette.json`, then run `just brand`.
 | `favicon.ico` | 16, 32, 48, 64 px, light variant |
 | `palette.css` | the palette as `light-dark()` custom properties |
 
-`just brand` also copies `mark.svg` and `favicon.ico` to `ssg/assets/favicon.{svg,ico}`,
+`just brand` also copies `mark.svg` and `favicon.ico` to `static/assets/favicon.{svg,ico}`,
 which 0xbf.ch serves at `/assets/favicon.svg`.
 
 ## Palette
@@ -30,9 +30,9 @@ One grey scale, `oklch(L 0 0)`, no hue.
 | `muted` | `oklch(47% 0 0)` `#5b5b5b` | `oklch(70% 0 0)` `#9e9e9e` | secondary text, rules |
 | `surface` | `oklch(92% 0 0)` `#e4e4e4` | `oklch(27% 0 0)` `#262626` | raised blocks, code |
 
-0xbf.ch (`ssg/styles.css`: `--line` = `surface`, `--frame` = `fg`), the blog
-(thyme's default theme), the gallery, the Forgejo theme `0xbf` and the authentik
-brand CSS use these values. The app (the TUI and its web canvas) stays black and
+The blog (thyme's default theme), the gallery, the Forgejo theme `0xbf` and the
+authentik brand CSS use these values. 0xbf.ch does not: its static version has
+no CSS (the browser's own styles), and its dynamic version stays black and
 white on purpose: it is a terminal.
 
 ## Copies elsewhere

@@ -58,20 +58,20 @@ jobs:
         run: |
           set -eu
           trunk build --release
-          # The names are stable (`filehash = false`), because the page comes from
+          # The names are stable (`filehash = false`), because the static version comes from
           # Typst and already refers to them.
           test -f dist/apex.js
           test -f dist/apex_bg.wasm
           test -f dist/boot.js
-          test -f dist/app.css
+          test -f dist/dynamic.css
           test -f dist/cursor.js
-          # Flat in the document root, where the bare @font-face URLs of app.css
+          # Flat in the document root, where the bare @font-face URLs of dynamic.css
           # look for them.
           test -f dist/NotoSansKhmer-Regular.ttf
           test -f dist/Unifont-17.0.05.otf
           test -f dist/UNICODE-LICENSE.txt
 
-  ssg:
+  static:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -81,16 +81,16 @@ jobs:
           docker run --rm -v "$PWD:/work" -w /work \
             ghcr.io/typst/typst:0.15.1 \
             compile --features html,bundle --format bundle \
-            --root . ssg/site.typ public 2>&1 | tee ssg.log
+            --root . static/site.typ public 2>&1 | tee static.log
       - name: Report the build errors
         if: failure()
         # The job log lives in storage that some clients cannot read.
         # Annotations are readable through the API, so repeat the error lines here.
         run: |
-          grep -a -i "error" ssg.log 2>/dev/null | head -12 | while IFS= read -r line; do
+          grep -a -i "error" static.log 2>/dev/null | head -12 | while IFS= read -r line; do
             echo "::error::${line//%/%25}"
           done
-          tail -n 12 ssg.log 2>/dev/null | while IFS= read -r line; do
+          tail -n 12 static.log 2>/dev/null | while IFS= read -r line; do
             echo "::error::${line//%/%25}"
           done
       - name: Bundle looks right
@@ -106,20 +106,20 @@ jobs:
           test -f public/age.txt
           test -f public/pgp.txt
           test -f public/cv.pdf
-          grep -q 'id="app-shell"' public/index.html
+          grep -q 'id="dynamic-shell"' public/index.html
           grep -q 'src="/boot.js"' public/index.html
-          # The page is unstyled on purpose: no stylesheet, no <style>.
+          # The static version is unstyled on purpose: no stylesheet, no <style>.
           ! grep -q -e 'rel="stylesheet"' -e '<style' public/index.html public/contact/index.html public/404.html
-          # Both ways between the surfaces: `app` back to /, `static` in the app.
-          grep -q '<a href="/" title="The terminal version of this site">app</a>' public/index.html
+          # Both ways between the versions: `dynamic` back to /, `static` in the dynamic one.
+          grep -q '<a href="/" title="The dynamic version of this site">dynamic</a>' public/index.html
           # The top row is the three destinations, as plain links.
           grep -q '>cv</a>' public/index.html
           grep -q '>blog</a>' public/index.html
           grep -q '>gallery</a>' public/index.html
           # The CV is emitted byte for byte, not re-encoded.
           cmp content/cv.pdf public/cv.pdf
-      - name: The page lists what the terminal lists
-        # Both surfaces read `content/projects.toml` at build time. This check
+      - name: The static version lists what the dynamic one lists
+        # Both versions read `content/projects.toml` at build time. This check
         # compares the rendered order with the file, so a renderer that sorts,
         # drops or duplicates an entry fails the build.
         run: |

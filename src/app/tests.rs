@@ -348,7 +348,7 @@ fn terminal_links_are_osc8_hyperlinks() {
     let footer = terminal_bytes(&app, width, height);
     assert!(footer.contains(&osc8("https://0xbf.ch/age.txt", "age.txt")));
     assert!(footer.contains(&osc8("https://0xbf.ch/pgp.txt", "pgp.txt")));
-    // The static page: `?static` keeps the plain HTML version in a browser.
+    // The static version: `?static` keeps it in a browser.
     assert!(footer.contains(&osc8("https://0xbf.ch/?static", "static")));
     // `me.` has no URL, so it gets no link.
     assert!(!footer.contains("\x1b\\me"));

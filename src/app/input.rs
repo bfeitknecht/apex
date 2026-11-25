@@ -1,6 +1,6 @@
 //! Input handling: character keys, pointer hit testing and link activation.
 //!
-//! Keys that do not depend on the surface arrive here as characters. Each
+//! Keys that do not depend on the frontend arrive here as characters. Each
 //! frontend first decodes its own device events: the terminal maps crossterm key
 //! codes, SSH parses the byte stream and the browser reads DOM events.
 

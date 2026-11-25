@@ -2,15 +2,16 @@
 #
 # One image, one document root and two entrypoints:
 #
-#   static-web-server   /            the page (Typst) with the assets of the app
+#   static-web-server   /            the static version (Typst) with the assets
+#                                    of the dynamic version (browser frontend)
 #                       /contact/    a content page
 #                       /age.txt /pgp.txt /cv.pdf
-#   apex-ssh            the same portfolio over SSH
+#   apex-ssh            the dynamic version over SSH
 #
 # Both entrypoints use this image, so one tag updates the whole site.
 
-# ---------- the app: wasm32 + Trunk ----------
-FROM --platform=$BUILDPLATFORM rust:1-bookworm AS app
+# ---------- dynamic, browser frontend: wasm32 + Trunk ----------
+FROM --platform=$BUILDPLATFORM rust:1-bookworm AS dynamic
 
 # Trunk downloads the matching wasm-bindgen CLI on the first build.
 RUN apt-get update \
@@ -26,17 +27,18 @@ COPY content ./content
 COPY assets ./assets
 COPY browser ./browser
 COPY Trunk.toml ./
-# Assets only. The `ssg` stage below builds the document that visitors get.
+# Assets of the dynamic version only. The `static` stage below builds the
+# document that visitors get.
 RUN trunk build --release --dist /dist --public-url /
 
-# ---------- the page: Typst (bundle export, no package) ----------
-FROM --platform=$BUILDPLATFORM ghcr.io/typst/typst:0.15.1 AS ssg
+# ---------- static: Typst (bundle export, no package) ----------
+FROM --platform=$BUILDPLATFORM ghcr.io/typst/typst:0.15.1 AS static
 
 WORKDIR /work
 COPY content ./content
-COPY ssg ./ssg
+COPY static ./static
 
-RUN typst compile --features html,bundle --format bundle --root . ssg/site.typ /public
+RUN typst compile --features html,bundle --format bundle --root . static/site.typ /public
 
 # ---------- the SSH frontend: static musl binary ----------
 # This is the target platform, not the build platform. The binary runs on the
@@ -58,13 +60,14 @@ FROM joseluisq/static-web-server:2.44.1-alpine AS runtime
 # A binary called `ssh` would hide the OpenSSH client in a debugging shell. The
 # image therefore installs it as `apex-ssh`.
 COPY --from=ssh /work/target/release/ssh /usr/local/bin/apex-ssh
-# The assets of the app come first, and the page goes over them. Trunk renames
-# its entry document to `index.html`, so a later copy of `dist` would replace the
-# page with the stub of Trunk. This order makes the page the document and leaves
-# the app as `apex.js`, `apex_bg.wasm`, `app.css`, `boot.js`, `cursor.js` and the
-# fonts that the page already refers to by name.
-COPY --from=app /dist /public
-COPY --from=ssg /public /public
+# The assets of the dynamic version come first, and the static version goes over
+# them. Trunk renames its entry document to `index.html`, so a later copy of
+# `dist` would replace the static version with the stub of Trunk. This order
+# makes the static version the document and leaves the dynamic version as
+# `apex.js`, `apex_bg.wasm`, `dynamic.css`, `boot.js`, `cursor.js` and the fonts
+# that it refers to by name.
+COPY --from=dynamic /dist /public
+COPY --from=static /public /public
 COPY sws.toml /sws.toml
 
 ENV SERVER_HOST=0.0.0.0 \

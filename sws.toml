@@ -1,22 +1,21 @@
 # static-web-server configuration for 0xbf.ch.
 #
 # One document root and one URL space. The browser decides what a visitor gets
-# at a path, not the path itself. `/` is the static page, and its boot script
-# replaces the page with the WebAssembly app when the browser can run it. The
-# site has no /tui, no /static and no second host.
+# at a path, not the path itself. `/` is the static version, and its boot script
+# replaces it with the dynamic version when the browser can run WebAssembly
+# (`/?static` keeps the static one). The site has no second path and no second
+# host.
 #
-#   /                  the page (Typst) + the app's assets, same document root
-#   /contact/          a content page
-#   /age.txt /pgp.txt  plain files, emitted by the page build
+#   /                  the static version (Typst) + the dynamic version's assets
+#   /contact/          a content page of the static version
+#   /age.txt /pgp.txt  plain files, emitted by the static build
 #   /cv                → /cv.pdf (rewrite below)
-#   /404.html          the static site's 404
-#
-# The app is a single page, so the paths stay simple.
+#   /404.html          the 404 of the static version
 
 [advanced]
 
 [[advanced.headers]]
-# No asset name contains a content hash, because the page and the app come from
+# No asset name contains a content hash, because the static and the dynamic version come from
 # different toolchains and must agree on the names. All files therefore
 # revalidate: the server sends cheap 304 responses and never a stale shell.
 source = "**"

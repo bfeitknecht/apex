@@ -1,40 +1,46 @@
 # Apex
 
-The personal site at `0xbf.ch`. One URL, three surfaces and one set of content.
+The personal site at `0xbf.ch`. One URL, two versions and one set of content:
+
+- **static**: plain HTML without CSS, built by Typst from `static/`.
+- **dynamic**: a Ratatui program (`src/`) with three frontends: browser,
+  ssh and native.
 
 | Visitor | Gets | Served by |
 | --- | --- | --- |
-| modern browser, `https://0xbf.ch/` | the app, drawn by Ratzilla | `src/frontends/web` |
-| old browser, JavaScript off, or `/?static` | the plain HTML page (no CSS) | `ssg/` (Typst) |
-| terminal, `ssh -p 2222 0xbf.ch` | the same app over SSH | `src/frontends/ssh` |
-| your own terminal | the same app natively | `src/frontends/native` |
+| modern browser, `https://0xbf.ch/` | dynamic, browser frontend (Ratzilla, WebAssembly) | `src/frontends/browser` |
+| old browser, JavaScript off, or `/?static` | static | `static/` (Typst) |
+| terminal, `ssh -p 2222 0xbf.ch` | dynamic, ssh frontend | `src/frontends/ssh` |
+| your own terminal, `just native` | dynamic, native frontend | `src/frontends/native` |
 
-**One URL.** `/` returns one document. Typst builds the page. A boot script
-replaces the page with the WebAssembly app if the browser can run it. The site
-has no `/tui`, no `/static` and no second hostname. All other paths hold content.
+**One URL.** `/` returns one document: the static version. A boot script
+replaces it with the dynamic version if the browser can run WebAssembly. The
+site has no second path and no second hostname. All other paths hold content.
 
-Every surface shows the same items: introduction, projects, contacts, public
-keys and a hidden menu of four visuals (Unicode specimens, a lichen colony, a
-quaternion Julia explorer and an EGA framebuffer sweep).
+Both versions show the same items: introduction, projects, contacts and public
+keys. The dynamic version also has a hidden menu of four visuals (Unicode
+specimens, a lichen colony, a quaternion Julia explorer and an EGA framebuffer
+sweep).
 
 `/robots.txt` points a crawler at the sitemap. `/llms.txt` describes the site to
 a language model ([llmstxt.org](https://llmstxt.org)). Edit
-`ssg/llms.txt` by hand when a page or a project changes.
+`static/llms.txt` by hand when a page or a project changes.
 
 ## Quick start
 
 ```sh
 just                 # list the recipes
-just serve           # build the page and the frontend, then serve :8080
-just serve --static  # the plain page only (no app); PORT=8090 for another port
-just serve --app     # rebuild only the app over the page (TUI work)
-just native          # terminal portfolio
-just ssh             # SSH server on 0.0.0.0:2222 (needs APEX_SSH_HOST_KEY)
+just serve           # build both versions, then serve :8080 (PORT=8090 for another port)
+just serve --static  # the static version only
+just serve --dynamic # rebuild only the browser frontend over the static version
+just native          # the dynamic version in this terminal
+just ssh             # the dynamic version over SSH on 0.0.0.0:2222 (needs APEX_SSH_HOST_KEY)
 just check           # clippy, tests, wasm32 build
 ```
 
 `just serve` builds the whole site, then serves it. The build has two parts.
-Typst builds the page and Trunk builds the frontend, and both write into one
+Typst builds the static version and Trunk builds the browser frontend of the
+dynamic version, and both write into one
 document root. The server is the same `static-web-server` with the same
 `sws.toml` as the container: it rewrites `/cv`, it answers unknown paths with
 the 404 page of the site, and it sends the same headers. This step needs Docker.
@@ -48,36 +54,37 @@ target, `typst >= 0.15.1`, `just` and `python3`.
 ```text
 content/            the content of the site: profile.toml, projects.toml,
                     age.txt, pgp.txt, cv.pdf, portrait.txt
-src/                the app (see docs/architecture.md)
+src/                the dynamic version (see docs/architecture.md)
   content.rs        reads content/ once and freezes it to &'static
   app/              state machine: view, scroll, keys, pointer, tick
   ui/               rendering: &App → cells, hit ranges
   visuals/          simulations: lichen, unicode, fractal, crash
-  frontends/        native, ssh, web
-ssg/                the page: Typst sources (no stylesheet) and the favicon
-                    (docs/architecture.md)
-browser/            the shell of the app: app.html (Trunk entry), boot.js,
-                    app.css, cursor.js
+  frontends/        browser, ssh, native
+static/             the static version: Typst sources (no stylesheet) and the
+                    favicon (docs/architecture.md)
+browser/            the shell of the dynamic version in the browser:
+                    dynamic.html (Trunk entry), boot.js, dynamic.css, cursor.js
 assets/             fonts, Unicode cmaps, licences
 brand/              the 0xbf mark (Typst source, SVG, PNGs, favicon.ico) and
                     palette; every copy elsewhere is listed in brand/README.md
 sws.toml            server configuration for the document root
-justfile            every command: `serve`, `build`, `ssg`, `web`, `native`,
+justfile            every command: `serve`, `build`, `static`, `browser`, `native`,
                     `ssh`, `image`, `release`, `brand` and `unicode`
 CHANGELOG.md        the release notes
 ```
 
-## Static page
+## Static and dynamic
 
-`https://0xbf.ch/?static` shows the plain page in any browser: the boot script
-skips the app. The app's footer links to it (`static`), and the page's footer
-links back (`app`). Locally, `just serve --static` builds `ssg/` and serves only the
-page on `:8080`.
+`https://0xbf.ch/?static` shows the static version in any browser: the boot
+script skips the dynamic one. The dynamic version's footer links to it
+(`static`), and the static version's footer links back (`dynamic`). Locally,
+`just serve --static` builds `static/` and serves only the static version on
+`:8080`.
 
 ## Polyring
 
 The footer carries the Polyring webring (`<< O >>`: previous, hub, next) in the
-terminal, the SSH session and the page. The ring has no redirect service, so
+dynamic version (every frontend) and the static one. The ring has no redirect service, so
 `content/polyring.toml` holds the two neighbours. Refresh them with
 `just polyring` (it reads the ring's own `embed.js`) and release.
 
@@ -99,7 +106,7 @@ then build the image and publish the GitHub release.
 
 ## Documentation
 
-- `docs/architecture.md`: the layers, the one-URL model, the rendering split, navigation and input, the page (`ssg/`), and the checks CI cannot do.
+- `docs/architecture.md`: the layers, the one-URL model, the rendering split, navigation and input, the static version (`static/`), and the checks CI cannot do.
 
 ## The SSH portfolio
 
@@ -184,16 +191,17 @@ checks this on every push. The first `cargo fmt`, `clippy` and build ran in
 Actions, because the sandbox where the code was written can reach GitHub, PyPI
 and npm but not `static.rust-lang.org` or `crates.io`. `CI` runs formatting,
 lints, tests, the `wasm32` check, `trunk build --release` with assertions on the
-file names that the page refers to, and the Typst bundle with assertions on its
+file names that the static version refers to, and the Typst bundle with assertions on its
 content.
 
 CI cannot check the work that needs a person: the interface at 80×24, the fonts
 in a real browser, the SSH handshake and the image. That list is in
 `docs/architecture.md`, "Checks CI cannot do".
 
-Names: `ssg/` holds the input of the static site generator (Typst sources, the
-stylesheet, the favicon and the webfonts). `browser/` holds
-the shell of the app (`app.html` for Trunk, `boot.js` which replaces the page
-with the app, `app.css`, `cursor.js`). The names describe the toolchains, not a
-neutral concept: `ssg/` names the toolchain that produces the document,
-`browser/` names the surface that starts the app.
+Names: two versions, **static** and **dynamic**, and no other word for them.
+`static/` holds the static version (Typst sources, the favicon). `src/` is the
+dynamic version; its frontends are **browser**, **ssh** and **native**
+(`src/frontends/`). `browser/` holds the browser frontend's shell
+(`dynamic.html` for Trunk, `boot.js` which swaps the static version for the
+dynamic one, `dynamic.css`, `cursor.js`). The Rust type `App` is the dynamic
+version's state machine, not a third name.

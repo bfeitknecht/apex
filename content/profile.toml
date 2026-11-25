@@ -1,9 +1,9 @@
 # The definition of who this site is about.
 #
-# The Rust core reads this file at build time (`src/content.rs`) and the Typst
-# build reads it too (`ssg/site.typ`). No other file holds a copy of these facts.
-# A changed link here reaches the terminal, the SSH session, the browser app and
-# the page without JavaScript.
+# The dynamic version reads this file at build time (`src/content.rs`) and the
+# static version reads it too (`static/site.typ`). No other file holds a copy of
+# these facts. A changed link here reaches both versions, and every frontend of
+# the dynamic one (browser, ssh, native).
 
 name = "Basil Feitknecht"
 email = "io+www@0xbf.ch"
@@ -11,35 +11,35 @@ email = "io+www@0xbf.ch"
 email_label = "io@0xbf.ch"
 eyebrow = "Grüezi"
 
-# <title> and <meta name="description"> of the static page.
+# <title> and <meta name="description"> of the static version.
 site_title = "Basil Feitknecht"
 site_description = '''
 BSc Computer Science ETH Zürich. Programming languages, formal methods,
 information security, computer systems and networks, and machine learning.
 '''
 
-# One sentence: the hero of the page and the first line of the terminal.
+# One sentence: the hero of the static version and the first line of the dynamic one.
 lede = '''
 BSc Computer Science ETH Zürich. Programming languages, formal methods,
 information security, computer systems and networks, machine learning.
 '''
 
-# The paragraph that both surfaces share. The terminal lowercases it at load
-# (`about_terminal` in `src/content.rs`) and the page prints it as written.
+# The paragraph that both versions share. The dynamic version lowercases it at
+# load (`about_terminal` in `src/content.rs`), the static one prints it as written.
 about = '''
 My interests span wide and deep. From computer science (both in theory and practice)
 to math, music, and sports. I like to learn, and I like to teach.
 I want to understand how things work and make them better.
 '''
 
-# The terminal adds one extra line to the hero block.
+# The dynamic version adds one extra line to the hero block.
 intro = ["student. teacher. artist. engineer. generalist."]
 
-# The "hire me" section of the terminal. The word "cv" links to the cv.
+# The "hire me" section of the dynamic version. The word "cv" links to the cv.
 hire = "I am looking for work. Check out my CV."
 
-# The destinations in the top bar, in order. The hero of the page prints the
-# same three links in the same order, so the two surfaces show one set.
+# The destinations in the top bar of the dynamic version, in order. The static
+# version prints the same three links in the same order, so both show one set.
 [[link]]
 label = "cv"
 url = "https://0xbf.ch/cv"

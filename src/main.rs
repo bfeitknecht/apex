@@ -6,7 +6,7 @@
 
 #[cfg(target_arch = "wasm32")]
 fn main() {
-    apex::frontends::web::start();
+    apex::frontends::browser::start();
 }
 
 #[cfg(not(target_arch = "wasm32"))]

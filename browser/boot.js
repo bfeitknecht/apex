@@ -1,18 +1,19 @@
-// One URL and two surfaces.
+// One URL and two versions: static and dynamic.
 //
-// The document at `/` is the static page that Typst generates from `ssg/`. This
-// script upgrades the page in place. If the browser can run WebAssembly, the
-// Ratzilla app replaces the page at the same URL. The site has no `/tui`, no
-// `/static` and no second host. If the browser cannot run WebAssembly, or if
-// scripting is off, the page stays as it is.
+// The document at `/` is the static version that Typst generates from
+// `static/`. This script upgrades it in place. If the browser can run
+// WebAssembly, the dynamic version (its browser frontend, drawn by Ratzilla)
+// replaces the static one at the same URL. The site has no second path and no
+// second host. If the browser cannot run WebAssembly, or if scripting is off,
+// the static version stays as it is.
 //
-// The script swaps the page only after the module of the app has loaded. A
-// failed download therefore leaves the reader on the page and not on a black
-// screen.
+// The script swaps only after the module of the dynamic version has loaded. A
+// failed download therefore leaves the reader on the static version and not on
+// a black screen.
 (function () {
   "use strict";
 
-  // `?static` keeps the page: a test drive of the static version in any browser
+  // `?static` keeps the static version, in any browser
   // (https://0xbf.ch/?static).
   if (/[?&]static(?:[=&]|$)/.test(location.search)) {
     return;
@@ -24,7 +25,7 @@
     return;
   }
 
-  var shell = document.getElementById("app-shell");
+  var shell = document.getElementById("dynamic-shell");
   if (!shell) {
     return;
   }
@@ -43,12 +44,13 @@
     document.head.appendChild(element);
   }
 
-  // The app draws the whole viewport. The code removes everything that the page
-  // brought with it: its text, its links and its footer. Only the surfaces of
-  // the app stay. If both remained, the mirrored text layer would appear twice
-  // and selection would be ambiguous. The page has no stylesheet of its own;
+  // The dynamic version draws the whole viewport. The code removes everything
+  // that the static version brought with it: its text, its links and its
+  // footer. Only the elements of the dynamic version stay. If both remained,
+  // the mirrored text layer would appear twice and selection would be
+  // ambiguous. The static version has no stylesheet of its own;
   // any `<link rel=stylesheet>` or `<style>` goes too, so the canvas of the
-  // app always fills the viewport.
+  // dynamic version always fills the viewport.
   //
   // `children` is a live collection. Copy it first: removal in a live loop
   // skips the next element.
@@ -66,7 +68,7 @@
     );
     remove(document.head.querySelectorAll('link[rel="stylesheet"], style'));
     shell.hidden = false;
-    link("/app.css");
+    link("/dynamic.css");
     script("/cursor.js");
   }
 
@@ -78,7 +80,7 @@
       return module.default("/apex_bg.wasm");
     })
     .catch(function (error) {
-      // Leave the page alone. The static version is the fallback and not an error.
-      console.warn("apex: the app did not start, staying on the plain page", error);
+      // Leave the static version alone: it is the fallback, not an error.
+      console.warn("apex: the dynamic version did not start, staying on the static version", error);
     });
 })();

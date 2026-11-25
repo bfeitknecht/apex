@@ -1,7 +1,7 @@
-//! Apex, a monochrome portfolio that a keyboard can drive.
+//! Apex, the dynamic version of 0xbf.ch: a monochrome portfolio that a
+//! keyboard can drive. (The static version is plain HTML from `static/`.)
 //!
-//! One core drives three surfaces: the native terminal, an SSH session and the
-//! browser. The dependencies point one way:
+//! One core drives three frontends: browser, ssh and native. The dependencies point one way:
 //!
 //! ```text
 //! frontends ──▶ app ──▶ content      copy and destinations
@@ -12,7 +12,7 @@
 //!
 //! `app` owns the mutable state. `content` owns the published text. `visuals`
 //! holds the generative visuals. `ui` draws an [`App`] and does not change it.
-//! `frontends` decodes the input of one surface and calls `ui`.
+//! `frontends` decodes the input of one frontend and calls `ui`.
 
 pub mod app;
 pub mod content;

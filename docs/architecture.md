@@ -1,23 +1,25 @@
 # Architecture
 
-One crate, one state machine and three ways to show it. The site has one URL.
-The document there is the plain page until a browser with WebAssembly replaces
-it with the app.
+Two versions of one site, **static** and **dynamic**, and one URL. The static
+version is plain HTML from Typst. The dynamic version is one crate and one
+state machine with three frontends: **browser**, **ssh** and **native**. The
+document at the URL is the static version until a browser with WebAssembly
+replaces it with the dynamic one.
 
 ```text
                     https://0xbf.ch/                ssh -p 2222 0xbf.ch
                  ┌───────────────────┐           ┌──────────────┐
-                 │  the page (Typst) │           │    russh     │
-                 │  + app if it can  │           │    (tcp)     │
+                 │  static (Typst)   │           │    russh     │
+                 │  + dynamic if can │           │    (tcp)     │
                  └─────────┬─────────┘           └──────┬───────┘
                            │                            │
-                  ssg/ ────┤                            │
+               static/ ────┤                            │
                            │ boot.js → /apex.js         │
-                    frontends/web                  frontends/ssh
+                  frontends/browser                frontends/ssh
                            │                            │
                            └──────────┬─────────────────┘
                                       │
-                              app → ui → visuals
+                     dynamic: app → ui → visuals
                                       │
                               content/*.toml  ← the only copy
 ```
@@ -28,7 +30,7 @@ it with the app.
 content/               the content of the site: profile.toml, projects.toml,
                        age.txt, pgp.txt, cv.pdf, portrait.txt
 src/
-├── main.rs            apex        native terminal (and the wasm entry point)
+├── main.rs            apex        native frontend (and the browser's wasm entry point)
 ├── bin/ssh.rs         ssh         SSH server entry point (feature `ssh`)
 ├── lib.rs             module map
 ├── content.rs         reads content/ and freezes it to &'static
@@ -36,10 +38,10 @@ src/
 ├── ui/                rendering: &App → cells (draw, nav, portfolio,
 │                      document, visuals, theme)
 ├── visuals/           simulations: lichen, unicode, fractal, crash
-└── frontends/         native, ssh, web
-ssg/                   the page: Typst sources, stylesheet, favicon, webfonts
-browser/               the shell of the app: app.html (Trunk entry), boot.js,
-                       app.css, cursor.js
+└── frontends/         browser, ssh, native
+static/                the static version: Typst sources and the favicon
+browser/               the browser frontend's shell: dynamic.html (Trunk entry),
+                       boot.js, dynamic.css, cursor.js
 assets/                fonts, Unicode cmaps, licences
 sws.toml               server configuration for the document root
 ```
@@ -56,31 +58,25 @@ sws.toml               server configuration for the document root
 4. **`content/` is data and it is the only copy.** Rust embeds it with
    `include_str!`. Typst reads the same files with `toml(..)`. No sentence, URL
    or project appears twice.
-5. **One clock for all surfaces.** `App::tick(elapsed_ms) -> bool` advances the
+5. **One clock for all frontends.** `App::tick(elapsed_ms) -> bool` advances the
    animation of the current view and reports whether a new frame is due. Native,
    SSH and the browser all call this function.
 
 ## One URL, one document
 
-The site has no `/tui`, no `/static` and no second host. `https://0xbf.ch/`
-returns one document:
+The site has no second path and no second host. `https://0xbf.ch/` returns one
+document, the static version:
 
 | Visitor | What happens |
 | --- | --- |
-| WebAssembly available | `browser/boot.js` removes the static markup, shows the surfaces of the app, loads `app.css` and `cursor.js` and imports `/apex.js` |
-| no WebAssembly | nothing runs and the page stays as Typst built it |
-| scripting off | the same result, because the script is the only thing that could change the page |
-| terminal | `ssh -p 2222 0xbf.ch` shows the same interface through russh (the
+| WebAssembly available | `browser/boot.js` removes the static markup, shows the elements of the dynamic version, loads `dynamic.css` and `cursor.js` and imports `/apex.js` |
+| `/?static` | `boot.js` returns at once: the static version stays |
+| no WebAssembly | nothing runs and the static version stays as Typst built it |
+| scripting off | the same result, because the script is the only thing that could change it |
+| terminal | `ssh -p 2222 0xbf.ch` shows the dynamic version through russh (the
 | sshmux owns port 2222: any username is apex) |
 
-The fallback has no separate URL. No visitor is sent to another address, and no
-crawler must know about the second surface. The cost is the download order: a
-modern visitor downloads the page HTML and CSS before the app replaces them,
-which is about 30 KB against a wasm payload of several MB. The asset names of
-the app cannot include a content hash, because a different toolchain builds the
-page that loads them. `Trunk.toml` therefore sets `filehash = false`, and
-`sws.toml` sends `no-cache` (ETag revalidation) for everything except the
-webfonts.
+Details of the swap and the document root: section "The static version" below.
 
 ## Rendering split in the browser
 
@@ -136,7 +132,7 @@ in an SSH session. Pointer input repeats the keyboard.
              unicode | lichen | fractal | crash ──Esc/h──▶ portfolio
 ```
 
-When you leave a view, the app returns to the portfolio section, the scroll
+When you leave a view, the dynamic version returns to the portfolio section, the scroll
 position and the focused link that opened it (`App::previous`,
 `App::document_scroll`).
 
@@ -167,7 +163,7 @@ display.
 Hover reports the item under the cursor (nav item, link, menu entry or visual)
 and `click` activates it. Both use `App::hover`, `App::clear_hover` and
 `App::click`, so the browser and a terminal with mouse reporting share one hit
-test: `ui::nav_ranges` for the top bar, `PortfolioPage::links` for the page and
+test: `ui::nav_ranges` for the top bar, `PortfolioPage::links` for the portfolio and
 `ui::visual_ranges` for the hidden menu.
 
 The browser handles text selection natively. A mirrored text layer sits at the
@@ -185,17 +181,17 @@ the selection is one rect per row, snapped to whole cells.
 - Reduced motion: `tick` is the only clock. A frontend that does not call it, or
   calls it with `0`, stops lichen, fractal and crash and changes no state.
 
-## The page (`ssg/`)
+## The static version (`static/`)
 
-`ssg/` is plain Typst. Its bundle export writes every file with the two
+`static/` is plain Typst. Its bundle export writes every file with the two
 built-in functions `document(path, …)` and `asset(path, data)`; no package is
-involved. The page is unstyled on purpose: no stylesheet, no webfont, no
-inline style, the browser's own defaults (serif text, blue links), like the
-early web. It is the document at `https://0xbf.ch/`. It is not a fallback
-behind a separate URL. A browser that can run WebAssembly replaces the page in
-place (see above), unless the URL has `?static`. All other browsers read the
-page as it is. The page's footer links back to the app (`/`), and the app's
-footer links to the page (`static`, `/?static`).
+involved. It is unstyled on purpose: no stylesheet, no webfont, no inline
+style, the browser's own defaults (serif text, blue links), like the early web.
+It is the document at `https://0xbf.ch/`, not a fallback behind a separate URL.
+A browser that can run WebAssembly replaces it in place with the dynamic
+version (see above), unless the URL has `?static`. All other browsers read it
+as it is. Its footer links to the dynamic version (`dynamic`, `/`), and the
+dynamic version's footer links back (`static`, `/?static`).
 
 ### One document root
 
@@ -203,24 +199,25 @@ The container serves one tree with one URL space:
 
 ```text
 public/
-├── index.html                     the page (and the boot script of the app)
+├── index.html                     static (and boot.js, which may swap in dynamic)
 ├── contact/index.html             a content page
 ├── 404.html, sitemap.xml, robots.txt, llms.txt
 ├── assets/favicon.svg, favicon.ico, apple-touch-icon.png
 ├── age.txt, pgp.txt, cv.pdf       emitted by the same build, from content/
-├── apex.js, apex_bg.wasm          the app (Trunk)
-├── app.css, boot.js, cursor.js    the shell of the app
-└── *.ttf, *.otf, *-LICENSE.txt    the specimen fonts of the app
+├── apex.js, apex_bg.wasm          dynamic, browser frontend (Trunk)
+├── dynamic.css, boot.js, cursor.js  its shell
+└── *.ttf, *.otf, *-LICENSE.txt    its specimen fonts
 ```
 
 Two toolchains write into this directory and their output does not overlap.
-`ssg/` builds the document. `browser/` and `src/` build the assets of the app.
+`static/` builds the document. `browser/` and `src/` build the assets of the
+dynamic version.
 
 The fallback has no separate URL. No visitor is sent to another address, and no
-crawler must know about the second surface. The cost is the download order: a
-modern visitor downloads the page HTML (a few KB) before the app replaces it.
-The asset names of the app cannot include a content hash, because a different
-toolchain builds the page that loads them. `Trunk.toml` therefore sets
+crawler must know about the second version. The cost is the download order: a
+modern visitor downloads the static HTML (a few KB) before the dynamic version
+replaces it. The asset names of the dynamic version cannot include a content
+hash, because a different toolchain builds the static version that loads them. `Trunk.toml` therefore sets
 `filehash = false`, and `sws.toml` sends `no-cache` (ETag revalidation).
 
 ### Content
@@ -234,19 +231,19 @@ toolchain builds the page that loads them. `Trunk.toml` therefore sets
 | `content/age.txt`, `pgp.txt`, `cv.pdf` | embedded / linked | emitted with `#asset(…)` |
 | `content/portrait.txt` | the `me` document | – |
 
-`ssg/llms.txt` is written by hand, as in glob. It follows
-[llmstxt.org](https://llmstxt.org). `ssg/robots.txt` points a crawler at the
+`static/llms.txt` is written by hand, as in glob. It follows
+[llmstxt.org](https://llmstxt.org). `static/robots.txt` points a crawler at the
 sitemap. `site.typ` copies both into the bundle root with `#asset`. No build
 step generates them, so update `llms.txt` when `projects.toml` changes.
 
-`ssg/config.typ` is the Typst side of this contract. It parses the TOML and
+`static/config.typ` is the Typst side of this contract. It parses the TOML and
 exposes `destination("cv")`, `contact("github")`, `age`, `flow` (a TOML text
 block as one paragraph), `joined` and `footer`, so no page repeats a URL.
 
-The page renders projects from data in `ssg/site.typ`, one list item each:
+The static version renders projects from data in `static/site.typ`, one list item each:
 the name as a link, the period and the description.
 
-The terminal prints `summary` on one line. The page prints `description` and
+The dynamic version prints `summary` on one line. The static one prints `description` and
 `period`. Both show the same entry, and the difference is typography, not a
 second copy.
 
@@ -254,67 +251,70 @@ second copy.
 
 ```sh
 just serve      # both toolchains, then serve ./public on :8080
-just serve --static # Typst only: the page without the app
-just serve --app    # Trunk only: the app over the existing page
+just serve --static  # Typst only: the static version
+just serve --dynamic # Trunk only: the browser frontend over the existing static version
 just build      # ./public: page, then dist over it
-just ssg        # ./public: page + artifacts
-just web        # ./dist: frontend assets only
+just static        # ./public: page + artifacts
+just browser    # ./dist: the browser frontend's assets only
 ```
 
-The entry point is `ssg/site.typ`. It imports `config.typ` and reads
+The entry point is `static/site.typ`. It imports `config.typ` and reads
 `robots.txt`, `llms.txt` and `assets/` (the favicon from `brand/`). Typst uses
 the same flags locally and in the container, and needs no network:
 
 ```sh
-typst compile --features html,bundle --format bundle --root . ssg/site.typ public
+typst compile --features html,bundle --format bundle --root . static/site.typ public
 ```
 
-`--root .` lets `ssg/config.typ` read `../content/…`. Typst marks the bundle
+`--root .` lets `static/config.typ` read `../content/…`. Typst marks the bundle
 export as experimental; it prints a warning on every build.
 
 ### Writing HTML in Typst
 
-The page uses only `html.*`, the built-in module of Typst 0.15. Three rules
+The static version uses only `html.*`, the built-in module of Typst 0.15. Three rules
 matter:
 
 - **Use the typed constructors** (`html.div`, `html.section`, `html.p`, …).
-  Attributes are arguments: `html.div(id: "app-shell", hidden: true)`. Boolean
+  Attributes are arguments: `html.div(id: "dynamic-shell", hidden: true)`. Boolean
   attributes take `true`, not a string.
 - **Use `html.elem` for names without a constructor.** The lichen tone filter
   needs camelCase SVG names (`feComponentTransfer`, `feFuncR`), so it uses
   `html.elem("feComponentTransfer", …)`.
 - **End an expression before a full stop in markup.** `#mail.` reads as a field
-  access. Write `#mail;.` (see `contact.typ`).
+  access. Write `#mail;.`.
 
 ### Adding a page
 
 ```typst
-// ssg/site.typ
-#mount(path("notes.typ"))
+// static/site.typ
+#page("notes/", "notes/index.html", title: "Notes · " + profile.name, {
+  html.h1("notes")
+  footer
+})
 ```
 
-`#mount` creates the route, the sitemap entry and the link. The 404 page is
-`_not-found` in `site.typ`. Content pages are static: the app runs at `/` and a
-content page does not start it.
+Add the path to `_pages` for the sitemap and link it from the index. The 404
+page is the `404.html` document in `site.typ`. Content pages are static only:
+the dynamic version runs at `/`, and a content page does not start it.
 
 ## Checks CI cannot do
 
 Before a release that changes the look or the build, by hand:
 
 - Run `just build` and open `public/index.html`. The file must contain the
-      page (with `id="app-shell"` and without `<link data-trunk>`), not the
-      Trunk stub. Both builds write into one root and the entry document of
+      static version (with `id="dynamic-shell"` and without `<link data-trunk>`),
+      not the Trunk stub. Both builds write into one root and the entry document of
       Trunk also has the name `index.html`.
-- Run `just serve` and open `http://localhost:8080/`. The page loads and the
-      console shows `/apex.js`; then the interface replaces the page. Block
-      WebAssembly (`delete window.WebAssembly` in the console) and reload. The
-      page must stay.
-- Run `just ssg` alone. `public/index.html`, `site.typ`, `contact/`,
+- Run `just serve` and open `http://localhost:8080/`. The static version loads
+      and the console shows `/apex.js`; then the dynamic version replaces it.
+      `static` in its footer goes to `/?static` in the same tab, and `dynamic`
+      there goes back. Block WebAssembly (`delete window.WebAssembly` in the
+      console) and reload: the static version must stay.
+- Run `just static` alone. `public/index.html`, `contact/`,
       `404.html`, `sitemap.xml`, `robots.txt`, `llms.txt`, `age.txt`, `pgp.txt`
-      and `cv.pdf` must exist, and `grep app-shell public/index.html` must
+      and `cv.pdf` must exist, and `grep dynamic-shell public/index.html` must
       match.
-- Disable JavaScript and reload. The page must not change, `/cv` must work
-      and the contact page must render. There must be no `/static` and no
-      redirect.
-- Test touch, keyboard and selection in the app. Test lichen, Unicode,
+- Disable JavaScript and reload. The static version must not change, `/cv`
+      must work and the contact page must render. There must be no redirect.
+- Test touch, keyboard and selection in the dynamic version. Test lichen, Unicode,
       fractal and crash.

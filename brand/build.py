@@ -11,7 +11,7 @@ Outputs (all in brand/, plus the two copies the site serves):
   favicon.ico                        16, 32, 48, 64 px (light variant)
   png/wallpaper-{dark,light}.png     the NULL wallpaper (wallpaper.typ), 3024 x 1964
   palette.css                        CSS custom properties from palette.json
-  ../ssg/assets/favicon.{svg,ico}    what 0xbf.ch serves
+  ../static/assets/favicon.{svg,ico}    what 0xbf.ch serves
 """
 
 import json
@@ -23,7 +23,7 @@ from PIL import Image
 
 BRAND = Path(__file__).resolve().parent
 FONTS = BRAND.parent / "assets"
-SITE = BRAND.parent / "ssg" / "assets"
+SITE = BRAND.parent / "static" / "assets"
 SIZES = [16, 32, 48, 64, 128, 180, 192, 256, 512, 1024]
 ICO_SIZES = [16, 32, 48, 64]
 

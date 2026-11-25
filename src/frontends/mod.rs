@@ -1,4 +1,5 @@
-//! Frontends: one adapter per surface, each decoding its own input.
+//! Frontends of the dynamic version: browser, ssh and native, one adapter each,
+//! each decoding its own input.
 //!
 //! All three drive the same [`crate::App`] and render through [`crate::ui`].
 //! The browser adapter only builds for `wasm32`, the SSH adapter only with the
@@ -8,7 +9,7 @@
 pub mod native;
 
 #[cfg(target_arch = "wasm32")]
-pub mod web;
+pub mod browser;
 
 #[cfg(all(feature = "ssh", not(target_arch = "wasm32")))]
 pub mod ssh;

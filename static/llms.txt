@@ -2,7 +2,7 @@
 
 > Personal site and portfolio of Basil Feitknecht. BSc Computer Science ETH Zürich. Programming languages, formal methods, information security, computer systems and networks, and machine learning.
 
-The site is one URL with three surfaces and one set of content. A browser with WebAssembly gets a terminal-style app drawn by Ratzilla. A browser without JavaScript (or `https://0xbf.ch/?static`) gets the same content as a plain HTML page without CSS, compiled from Typst. `ssh 0xbf.ch` opens the same app in a terminal, with any username and no key. The static page is the best source for a language model: it is plain HTML.
+The site is one URL with two versions and one set of content. The static version is plain HTML without CSS, compiled from Typst: browsers without JavaScript get it, and any browser at `https://0xbf.ch/?static`. The dynamic version is a terminal-style Ratatui program with three frontends: the browser (WebAssembly, drawn by Ratzilla), SSH (`ssh -p 2222 0xbf.ch`, any username, no key) and native. The static version is the best source for a language model.
 
 ## Pages
 
@@ -18,7 +18,7 @@ The site is one URL with three surfaces and one set of content. A browser with W
 - [infra](https://github.com/bfeitknecht/infra): Talos Linux Kubernetes cluster across a Raspberry Pi and an Oracle Cloud node, reconciled by Flux.
 - [omni](https://github.com/bfeitknecht/omni): One Nix configuration for every machine, from the laptop to the dev VM (2025 – present).
 - [thyme](https://github.com/bfeitknecht/thyme): Static site generator and monochrome blog package in pure Typst.
-- [apex](https://github.com/bfeitknecht/apex): This site. A Ratatui app that runs natively, over SSH, and in the browser, with a plain HTML fallback page made with Typst.
+- [apex](https://github.com/bfeitknecht/apex): This site: a dynamic version (Ratatui, in the browser, over SSH and natively) and a static version (plain HTML from Typst).
 - [glob](https://blog.0xbf.ch): The blog, on programming languages, formal methods, systems, and side projects. Built with `thyme`.
 
 ## Optional

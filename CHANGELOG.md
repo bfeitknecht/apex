@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.22] - 2026-11-25
+
+### Changed
+
+- Two names for the two versions, everywhere: **static** (plain HTML from Typst) and **dynamic** (the Ratatui program; frontends browser, ssh, native). No more page, app, TUI, surface or ssg for them.
+- The static version's footer link to the dynamic one reads `dynamic` (was `app`).
+- `ssg/` is `static/`; `just ssg` is `just static`, `just web` is `just browser`, `just serve --app` is `just serve --dynamic`; `src/frontends/web` is `src/frontends/browser`; `browser/app.{html,css}` are `browser/dynamic.{html,css}` (served as `/dynamic.css`); `#app-shell` is `#dynamic-shell`; Docker stages `static` and `dynamic`.
+
 ## [0.1.21] - 2026-11-25
 
 ### Changed

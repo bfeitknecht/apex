@@ -1,12 +1,13 @@
-// The static page of 0xbf.ch: plain HTML, the browser's own styles, no
+// The static version of 0xbf.ch: plain HTML, the browser's own styles, no
 // stylesheet, no webfont. Typst writes every file with its bundle export
 // (`document` and `asset`); no package is involved.
 //
-//   typst compile --features html,bundle --format bundle --root . ssg/site.typ public
+//   typst compile --features html,bundle --format bundle --root . static/site.typ public
 //
-// The page is also the shell of the app: `boot.js` in the head replaces it
-// with the WebAssembly app when the browser can run that, unless the URL has
-// `?static`. The hidden `#app-shell` at the end of `/` holds the app's surfaces.
+// It is also the shell of the dynamic version: `boot.js` in the head replaces
+// it with the dynamic version (browser frontend, WebAssembly) when the browser
+// can run that, unless the URL has `?static`. The hidden `#dynamic-shell` at
+// the end of `/` holds the elements the dynamic version draws on.
 
 #import "config.typ": origin, profile, projects, age, destination, contact, flow, joined, footer
 
@@ -38,7 +39,7 @@
 
 // ---- / ----------------------------------------------------------------------
 
-// The colony canvas in the light scheme: a tone map the app's CSS refers to.
+// The colony canvas in the light scheme: a tone map `dynamic.css` refers to.
 // The SVG names are camelCase (`feFuncR`) and have no typed constructor.
 #let _tone-filter = html.elem(
   "svg",
@@ -67,7 +68,7 @@
   html.p(flow(profile.about))
 
   html.h2("projects")
-  // The order of `content/projects.toml`, which every surface shares.
+  // The order of `content/projects.toml`, which both versions share.
   html.ul(for project in projects {
     html.li({
       if project.url == "" { project.name } else { html.a(href: project.url, project.name) }
@@ -89,8 +90,8 @@
 
   footer
 
-  // The surfaces of the app, hidden until boot.js swaps the page for it.
-  html.div(id: "app-shell", hidden: true, {
+  // The elements of the dynamic version, hidden until boot.js swaps to it.
+  html.div(id: "dynamic-shell", hidden: true, {
     html.pre(id: "selectable-text")
     html.canvas(id: "lichen-pixels", width: 320, height: 200)
     html.canvas(id: "unicode-glyph")

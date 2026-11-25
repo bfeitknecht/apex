@@ -1,9 +1,9 @@
 //! The published text: the shared definition in `content/`, parsed once.
 //!
 //! `content/profile.toml` and `content/projects.toml` define all the text of the
-//! site. The Typst site reads the same files at build time. A changed link
-//! therefore reaches the terminal, the SSH session, the browser app and the page
-//! without JavaScript at the same time.
+//! site. The static version (Typst) reads the same files at build time. A
+//! changed link therefore reaches both versions, and every frontend of the
+//! dynamic one (browser, ssh, native), at the same time.
 //!
 //! The code parses the tables at runtime, because Typst cannot read Rust types
 //! and Rust cannot read Typst. It then freezes the strings with `Box::leak`, so
@@ -39,7 +39,7 @@ pub struct Profile {
     pub name: &'static str,
     pub email: &'static str,
     pub eyebrow: &'static str,
-    /// One sentence for the hero of the page.
+    /// One sentence: the hero of the static version, the first line of the dynamic one.
     pub lede: &'static str,
     /// The shared paragraph, exactly as written.
     pub about: &'static str,
@@ -97,7 +97,7 @@ pub const AGE_URL: &str = "/age.txt";
 pub const PGP_URL: &str = "/pgp.txt";
 /// The portrait is a document for the terminal. The browser has no link for it.
 pub const ME_URL: &str = "";
-/// The static page of the site (plain HTML): `boot.js` keeps the page when the
+/// The static version of the site (plain HTML): `boot.js` keeps it when the
 /// URL has `?static`. The browser opens it in the same tab; a terminal gets
 /// the absolute URL.
 pub const STATIC_URL: &str = "/?static";

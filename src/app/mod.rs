@@ -144,7 +144,7 @@ impl App {
     /// Advance the animation of the current view. Returns `true` when a new frame
     /// is due.
     ///
-    /// Every frontend calls this function once per frame, so the three surfaces
+    /// Every frontend calls this function once per frame, so the three frontends
     /// keep the same pacing. Each visual caps its own work, so a suspended browser
     /// tab or a stalled session does not delay the next frame.
     pub fn tick(&mut self, elapsed_ms: u64) -> bool {

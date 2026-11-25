@@ -1,9 +1,9 @@
-// The content and the shared pieces of the page.
+// The content and the shared pieces of the static version.
 //
-// The Rust core reads `content/` at build time (`include_str!`) and this page
-// reads the same files at build time (`toml(..)`). The terminal, the SSH
-// session, the browser app and this page therefore show the same project, link
-// and key.
+// The dynamic version reads `content/` at build time (`include_str!`) and the
+// static version reads the same files at build time (`toml(..)`). Both
+// versions, and every frontend of the dynamic one (browser, ssh, native),
+// therefore show the same project, link and key.
 
 #let origin = "https://0xbf.ch"
 
@@ -36,9 +36,9 @@
   sep: " ",
 )
 
-/// The footer of every page: the keys, the sitemap, the webring, the way back
-/// to the app and the colophon. `/` without `?static` starts the app again in
-/// a browser that can run it.
+/// The footer of every page: the keys, the sitemap, the webring, the way to
+/// the dynamic version and the colophon. `/` without `?static` starts the
+/// dynamic version in a browser that can run it.
 #let footer = {
   html.hr()
   html.p(joined((
@@ -46,7 +46,7 @@
     html.a(href: "/pgp.txt", "pgp.txt"),
     html.a(href: "/sitemap.xml", "sitemap.xml"),
     polyring,
-    html.a(href: "/", title: "The terminal version of this site", "app"),
+    html.a(href: "/", title: "The dynamic version of this site", "dynamic"),
   )))
   html.p(html.small("made with <3 by me. plain html."))
 }

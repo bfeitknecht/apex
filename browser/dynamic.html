@@ -1,22 +1,23 @@
 <!doctype html>
 <!--
-  The entry point of Trunk. This file is not what visitors get. Typst generates
-  the document they receive from `ssg/` (see `ssg/site.typ`), and the boot script
-  of that document imports `/apex.js` and `/apex_bg.wasm` from this build. The
-  list below makes Trunk copy the assets of the app next to the page, and
-  `filehash = false` in `Trunk.toml` keeps the names that the page refers to.
+  The entry point of Trunk for the browser frontend of the dynamic version.
+  This file is not what visitors get. Typst generates the document they receive
+  (the static version, `static/site.typ`), and its boot script imports
+  `/apex.js` and `/apex_bg.wasm` from this build. The list below makes Trunk
+  copy the assets of the dynamic version next to the static one, and
+  `filehash = false` in `Trunk.toml` keeps the names the static version refers to.
 
   Trunk resolves every `href` against the directory of this file, not against
   the repository root. `copy-file` without `data-target-path` writes flat into
-  the document root, which is what `app.css` expects: its `@font-face` rules name
-  the files without a path, so they load from `/` next to `/app.css`.
+  the document root, which is what `dynamic.css` expects: its `@font-face` rules name
+  the files without a path, so they load from `/` next to `/dynamic.css`.
 -->
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <link data-trunk rel="rust" href="../Cargo.toml"/>
   <link data-trunk rel="copy-file" href="boot.js"/>
-  <link data-trunk rel="copy-file" href="app.css"/>
+  <link data-trunk rel="copy-file" href="dynamic.css"/>
   <link data-trunk rel="copy-file" href="cursor.js"/>
   <link data-trunk rel="copy-file" href="../assets/NotoSansArabic-Regular.ttf"/>
   <link data-trunk rel="copy-file" href="../assets/NotoSansArmenian-Regular.ttf"/>

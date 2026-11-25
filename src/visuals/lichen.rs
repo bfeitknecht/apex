@@ -3,7 +3,7 @@
 //! The grid holds one energy value per cell. At each generation the simulation
 //! decays random occupied cells and gives their orthogonal neighbours the
 //! maximum energy. This rule produces the spreading, coral-like growth.
-//! `ui::visuals` renders it for terminals, and `frontends::web` renders it for
+//! `ui::visuals` renders it for terminals, and `frontends::browser` renders it for
 //! the browser canvas.
 
 /// Grid the colony starts with; it is resized to the viewport when opened.

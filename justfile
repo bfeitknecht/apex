@@ -1,11 +1,15 @@
-# Apex: one URL, two surfaces and one set of content.
+# Apex: one URL, two versions and one set of content.
 #
-#   just serve    build the document root, then serve it on :8080
-#   just build    the document root only
-#   just native   the terminal frontend
-#   just ssh      the SSH frontend
-#   just web      the browser frontend
-#   just ssg      the page (Typst)
+#   static   the HTML version (Typst, static/)
+#   dynamic  the Ratatui program (src/), with three frontends:
+#            browser (wasm, Trunk), ssh, native (your terminal)
+#
+#   just serve     build the document root, then serve it on :8080
+#   just build     the document root only
+#   just static    the static version (Typst)
+#   just browser   the browser frontend of the dynamic version
+#   just ssh       the SSH frontend
+#   just native    the native frontend
 #
 # Every command this repository has lives here. Run `just` to list the recipes.
 
@@ -45,45 +49,46 @@ check:
     cargo test --features ssh
     cargo check --target wasm32-unknown-unknown
 
-# Native terminal portfolio.
+# The dynamic version in this terminal (native frontend).
 native *args:
     cargo run --release -- {{args}}
 
-# SSH server on 0.0.0.0:2222. It needs APEX_SSH_HOST_KEY (see README.md).
+# The dynamic version over SSH on 0.0.0.0:2222. It needs APEX_SSH_HOST_KEY (see README.md).
 ssh:
     cargo run --release --features ssh --bin ssh
 
 # ----------------------------------------------------------------------- site
 
-# Build the page and its plain files into ./public, the document root.
-ssg:
+# Build the static version and its plain files into ./public, the document root.
+static:
     #!/usr/bin/env sh
     set -eu
     mkdir -p public
-    typst compile --features html,bundle --format bundle --root . ssg/site.typ public
+    typst compile --features html,bundle --format bundle --root . static/site.typ public
 
-# Build the browser frontend into ./dist. Add `--release` for production.
-web *args:
+# Build the browser frontend of the dynamic version into ./dist (`--release` for production).
+browser *args:
     trunk build --dist dist --public-url / {{args}}
 
-# Build the document root: the page, then the frontend over it.
-build: ssg
+# Build the document root: the static version, then the browser frontend over it.
+build: static
     #!/usr/bin/env sh
     set -eu
-    just web --release
+    just browser --release
     # Trunk renames its entry document to `index.html`. Remove it from `dist`
-    # first, so the page stays the document and the app stays a set of assets.
-    rm -f dist/index.html dist/app.html
+    # first, so the static version stays the document and the dynamic version
+    # stays a set of assets.
+    rm -f dist/index.html dist/dynamic.html
     cp -R dist/. public/
 
 # --------------------------------------------------------------------- assets
 
 # Render brand/ (mark SVGs and PNGs, favicon.ico, palette.css) from
-# brand/mark.typ and brand/palette.json; copies the favicon into ssg/assets.
+# brand/mark.typ and brand/palette.json; copies the favicon into static/assets.
 brand:
-    # The mark uses CommitMono, which is in `assets/`. The page and the app
-    # share the favicon: the boot script replaces the page in place, so the
-    # document keeps its icon.
+    # The mark uses CommitMono, which is in `assets/`. Both versions share the
+    # favicon: the boot script swaps the static version for the dynamic one in
+    # place, so the document keeps its icon.
     uv run brand/build.py
 
 # Rebuild assets/{unifont,noto}-cmap.bin from a Unicode 17 UnicodeData.txt.
@@ -133,10 +138,11 @@ unicode data:
     (root / 'assets/noto-cmap.bin').write_bytes(b''.join(struct.pack('<IB',cp,i) for cp,i in sorted(choice.items())))
     print(f'{len(choice)} have preferred outline fonts; {sum(i == len(font_names) for i in choice.values())} use BabelStone Han')
 
-# Build the document root, then serve it with the shipped `sws.toml`.
-# Serve the document root on :8080. `--static`: the Typst page only, no app
-# (the live site shows it with `?static`). `--app`: rebuild only the app over
-# the existing page, the quick loop for work on the TUI. No flag: both.
+# `--static`: the static version only (the live site shows it with `?static`).
+# `--dynamic`: rebuild only the browser frontend over the existing static
+# version, the quick loop for work on the dynamic version. No flag: both.
+# PORT=8090 for another port.
+# Build the document root and serve it with the shipped sws.toml on :8080 (`--static`, `--dynamic`).
 serve *flags:
     #!/usr/bin/env sh
     set -eu
@@ -144,18 +150,18 @@ serve *flags:
     for flag in {{flags}}; do
         case "$flag" in
             --static) mode=static ;;
-            --app) mode=app ;;
-            *) echo "serve: unknown flag '$flag' (known: --static, --app)" >&2; exit 1 ;;
+            --dynamic) mode=dynamic ;;
+            *) echo "serve: unknown flag '$flag' (known: --static, --dynamic)" >&2; exit 1 ;;
         esac
     done
     case "$mode" in
         # Wipe first: a boot script or wasm left from an earlier build would
-        # upgrade the page to the app.
-        static) rm -rf public; just ssg ;;
-        app)
-            [ -f public/index.html ] || just ssg
-            just web --release
-            rm -f dist/index.html dist/app.html
+        # upgrade the static version to the dynamic one.
+        static) rm -rf public; just static ;;
+        dynamic)
+            [ -f public/index.html ] || just static
+            just browser --release
+            rm -f dist/index.html dist/dynamic.html
             cp -R dist/. public/ ;;
         both) just build ;;
     esac

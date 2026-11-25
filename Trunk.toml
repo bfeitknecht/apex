@@ -1,11 +1,11 @@
 [build]
-# The entry point of Trunk is `browser/app.html`. That file is not the served
-# document. Visitors get the page that Typst generates from `ssg/`, and that page
-# imports the assets of the app.
-target = "browser/app.html"
+# The entry point of Trunk is `browser/dynamic.html`. That file is not the served
+# document. Visitors get the static version that Typst generates from `static/`,
+# and it imports the assets of the dynamic version.
+target = "browser/dynamic.html"
 dist = "dist"
-# The app is served from the document root, and a different toolchain generates
-# the page that starts it. The asset names must therefore stay stable and must
+# The dynamic version is served from the document root, and a different
+# toolchain generates the static version that starts it. The asset names must therefore stay stable and must
 # not contain a content hash. `sws.toml` compensates with `no-cache` (ETag
 # revalidation), and the fonts keep the `immutable` rule.
 public_url = "/"

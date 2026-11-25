@@ -23,7 +23,7 @@ const BITMAP_BMP: &str = "ApexGlyphBMP";
 const BITMAP_UPPER: &str = "ApexGlyphUpper";
 
 /// Font families by id, in the order `just cmaps` writes them.
-/// The browser resolves these names through `@font-face` rules in `browser/app.css`.
+/// The browser resolves these names through `@font-face` rules in `browser/dynamic.css`.
 const NOTO_FAMILIES: [&str; 39] = [
     "",
     "NotoStudy",

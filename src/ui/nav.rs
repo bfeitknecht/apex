@@ -1,6 +1,6 @@
 //! The top navigation bar: labels, hit ranges and their terminal widths.
 //!
-//! The three section names belong to the app. The destinations after them come
+//! The three section names belong to the dynamic version. The destinations after them come
 //! from `content`, so a renamed link in `content/profile.toml` renames the top
 //! bar too.
 
