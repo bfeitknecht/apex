@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.23] - 2026-11-25
+
+### Changed
+
+- The static version's words are neutral placeholders (one banner, `projects`, `elsewhere`, `keys`, plain Polyring links); the loud HTML stays. The real wording comes later, by hand.
+
 ## [0.1.22] - 2026-11-25
 
 ### Changed

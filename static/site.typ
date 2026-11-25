@@ -19,21 +19,16 @@
 
 #let words = (
   title: "basil feitknecht",
-  description: "basil feitknecht. computer science at eth zürich, projects, links and keys.",
-  ticker: "~~~ grüezi and welcome ~~~ you found the static version ~~~ no css, no javascript, just html ~~~ thanks for stopping by ~~~",
-  ticker-back: "under construction since 2026 ~~~ under construction forever ~~~",
+  description: "basil feitknecht. projects, links and keys.",
+  ticker: "grüezi ~~~ 0xbf.ch ~~~ grüezi ~~~ 0xbf.ch ~~~",
   name: "basil feitknecht",
-  hello: [*hi, i'm basil.* i study computer science at eth zürich and take things apart to see how they work. sometimes they even go back together.],
-  tagline: "young, curious and full of ~~~semicolons~~~",
-  projects: "things i made (some of them even work)",
-  elsewhere: "where else i lurk",
-  keys: "secret handshakes",
-  age: "age, for the modern spy",
-  pgp: "pgp, for the vintage spy",
-  ring: [this site is part of polyring, the eth zürich webring. hop to the],
-  dynamic: "too plain? try the dynamic version",
-  colophon: "made by hand with typst. no css was harmed.",
-  not-found: "this page wandered off.",
+  hello: "hi, i'm basil.",
+  projects: "projects",
+  elsewhere: "elsewhere",
+  keys: "keys",
+  dynamic: "dynamic version",
+  colophon: "made with typst.",
+  not-found: "not found.",
 )
 
 // ---- page shell ----------------------------------------------------------------
@@ -68,14 +63,11 @@
 #let footer = {
   html.hr()
   html.p({
-    words.ring
-    " "
-    html.a(href: ring.previous, title: "Previous site in Polyring", "previous one")
-    ", the "
-    html.a(href: ring.hub, title: "Polyring, the ETH Zurich webring", "ring itself")
-    " or the "
-    html.a(href: ring.next, title: "Next site in Polyring", "next one")
-    "."
+    html.a(href: ring.previous, title: "Previous site in Polyring", "previous")
+    " ~ "
+    html.a(href: ring.hub, title: "Polyring, the ETH Zurich webring", "polyring")
+    " ~ "
+    html.a(href: ring.next, title: "Next site in Polyring", "next")
   })
   html.p(html.b(html.a(href: "/", title: "The dynamic version of this site", words.dynamic)))
   html.p(html.small({
@@ -113,8 +105,7 @@
     attrs: (behavior: "alternate", scrollamount: "4"),
     html.img(src: "/assets/favicon.svg", width: 48, height: 48, alt: "the ^@ mark of 0xbf"),
   )
-  html.p(words.hello)
-  html.p(html.i(words.tagline))
+  html.p(html.b(words.hello))
   // The destinations, loud: they are why most people come here.
   html.h2(destinations.map(row => html.mark(link(row.url, row.label))).join(" ~ "))
 
@@ -135,17 +126,15 @@
 
   html.h2(words.keys)
   html.details({
-    html.summary(words.age)
+    html.summary("age")
     html.pre(age)
     html.p(html.a(href: "/age.txt", "age.txt"))
   })
   html.details({
-    html.summary(words.pgp)
+    html.summary("pgp")
     html.pre(pgp)
     html.p(html.a(href: "/pgp.txt", "pgp.txt"))
   })
-
-  html.elem("marquee", attrs: (direction: "right", scrollamount: "5"), html.small(words.ticker-back))
 
   footer
 
@@ -163,7 +152,7 @@
 // ---- /404.html ---------------------------------------------------------------------
 
 #page(none, "404.html", title: "404 · " + words.title, {
-  html.elem("marquee", attrs: (scrollamount: "12"), html.b("404 ~~~ 404 ~~~ 404 ~~~ 404 ~~~ 404"))
+  html.elem("marquee", attrs: (scrollamount: "12"), html.b("404 ~~~ 404 ~~~ 404 ~~~"))
   html.h1(html.elem("big", "404"))
   html.p({
     words.not-found
