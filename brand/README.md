@@ -6,11 +6,13 @@ generated: edit `mark.typ` or `palette.json`, then run `just brand`.
 | File | What |
 | --- | --- |
 | `mark.typ` | the mark: `^@` on a disc, CommitMono 19pt on a 32pt page. `--input variant=dark` inverts it |
+| `wallpaper.typ` | the NULL wallpaper: `^@` on a terminal grid, the menu bar row left empty. Inputs `variant`, `width`, `height`, `band`, `pad`, `cell`, `line` (defaults: MacBook Pro 14", Ghostty grid of CommitMono 12 pt) |
 | `palette.json` | the palette, light and dark, as `oklch` and hex |
 | `build.py` | renders the rest (`just brand` = `uv run brand/build.py`, needs `typst`) |
 | `mark.svg` | black disc, white glyphs: light backgrounds, and the favicon everywhere |
 | `mark-dark.svg` | white disc, black glyphs: dark backgrounds |
 | `png/mark-<px>.png`, `png/mark-dark-<px>.png` | 16, 32, 48, 64, 128, 180 (Apple touch), 192, 256, 512, 1024 px, transparent corners |
+| `png/wallpaper-dark.png`, `png/wallpaper-light.png` | 3024 x 1964 wallpapers; omni sets them on anti |
 | `favicon.ico` | 16, 32, 48, 64 px, light variant |
 | `palette.css` | the palette as `light-dark()` custom properties |
 

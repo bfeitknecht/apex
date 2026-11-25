@@ -9,6 +9,7 @@ Outputs (all in brand/, plus the two copies the site serves):
   mark.svg, mark-dark.svg            the mark, light and dark variant
   png/mark[-dark]-<size>.png         16 to 1024 px
   favicon.ico                        16, 32, 48, 64 px (light variant)
+  png/wallpaper-{dark,light}.png     the NULL wallpaper (wallpaper.typ), 3024 x 1964
   palette.css                        CSS custom properties from palette.json
   ../ssg/assets/favicon.{svg,ico}    what 0xbf.ch serves
 """
@@ -27,12 +28,13 @@ SIZES = [16, 32, 48, 64, 128, 180, 192, 256, 512, 1024]
 ICO_SIZES = [16, 32, 48, 64]
 
 
-def typst(variant: str, fmt: str, out: Path, ppi: float | None = None) -> None:
+def typst(variant: str, fmt: str, out: Path, ppi: float | None = None,
+          source: str = "mark.typ") -> None:
     cmd = ["typst", "compile", "--format", fmt, "--font-path", str(FONTS),
            "--input", f"variant={variant}"]
     if ppi:
         cmd += ["--ppi", f"{ppi:g}"]
-    subprocess.run([*cmd, str(BRAND / "mark.typ"), str(out)], check=True)
+    subprocess.run([*cmd, str(BRAND / source), str(out)], check=True)
 
 
 def main() -> None:
@@ -43,6 +45,11 @@ def main() -> None:
             # The page is 32 pt; 72 pt per inch.
             typst(variant, "png", BRAND / "png" / f"mark{suffix}-{size}.png",
                   ppi=size * 72 / 32)
+
+    # 144 ppi: 1 pt = 2 px, the page is the display size in pixels.
+    for variant in ("dark", "light"):
+        typst(variant, "png", BRAND / "png" / f"wallpaper-{variant}.png", ppi=144,
+              source="wallpaper.typ")
 
     big = Image.open(BRAND / "png" / "mark-256.png")
     big.save(BRAND / "favicon.ico", sizes=[(s, s) for s in ICO_SIZES])
