@@ -160,7 +160,10 @@ serve *flags:
         both) just build ;;
     esac
     # The `/cv` rewrite, the 404 page and the headers are the ones that ship.
-    docker run --rm -p 8080:8080 \
+    # PORT picks the local port (default 8080): `PORT=8090 just serve --static`.
+    port="${PORT:-8080}"
+    echo "serving on http://localhost:${port}/"
+    docker run --rm -p "${port}:8080" \
         -v "{{justfile_directory()}}/public:/public" \
         -v "{{justfile_directory()}}/sws.toml:/sws.toml:ro" \
         -e SERVER_HOST=0.0.0.0 -e SERVER_PORT=8080 -e SERVER_ROOT=/public \

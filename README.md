@@ -26,7 +26,7 @@ a language model ([llmstxt.org](https://llmstxt.org)). Edit
 ```sh
 just                 # list the recipes
 just serve           # build the page and the frontend, then serve :8080
-just serve --static  # the Typst page only (no app)
+just serve --static  # the plain page only (no app); PORT=8090 for another port
 just serve --app     # rebuild only the app over the page (TUI work)
 just native          # terminal portfolio
 just ssh             # SSH server on 0.0.0.0:2222 (needs APEX_SSH_HOST_KEY)
