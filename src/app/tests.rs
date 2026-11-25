@@ -348,6 +348,8 @@ fn terminal_links_are_osc8_hyperlinks() {
     let footer = terminal_bytes(&app, width, height);
     assert!(footer.contains(&osc8("https://0xbf.ch/age.txt", "age.txt")));
     assert!(footer.contains(&osc8("https://0xbf.ch/pgp.txt", "pgp.txt")));
+    // The static page: `?static` keeps the plain HTML version in a browser.
+    assert!(footer.contains(&osc8("https://0xbf.ch/?static", "static")));
     // `me.` has no URL, so it gets no link.
     assert!(!footer.contains("\x1b\\me"));
 }
@@ -370,7 +372,11 @@ fn footer_ring_links_cover_their_labels_at_every_width() {
             .filter(|link| link.row > page.footer_start)
             .map(label)
             .collect();
-        assert_eq!(&footer[2..], ["<<", "O", ">>", "me", "?!"], "width {width}");
+        assert_eq!(
+            &footer[2..],
+            ["<<", "O", ">>", "me", "static", "?!"],
+            "width {width}"
+        );
         assert!(footer[0].starts_with("age") && footer[1].starts_with("pgp"));
         // One line at every width.
         assert!(

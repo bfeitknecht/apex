@@ -187,12 +187,15 @@ the selection is one rect per row, snapped to whole cells.
 
 ## The page (`ssg/`)
 
-`ssg/` is a [thyme](https://github.com/bfeitknecht/thyme) site. It uses pure
-Typst with no client-side JavaScript, and it builds to static HTML, CSS and the
-fonts that the page embeds. It is the document at `https://0xbf.ch/`. It is not
-a fallback behind a separate URL. A browser that can run WebAssembly replaces
-the page in place (see above). All other browsers read the page
-as it is.
+`ssg/` is plain Typst. Its bundle export writes every file with the two
+built-in functions `document(path, …)` and `asset(path, data)`; no package is
+involved. The page is unstyled on purpose: no stylesheet, no webfont, no
+inline style, the browser's own defaults (serif text, blue links), like the
+early web. It is the document at `https://0xbf.ch/`. It is not a fallback
+behind a separate URL. A browser that can run WebAssembly replaces the page in
+place (see above), unless the URL has `?static`. All other browsers read the
+page as it is. The page's footer links back to the app (`/`), and the app's
+footer links to the page (`static`, `/?static`).
 
 ### One document root
 
@@ -201,10 +204,9 @@ The container serves one tree with one URL space:
 ```text
 public/
 ├── index.html                     the page (and the boot script of the app)
-├── site.typ                       its plaintext source (Tadi Web view)
-├── contact/                       a content page + contact.typ
+├── contact/index.html             a content page
 ├── 404.html, sitemap.xml, robots.txt, llms.txt
-├── styles.css, assets/fonts/*.woff2, assets/favicon.svg
+├── assets/favicon.svg, favicon.ico, apple-touch-icon.png
 ├── age.txt, pgp.txt, cv.pdf       emitted by the same build, from content/
 ├── apex.js, apex_bg.wasm          the app (Trunk)
 ├── app.css, boot.js, cursor.js    the shell of the app
@@ -213,30 +215,15 @@ public/
 
 Two toolchains write into this directory and their output does not overlap.
 `ssg/` builds the document. `browser/` and `src/` build the assets of the app.
-`just build` and the Dockerfile run `typst … ssg/site.typ public` and then
-copy `dist/` over the result.
 
-`sws.toml` describes how the server serves the tree. `/cv` rewrites to
-`/cv.pdf`. `.typ` files are `text/plain`. Fonts are immutable. All other files
-use `no-cache`, because the asset names of the app have no hash and the shell
-must revalidate. Unknown paths fall through to `404.html`.
+The fallback has no separate URL. No visitor is sent to another address, and no
+crawler must know about the second surface. The cost is the download order: a
+modern visitor downloads the page HTML (a few KB) before the app replaces it.
+The asset names of the app cannot include a content hash, because a different
+toolchain builds the page that loads them. `Trunk.toml` therefore sets
+`filehash = false`, and `sws.toml` sends `no-cache` (ETag revalidation).
 
-### Paths belong to content
-
-Every URL on the site is a piece of content. `/contact/` is a page. `/age.txt`,
-`/pgp.txt` and `/cv` are files. No path selects a frontend. The browser makes
-that decision once, at `/`.
-
-`ssg/config.typ` defines the prefix in one place:
-
-```typst
-#let base = ""   // the site is the document root
-```
-
-Pages write absolute hrefs as `{base}/…`. A move to another location, for
-example a subdirectory on another host, needs one edit and the canonical URL.
-
-### Shared content
+### Content
 
 `content/` is the only definition and both toolchains read it:
 
@@ -244,32 +231,20 @@ example a subdirectory on another host, needs one edit and the canonical URL.
 | --- | --- | --- |
 | `content/profile.toml` | `include_str!` + `toml` → `content::profile()` | `toml("../content/profile.toml")` |
 | `content/projects.toml` | same → `profile().projects` | `toml("../content/projects.toml").project` |
-| `content/age.txt`, `pgp.txt`, `cv.pdf` | embedded / linked | emitted with `#file(…)` |
+| `content/age.txt`, `pgp.txt`, `cv.pdf` | embedded / linked | emitted with `#asset(…)` |
 | `content/portrait.txt` | the `me` document | – |
 
 `ssg/llms.txt` is written by hand, as in glob. It follows
 [llmstxt.org](https://llmstxt.org). `ssg/robots.txt` points a crawler at the
-sitemap. `site.typ` passes both to thyme (`llms: path(...)`, `robots:
-path(...)`), which copies the bytes into the bundle root. No build step
-generates them, so update `llms.txt` when `projects.toml` changes.
+sitemap. `site.typ` copies both into the bundle root with `#asset`. No build
+step generates them, so update `llms.txt` when `projects.toml` changes.
 
 `ssg/config.typ` is the Typst side of this contract. It parses the TOML and
-exposes `destination("cv")`, `contact("github")`, `mail`, `age` and `footer`, so
-no page repeats a URL.
+exposes `destination("cv")`, `contact("github")`, `age`, `flow` (a TOML text
+block as one paragraph), `joined` and `footer`, so no page repeats a URL.
 
-The page renders projects from data in `ssg/site.typ`:
-
-```typst
-#let _entries = for project in projects {
-  html.elem("li", attrs: (class: "entry"), {
-    html.elem("div", attrs: (class: "entry-head"), {
-      html.h3(html.a(href: project.url, [#project.name]))
-      html.elem("span", attrs: (class: "when"), [#project.period])
-    })
-    html.p([#project.description])
-  })
-}
-```
+The page renders projects from data in `ssg/site.typ`, one list item each:
+the name as a link, the period and the description.
 
 The terminal prints `summary` on one line. The page prints `description` and
 `period`. Both show the same entry, and the difference is typography, not a
@@ -286,41 +261,21 @@ just ssg        # ./public: page + artifacts
 just web        # ./dist: frontend assets only
 ```
 
-The entry point is `ssg/site.typ`, following the convention of thyme. The file
-that calls `#show: site.with(…, src: path("site.typ"), …)` is the root document.
-thyme writes the source view of that file into the bundle under the name of the
-entry file, so the plaintext view is `/site.typ`. All other files in `ssg/` are
-either imported by the entry file (`config.typ`, `contact.typ`) or read by it
-(`styles.css`, `robots.txt`, `llms.txt`, `assets/`). `favicon.typ` is not part of the build:
-`just favicon` renders it to `ssg/assets/favicon.svg`, which the page and the app
-share.
-
-Typst uses the same flags locally and in the container:
+The entry point is `ssg/site.typ`. It imports `config.typ` and reads
+`robots.txt`, `llms.txt` and `assets/` (the favicon from `brand/`). Typst uses
+the same flags locally and in the container, and needs no network:
 
 ```sh
 typst compile --features html,bundle --format bundle --root . ssg/site.typ public
 ```
 
-`--root .` lets `ssg/config.typ` read `../content/…` and lets `#file` write the
-artifacts at the root.
-
-### Typst packages
-
-`ssg/site.typ` imports `@preview/thyme:0.1.3`, and thyme imports
-`@preview/syndicate` for the sitemap and `@preview/cheq`, `showybox`, `tablem`,
-`zebraw` and `marge` for its blog preset. All six come from Typst Universe.
-Typst downloads them on the first build and caches them in
-`~/.cache/typst/packages`. CI and the image build have network access. A fully
-offline build needs these packages in a local directory, and `--package-path`
-must point at it.
-
-A thyme update touches three places: `ssg/site.typ` and `ssg/contact.typ` carry
-the import, and this directory names the version.
+`--root .` lets `ssg/config.typ` read `../content/…`. Typst marks the bundle
+export as experimental; it prints a warning on every build.
 
 ### Writing HTML in Typst
 
-The page uses only `html.*`, the built-in module of Typst 0.15. thyme 0.1.2 has
-no HTML builder of its own. Three rules matter:
+The page uses only `html.*`, the built-in module of Typst 0.15. Three rules
+matter:
 
 - **Use the typed constructors** (`html.div`, `html.section`, `html.p`, …).
   Attributes are arguments: `html.div(id: "app-shell", hidden: true)`. Boolean

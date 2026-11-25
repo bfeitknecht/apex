@@ -29,15 +29,13 @@ COPY Trunk.toml ./
 # Assets only. The `ssg` stage below builds the document that visitors get.
 RUN trunk build --release --dist /dist --public-url /
 
-# ---------- the page: Typst + thyme ----------
+# ---------- the page: Typst (bundle export, no package) ----------
 FROM --platform=$BUILDPLATFORM ghcr.io/typst/typst:0.15.1 AS ssg
 
 WORKDIR /work
 COPY content ./content
 COPY ssg ./ssg
 
-# thyme and the packages that it imports come from Typst Universe. This layer
-# downloads them, so the build needs network access.
 RUN typst compile --features html,bundle --format bundle --root . ssg/site.typ /public
 
 # ---------- the SSH frontend: static musl binary ----------

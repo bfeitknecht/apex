@@ -5,7 +5,7 @@
 #   just native   the terminal frontend
 #   just ssh      the SSH frontend
 #   just web      the browser frontend
-#   just ssg      the page (Typst/thyme)
+#   just ssg      the page (Typst)
 #
 # Every command this repository has lives here. Run `just` to list the recipes.
 
@@ -58,8 +58,6 @@ ssh:
 # Build the page and its plain files into ./public, the document root.
 ssg:
     #!/usr/bin/env sh
-    # thyme and the packages it imports come from Typst Universe. The first
-    # build downloads them into ~/.cache/typst.
     set -eu
     mkdir -p public
     typst compile --features html,bundle --format bundle --root . ssg/site.typ public

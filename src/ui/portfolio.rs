@@ -314,8 +314,10 @@ const FOOTER_TIERS: [(&str, &str, &str, &str); 3] = [
     ("age", "pgp", "", " "),
 ];
 
-/// The footer on one line: `age.txt | pgp.txt | << O >> | made with <3 by me. | ?!`.
-/// `<<` and `>>` are the Polyring neighbours, `O` its hub, `?!` the help.
+/// The footer on one line:
+/// `age.txt | pgp.txt | << O >> | made with <3 by me. | static | ?!`.
+/// `<<` and `>>` are the Polyring neighbours, `O` its hub, `static` the plain
+/// HTML version of the site, `?!` the help.
 fn footer_lines(width: usize) -> Footer {
     let mut footer = Footer {
         lines: Vec::new(),
@@ -333,7 +335,7 @@ fn footer_lines(width: usize) -> Footer {
 fn footer_line(age: &'static str, pgp: &'static str, made: &'static str, gap: &str) -> Footer {
     type Part = (&'static str, &'static str, LinkKind);
     let ring = content::polyring();
-    let segments: [(Vec<Part>, &str); 5] = [
+    let segments: [(Vec<Part>, &str); 6] = [
         (vec![(age, content::AGE_URL, LinkKind::Age)], ""),
         (vec![(pgp, content::PGP_URL, LinkKind::Pgp)], ""),
         (
@@ -350,6 +352,10 @@ fn footer_line(age: &'static str, pgp: &'static str, made: &'static str, gap: &s
                 ("me", content::ME_URL, LinkKind::Me),
                 (".", "", LinkKind::External),
             ],
+            "",
+        ),
+        (
+            vec![("static", content::STATIC_URL, LinkKind::External)],
             "",
         ),
         (vec![("?!", "", LinkKind::Help)], ""),

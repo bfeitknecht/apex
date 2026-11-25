@@ -23,11 +23,6 @@ source = "**"
 headers = { Cache-Control = "no-cache" }
 
 [[advanced.headers]]
-# The webfonts never change, so the browser can keep them.
-source = "**/fonts/**"
-headers = { Cache-Control = "public, max-age=31536000, immutable" }
-
-[[advanced.headers]]
 # The CV keeps one name at every layer: `content/cv.pdf` in the repository,
 # `/cv.pdf` in the document root, `/cv` as the URL, and `cv.pdf` as the name that
 # a browser saves (this header).

@@ -37,7 +37,8 @@ fn open(url: &str) {
     let Some(window) = web_sys::window() else {
         return;
     };
-    if url.starts_with("mailto:") {
+    // Mail and the static page of this site replace the app in this tab.
+    if url.starts_with("mailto:") || url == crate::content::STATIC_URL {
         let _ = window.open_with_url_and_target(url, "_self");
     } else {
         let _ = window.open_with_url_and_target_and_features(url, "_blank", "noopener,noreferrer");

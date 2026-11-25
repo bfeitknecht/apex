@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.21] - 2026-11-25
+
+### Changed
+
+- The static page is plain HTML without CSS: the browser's own styles, no webfont, no thyme. Typst's bundle export writes every file (`document`, `asset`); the build needs no network.
+- omni: 2025 – Present.
+
+### Added
+
+- `static` in the footer of the app: the plain page (`/?static`), in the same tab in the browser. The page's footer links back to the app.
+
+### Removed
+
+- `ssg/styles.css`, the webfonts of the page, `ssg/contact.typ` (now in `site.typ`) and the published Typst source (`/site.typ`).
+
 ## [0.1.20] - 2026-11-24
 
 ### Changed

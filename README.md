@@ -5,7 +5,7 @@ The personal site at `0xbf.ch`. One URL, three surfaces and one set of content.
 | Visitor | Gets | Served by |
 | --- | --- | --- |
 | modern browser, `https://0xbf.ch/` | the app, drawn by Ratzilla | `src/frontends/web` |
-| old browser, or JavaScript off, same URL | the plain Typst page | `ssg/` (thyme) |
+| old browser, JavaScript off, or `/?static` | the plain HTML page (no CSS) | `ssg/` (Typst) |
 | terminal, `ssh -p 2222 0xbf.ch` | the same app over SSH | `src/frontends/ssh` |
 | your own terminal | the same app natively | `src/frontends/native` |
 
@@ -41,8 +41,7 @@ the 404 page of the site, and it sends the same headers. This step needs Docker.
 `just build` stops after the document root.
 
 Toolchains: stable Rust, `cargo install trunk` and the `wasm32-unknown-unknown`
-target, `typst >= 0.15.1`, `just` and `python3`. Typst downloads
-`@preview/thyme` and the packages it imports on the first build.
+target, `typst >= 0.15.1`, `just` and `python3`.
 
 ## Layout
 
@@ -55,7 +54,7 @@ src/                the app (see docs/architecture.md)
   ui/               rendering: &App → cells, hit ranges
   visuals/          simulations: lichen, unicode, fractal, crash
   frontends/        native, ssh, web
-ssg/                the page: Typst sources, stylesheet, favicon and webfonts
+ssg/                the page: Typst sources (no stylesheet) and the favicon
                     (docs/architecture.md)
 browser/            the shell of the app: app.html (Trunk entry), boot.js,
                     app.css, cursor.js
@@ -70,8 +69,9 @@ CHANGELOG.md        the release notes
 
 ## Static page
 
-`https://0xbf.ch/?static` shows the Typst page in any browser: the boot script
-skips the app. Locally, `just serve --static` builds `ssg/` and serves only the
+`https://0xbf.ch/?static` shows the plain page in any browser: the boot script
+skips the app. The app's footer links to it (`static`), and the page's footer
+links back (`app`). Locally, `just serve --static` builds `ssg/` and serves only the
 page on `:8080`.
 
 ## Polyring

@@ -97,6 +97,10 @@ pub const AGE_URL: &str = "/age.txt";
 pub const PGP_URL: &str = "/pgp.txt";
 /// The portrait is a document for the terminal. The browser has no link for it.
 pub const ME_URL: &str = "";
+/// The static page of the site (plain HTML): `boot.js` keeps the page when the
+/// URL has `?static`. The browser opens it in the same tab; a terminal gets
+/// the absolute URL.
+pub const STATIC_URL: &str = "/?static";
 
 pub const AGE_TEXT: &str = include_str!("../content/age.txt");
 pub const PGP_TEXT: &str = include_str!("../content/pgp.txt");

@@ -44,13 +44,11 @@
   }
 
   // The app draws the whole viewport. The code removes everything that the page
-  // brought with it, including its header, its footer and the source-link bar of
-  // thyme. Only the surfaces of the app stay. If both remained, the mirrored text
-  // layer would appear twice and selection would be ambiguous.
-  //
-  // The styles of the page go too (`styles.css` and the inline `<style>` of
-  // thyme). Their `body` padding, flex column and `max-inline-size` would put
-  // the canvas of the app in a box and not in the full viewport.
+  // brought with it: its text, its links and its footer. Only the surfaces of
+  // the app stay. If both remained, the mirrored text layer would appear twice
+  // and selection would be ambiguous. The page has no stylesheet of its own;
+  // any `<link rel=stylesheet>` or `<style>` goes too, so the canvas of the
+  // app always fills the viewport.
   //
   // `children` is a live collection. Copy it first: removal in a live loop
   // skips the next element.

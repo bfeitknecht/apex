@@ -41,7 +41,7 @@ name = "omni"
 url = "https://github.com/bfeitknecht/omni"
 summary = "everywhere nix configuration"
 description = "Everywhere Nix configuration for comfortable cross system development environment."
-period = "2025"
+period = "2025 – Present"
 
 [[project]]
 name = "syndicate"
@@ -61,7 +61,7 @@ period = "2026"
 name = "apex"
 url = "https://github.com/bfeitknecht/apex"
 summary = "personal website and portfolio"
-description = "Personal website and portfolio, Ratatui interface for browser and SSH, with no-JavaScript thyme fallback."
+description = "Personal website and portfolio, Ratatui interface for browser and SSH, with a plain HTML fallback."
 period = "2026 – Present"
 
 [[project]]
