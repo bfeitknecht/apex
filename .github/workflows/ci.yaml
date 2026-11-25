@@ -97,7 +97,6 @@ jobs:
         run: |
           set -eu
           test -f public/index.html
-          test -f public/site.typ
           test -f public/404.html
           test -f public/sitemap.xml
           test -f public/robots.txt
@@ -109,9 +108,10 @@ jobs:
           test -f public/cv.pdf
           grep -q 'id="app-shell"' public/index.html
           grep -q 'src="/boot.js"' public/index.html
-          # `webpage` writes its own document. It must therefore carry the
-          # stylesheet, or the page has no style.
-          grep -q 'rel="stylesheet"' public/contact/index.html
+          # The page is unstyled on purpose: no stylesheet, no <style>.
+          ! grep -q -e 'rel="stylesheet"' -e '<style' public/index.html public/contact/index.html public/404.html
+          # Both ways between the surfaces: `app` back to /, `static` in the app.
+          grep -q '<a href="/" title="The terminal version of this site">app</a>' public/index.html
           # The top row is the three destinations, as plain links.
           grep -q '>cv</a>' public/index.html
           grep -q '>blog</a>' public/index.html
@@ -129,7 +129,7 @@ jobs:
           projects = tomllib.loads(pathlib.Path("content/projects.toml").read_text())
           expected = [project["name"] for project in projects["project"]]
           html = pathlib.Path("public/index.html").read_text()
-          listed = re.findall(r"<h3><a[^>]*>([^<]+)</a>", html)
+          listed = re.findall(r"<li><a[^>]*>([^<]+)</a> \(", html)
           assert listed == expected, f"page lists {listed}, content has {expected}"
           print(len(listed), "projects, in content order:", " ".join(listed))
           CHECK
