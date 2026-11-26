@@ -112,11 +112,12 @@
   html.h2(words.projects)
   // The shared order of `content/projects.toml`.
   html.elem("table", attrs: (border: "1", cellpadding: "6", cellspacing: "0"), {
-    for project in projects {
+    for (i, project) in projects.enumerate(start: 1) {
       html.tr({
+        html.td(str(i))
         html.td(html.b(link(project.url, project.name)))
-        html.td(project.period)
         html.td(project.description)
+        html.td(project.period)
       })
     }
   })

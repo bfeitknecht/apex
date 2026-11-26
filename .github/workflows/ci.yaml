@@ -128,7 +128,7 @@ jobs:
           projects = tomllib.loads(pathlib.Path("content/projects.toml").read_text())
           expected = [project["name"] for project in projects["project"]]
           html = pathlib.Path("public/index.html").read_text()
-          listed = re.findall(r"<tr><td><b><a[^>]*>([^<]+)</a>", html)
+          listed = re.findall(r"<tr><td>\d+</td><td><b><a[^>]*>([^<]+)</a>", html)
           assert listed == expected, f"page lists {listed}, content has {expected}"
           print(len(listed), "projects, in content order:", " ".join(listed))
           CHECK

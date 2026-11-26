@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.24] - 2026-11-26
+
+### Changed
+
+- The static projects table reads index, name, description, period (was name, period, description).
+
 ## [0.1.23] - 2026-11-25
 
 ### Changed
