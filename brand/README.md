@@ -47,3 +47,6 @@ These are copies, not links. After a change, copy again:
 | infra Forgejo | `branding/logo.svg`, `branding/favicon.svg` | copy `mark.svg` |
 | infra Forgejo | `branding-png.yaml` (`logo.png` 512, `favicon.png` and `apple-touch-icon.png` 180) | base64 of `png/mark-512.png`, `png/mark-180.png` |
 | infra Jellyfin | `jellyfin-branding/branding.xml` | base64 of `mark.svg` in a CSS `data:` URL |
+| infra Jellyfin | `jellyfin-branding/favicon.svg`, `favicon.ico`, `apple-touch-icon.png`, `icon-192.png`, `icon-512.png` | copy `mark.svg`, `favicon.ico`, `png/mark-180.png`, `png/mark-192.png`, `png/mark-512.png` |
+| infra Immich | `immich/branding/` (same five files) | same as Jellyfin |
+| infra copyparty | favicon | none needed: it loads `https://0xbf.ch/assets/favicon.svg` |
