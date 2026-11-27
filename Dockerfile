@@ -15,6 +15,8 @@ FROM --platform=$BUILDPLATFORM rust:1-bookworm AS dynamic
 # Trunk downloads the matching wasm-bindgen CLI on the first build. Trunk
 # itself is the release binary (pinned, checked): `cargo install` compiled it
 # on every image build.
+# A bump also needs the two TRUNK_SHA256 values below.
+# renovate: datasource=github-releases depName=trunk-rs/trunk extractVersion=^v(?<version>.*)$
 ARG TRUNK_VERSION=0.22.2
 ARG BUILDARCH
 RUN set -eu \
