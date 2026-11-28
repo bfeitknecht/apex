@@ -11,11 +11,11 @@ default-run = "apex"
 [dependencies]
 ratatui = { version = "0.30.1", default-features = false }
 unicode-blocks = "0.1.10"
-unicode_names2 = "=3.1.0"
+unicode_names2 = "4.0.0"
 # `content/*.toml` is shared with the Typst site. The code therefore parses it at
 # runtime.
 serde = { version = "1", features = ["derive"] }
-toml = "0.8"
+toml = "1.0"
 
 # Native terminal and SSH frontends.
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]

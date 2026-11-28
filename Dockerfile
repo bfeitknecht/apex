@@ -66,7 +66,7 @@ COPY assets/unifont-cmap.bin assets/noto-cmap.bin ./assets/
 RUN cargo build --release --features ssh --bin ssh
 
 # ---------- runtime ----------
-FROM joseluisq/static-web-server:2.44.1-alpine AS runtime
+FROM joseluisq/static-web-server:2.44.3-alpine AS runtime
 
 # A binary called `ssh` would hide the OpenSSH client in a debugging shell. The
 # image therefore installs it as `apex-ssh`.
