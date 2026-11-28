@@ -7,8 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.25] - 2026-11-28
+
 ### Changed
 
+- Dependencies: `toml` 1.0, `unicode_names2` 4.0.0, `russh` 0.65.4, `unicode-blocks` 0.1.11; static-web-server 2.44.3.
 - The footer's `made with <3 by me.` collapses to `<3` when the line is narrow (was `<3 by me.`, then `me.`). The `<3` is then the link to me. `age`/`pgp` shorten first.
 
 ## [0.1.24] - 2026-11-26
