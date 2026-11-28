@@ -372,9 +372,14 @@ fn footer_ring_links_cover_their_labels_at_every_width() {
             .filter(|link| link.row > page.footer_start)
             .map(label)
             .collect();
+        let me = if footer[5] == "<3" { "<3" } else { "me" };
+        // narrow: `made with <3 by me.` collapses to the `<3` link
+        if width == 40 {
+            assert_eq!(me, "<3");
+        }
         assert_eq!(
             &footer[2..],
-            ["<<", "O", ">>", "me", "</>", "?!"],
+            ["<<", "O", ">>", me, "</>", "?!"],
             "width {width}"
         );
         assert!(footer[0].starts_with("age") && footer[1].starts_with("pgp"));

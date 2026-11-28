@@ -306,12 +306,14 @@ struct Footer {
     links: Vec<(usize, usize, usize, &'static str, LinkKind)>,
 }
 
-/// Footer label sets, widest first: (age, pgp, colophon before "me", gap).
-/// The first that fits `width` wins, so the footer is always one line.
-const FOOTER_TIERS: [(&str, &str, &str, &str); 3] = [
-    ("age.txt", "pgp.txt", "made with <3 by ", " "),
-    ("age", "pgp", "<3 by ", " "),
-    ("age", "pgp", "", " "),
+/// Footer label sets, widest first: (age, pgp, text before the "me" link,
+/// the "me" link, text after it). The first that fits `width` wins, so the
+/// footer is always one line. `made with <3 by me.` collapses to `<3`, and
+/// the `<3` is then the link to me.
+const FOOTER_TIERS: [(&str, &str, &str, &str, &str); 3] = [
+    ("age.txt", "pgp.txt", "made with <3 by ", "me", "."),
+    ("age", "pgp", "made with <3 by ", "me", "."),
+    ("age", "pgp", "", "<3", ""),
 ];
 
 /// The footer on one line:
@@ -323,8 +325,8 @@ fn footer_lines(width: usize) -> Footer {
         lines: Vec::new(),
         links: Vec::new(),
     };
-    for (tier, (age, pgp, made, gap)) in FOOTER_TIERS.into_iter().enumerate() {
-        footer = footer_line(age, pgp, made, gap);
+    for (tier, (age, pgp, made, me, after)) in FOOTER_TIERS.into_iter().enumerate() {
+        footer = footer_line(age, pgp, (made, me, after));
         if footer.lines[0].chars().count() <= width || tier == FOOTER_TIERS.len() - 1 {
             break;
         }
@@ -332,7 +334,12 @@ fn footer_lines(width: usize) -> Footer {
     footer
 }
 
-fn footer_line(age: &'static str, pgp: &'static str, made: &'static str, gap: &str) -> Footer {
+fn footer_line(
+    age: &'static str,
+    pgp: &'static str,
+    (made, me, after): (&'static str, &'static str, &'static str),
+) -> Footer {
+    let gap = " ";
     type Part = (&'static str, &'static str, LinkKind);
     let ring = content::polyring();
     let segments: [(Vec<Part>, &str); 6] = [
@@ -349,8 +356,8 @@ fn footer_line(age: &'static str, pgp: &'static str, made: &'static str, gap: &s
         (
             vec![
                 (made, "", LinkKind::External),
-                ("me", content::ME_URL, LinkKind::Me),
-                (".", "", LinkKind::External),
+                (me, content::ME_URL, LinkKind::Me),
+                (after, "", LinkKind::External),
             ],
             "",
         ),

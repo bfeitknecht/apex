@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- The footer's `made with <3 by me.` collapses to `<3` when the line is narrow (was `<3 by me.`, then `me.`). The `<3` is then the link to me. `age`/`pgp` shorten first.
+
 ## [0.1.24] - 2026-11-26
 
 ### Changed
